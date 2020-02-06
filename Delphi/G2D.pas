@@ -356,7 +356,8 @@ if Started then //check if G2D.dll was loaded, if not load it
     end
     else; Writeln('GStreamer started play at '+DateToIso(now));
   result:=true; //exit with true
-  end;
+  end
+  else WriteLn('GStreamer framework did not start error');
 end;
 
 function GstFrameWork.LaunchSimlpePipelineAndWaitEos(params:string):boolean;

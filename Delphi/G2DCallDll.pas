@@ -170,25 +170,27 @@ Result:=G2dDllHnd<>0;
 end;
 //-----------------------------------------------------------------------------
 function G2dDllLoad:boolean;
-const DllStr= 'C:\gstreamer\gst-docs-master\examples\tutorials\vs2010\x64\Debug\';  //the default for the DLL
+var
+err:integer;
+dllPath:string;
+const DllStr= 'C:\gstreamer\gst-docs-master\examples\tutorials\vs2010\x64\Debug\';  //for fast debug a default for the DLL
   function setProcFromDll(var ref:pointer;const name:ansistring):boolean;
   begin
   ref := GetProcAddress(G2dDllHnd, pansichar(name));
   Result:=Ref=nil;
-  if Result then  writeln(name+' procedure not found in DLL');
+  if Result then  writeln('Error in'+ name+' procedure not found in DLL');
   end;
-var
-err:integer;
-dllPath:string;
 begin
 err:=0;//just for warning void
 if not G2dDllLoaded then
   begin
   Result:=false;
     try
+    //look for G2D.dll
     if FileExists(DllStr+'G2D.dll')   //for fast debuging
       then dllPath:=DllStr+'G2D.dll'
-      else dllPath:='G2D.dll';
+      else if FileExists('G2D.dll') then dllPath:='G2D.dll'  //in exe dir
+      else if FileExists('..\..\..\bin\G2D.dll') then dllPath:='..\..\..\bin\G2D.dll';  //in bin dir
 
     G2dDllHnd := LoadLibrary(PWidechar(dllPath));
     err:=GetLastError;
@@ -196,7 +198,7 @@ if not G2dDllLoaded then
     if (err<>0) or (G2dDllHnd=0) then
       begin
       G2dDllHnd:=0;
-      writeln('Load Library-'+SysErrorMessage(err));
+      writeln('Error Load Library-'+SysErrorMessage(err));
       end;
     end;
   if G2dDllHnd=0 then exit;
@@ -205,7 +207,7 @@ if not G2dDllLoaded then
   setProcFromDll(pointer(DiTmp2),'iTmp2');   //for debuging
 
   // set procedures entery points in G2D.dll
-  if setProcFromDll(@DSimpleRun,'run_gst') or
+  if //setProcFromDll(@DSimpleRun,'run_gst') or     //DSimpleRun is no longer a function in the dll
      setProcFromDll(@Dgst_element_factory_make,'Dgst_element_factory_make') or
      setProcFromDll(@DgstInit,'Dgst_init') or
      setProcFromDll(@Dgst_pipeline_new,'Dgst_pipeline_new') or
