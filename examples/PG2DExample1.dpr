@@ -16,8 +16,8 @@ program PG2DExample1;
 uses
   System.SysUtils,
   WinAPI.Windows,
-  G2D,
-  G2DCallDll;
+  G2D in '..\Delphi\G2D.pas',
+  G2DCallDll in '..\Delphi\G2DCallDll.pas';
 
 {---  readme.txt ---------------------------------------------------------------
 This program is like the previous "PG2DExample" but adds 3 features:
