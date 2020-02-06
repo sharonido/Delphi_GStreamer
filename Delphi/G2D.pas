@@ -7,7 +7,7 @@
  * Foundation. Either version 2.1 of the License, or any later version.
 
 for info on G2D goto
-https://github.com/sharonido/Delphi_GStreamer
+https://github.com/sharonido/Delphi_GStreamer  word doc
 }
 unit G2D;
 
