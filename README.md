@@ -29,5 +29,5 @@ Open: https://github.com/sharonido/Delphi_GStreamer you should download the whol
 > git clone https://<i></i>github.com/sharonido/Delphi_GStreamer.git   
 #### Explanation
 **In bin** directory there is  “G2D.dll” file. If you are running the examples, they will find it in the bin directory. If you build your own program, you should include the G2D.dll file in the directory of your exe file.   
-**In the Delphi** directory there are Pascal units that use the dll and build a Delphi Object oriented wrapper around the native C functions in the DLL. These files should be included in the uses of your project and in ti the units that use them like in the examples provided in the examples directory.  
+**In the Delphi** directory there are Pascal units that use the dll and build a Delphi Object oriented wrapper around the native C functions in the DLL. These files should be included in the uses of your project and in the units that use them like in the examples provided in the **examples directory**.  
 **In the C** directory, there are the C source of the G2D.dll. You can use them if you want to change the G2D.dll. Do that only if you are sure you know what you are doing  .
