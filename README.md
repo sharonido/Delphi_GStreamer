@@ -1,9 +1,16 @@
 #### Contributor:
 ido@pitaron.info
 
-G2D is a bridge between GStreamer framework and Pascal. 
+## Before you start
+For manipulate media there are a number of open source frameworks, each with his own target. The three that I would recommend (With Delphi wrappers) are:   
+- FFMPEG – best for understanding and unwrapping, wrapping media streams and files from one hand and decoding encoding the streams. (Also used in all kinds of GStreamer plugins).  
+- OpenCV – best for unveiling what reality is actually in the media (Also used in some GStreamer plugins, filters).
+- GStreamer – what is explained here, best for stream routing & filtering of media.    
+In my opinion, GStreamer is more complicated to master, if you can work with the above two you may be better off.
 
-G2D enables Delphi (pascal) developers to use the GStreamer framework in their pascal program. By doing so G2D enables endless manipulation and uses of multimedia on Windows, Linux, Mac, ios and Android systems. Because GStreamer was unavailable for Delphi developers many professional multimedia project development used C, C++, Python and Java (that do have bridges to GStreamer) although in all other aspects Delphi would be their preferred choice.  
+## G2D 
+G2d is a bridge between GStreamer framework and Pascal.   
+G2D enables Delphi (object pascal) developers to use the GStreamer framework in their pascal program. By doing so G2D enables endless manipulation and uses of multimedia on Windows, Linux, Mac, ios and Android systems. Because GStreamer was unavailable for Delphi developers many professional multimedia project development used C, C++, Python and Java (that do have bridges to GStreamer) although in all other aspects Delphi would be their preferred choice.  
 You should download & read the word document **Gstreamer for Delphi G2D.docx** that is provided here.
   
 ## Be Aware
@@ -26,7 +33,8 @@ choose two *.msi files: “gstreamer-1.0-devel-msvc-x86_64-1.16.2.msi” & “gs
 After downloading be sure to install them (by Double click on both). When installing do not change anything (just press next… and finish) so they will be installed in the default directories.  
 ### Installing GStreamer G2D
 Open: https://github.com/sharonido/Delphi_GStreamer you should download the whole repository by the green download button, or if you have git installed in your system then from cmd line enter the command:  
-> git clone https://<i></i>github.com/sharonido/Delphi_GStreamer.git   
+> git clone https://<i></i>github.com/sharonido/Delphi_GStreamer.git  
+It is important to maintain the G2D internal structure (that we have here). It does not matter where you decide to put this directory structure in your system.
 #### Explanation
 **In bin** directory there is  “G2D.dll” file. If you are running the examples, they will find it in the bin directory. If you build your own program, you should include the G2D.dll file in the directory of your exe file.   
 **In the Delphi** directory there are Pascal units that use the dll and build a Delphi Object oriented wrapper around the native C functions in the DLL. These files should be included in the uses of your project and in the units that use them like in the examples provided in the **examples directory**.  
