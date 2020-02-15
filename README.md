@@ -11,7 +11,7 @@ In my opinion, GStreamer is more complicated to master, if you can work with the
 ## G2D 
 G2d is a bridge between GStreamer framework and Pascal.   
 G2D enables Delphi (object pascal) developers to use the GStreamer framework in their pascal program. By doing so G2D enables endless manipulation and uses of multimedia on Windows, Linux, Mac, ios and Android systems. Because GStreamer was unavailable for Delphi developers many professional multimedia project development used C, C++, Python and Java (that do have bridges to GStreamer) although in all other aspects Delphi would be their preferred choice.  
-You should download & read the word document **Gstreamer for Delphi G2D.docx** that is provided here.
+You should download & read the word document [**Gstreamer for Delphi G2D.docx**](https://github.com/sharonido/Delphi_GStreamer/blob/master/G2D.docx) that is provided here.
   
 ## Be Aware
 This G2D framework is in early stages of construction!!!  
