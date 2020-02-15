@@ -6,9 +6,14 @@
  * under the GNU Lesser General Public License as published by the Free Software
  * Foundation. Either version 2.1 of the License, or any later version.
 
-for info on G2D goto
+for info on G2D download:
+https://github.com/sharonido/Delphi_GStreamer/blob/master/G2D.docx
+for full G2D source and bin dpwnload from:
 https://github.com/sharonido/Delphi_GStreamer
+  or clone by:
+git clone https://github.com/sharonido/Delphi_GStreamer.git
 }
+
 unit G2DCallDll;
 
 interface
@@ -36,6 +41,15 @@ GstState=(
   GST_STATE_READY               = 2,
   GST_STATE_PAUSED              = 3,
   GST_STATE_PLAYING             = 4);
+
+GstPadLinkReturn=(
+  GST_PAD_LINK_OK               =  0,
+  GST_PAD_LINK_WRONG_HIERARCHY  = -1,
+  GST_PAD_LINK_WAS_LINKED       = -2,
+  GST_PAD_LINK_WRONG_DIRECTION  = -3,
+  GST_PAD_LINK_NOFORMAT         = -4,
+  GST_PAD_LINK_NOSCHED          = -5,
+  GST_PAD_LINK_REFUSED          = -6 );
 
 {$WARNINGS OFF}
 GstMessageType=(
@@ -85,7 +99,7 @@ GstMessageType=(
 UInt=Cardinal;  //UInt 32bit unsigned integer -In pascal winapi also defined
 
 
-
+//----------  _GstMiniObject  --------------------------------------------------
 _GstMiniObject=
   record       //not packed record, cause will be difrent in 64/32 os and on android/ios
   GMiniObjectType:   uint64;
@@ -102,7 +116,34 @@ _GstMiniObject=
   priv_pointer:pointer;  //gpointer
   end;
 
+// GstPadTemplete  -----------------------------------------
+GstPadDirection =(
+  GST_PAD_UNKNOWN,
+  GST_PAD_SRC,
+  GST_PAD_SINK );
 
+GstPadPresence  =(
+  GST_PAD_ALWAYS,
+  GST_PAD_SOMETIMES,
+  GST_PAD_REQUEST);
+
+GstCaps=char;
+
+
+GstStaticCaps =record
+  caps      :^_GstMiniObject;
+  Astring   :ansistring;
+  reserved  :pointer;
+  end;
+
+_GstStaticPadTemplate=record
+  name_template  :ansistring;
+  direction      :GstPadDirection;
+  presence       :GstPadPresence;
+  static_caps    :GstStaticCaps;
+end;
+
+//-----------------------------------------------------------
 Gst_Mes=record
   RMiniObj:_GstMiniObject;
   MType:GstMessageType;
@@ -121,38 +162,57 @@ Tgst_element_link =function (const plugA,plugB:pointer):boolean; cdecl; //like T
 Tgst_element_set_state =function (const pipe:pointer;const state:GstState):GstStateChangeReturn; cdecl;
 Tgst_bus_timed_pop_filtered = function (const Bus:pointer;const TimeOut:Int64;const MType:UInt):pointer; cdecl;
 Tgst_message_unref = procedure (ref:pointer); cdecl ;
+Tgst_element_get_request_pad =function (Const pad:pointer; const name:AnsiString):pointer; cdecl ;
+Tgst_element_get_static_pad =function (Const pad:pointer; const name:AnsiString):pointer; cdecl ;
+Tgst_pad_get_name =function (Const pad:pointer):Pansichar;  cdecl ;
+Tgst_pad_link =function (Const PadSrc,PadSink:pointer):GstPadLinkReturn;  cdecl ;
+Tgst_element_release_request_pad =procedure( const Plug,Pad:pointer) cdecl ;
+
 //These are from GObject that is underlying framework of GStreamer  (called g_object...)
 Tg_object_set_int =procedure (const plug:pointer; const param:ansistring; const val:integer); cdecl;
 Tg_object_set_pchar =procedure (const plug:pointer; const param,val:ansistring); cdecl;
+Tg_object_set_double =procedure (const plug:pointer; const param:ansistring; const val:double); cdecl;
+
 
 Var
 
 //The GST functions in G2D.dll
-DSimpleRun                    :Tgst_funcPChars;
-DgstInit                      :Tgst_voidPChars;
-Dgst_pipeline_new             :Tgst_pipeline_new;
-Dgst_object_unref             :Tgst_object_unref;
-Dgst_element_get_bus          :Tgst_element_get_bus;
-Dgst_element_factory_make     :Tgst_element_factory_make;
-Dgst_bin_add                  :Tgst_bin_add;
-Dgst_element_link             :Tgst_element_link;
-Dgst_element_set_state        :Tgst_element_set_state;
-Dgst_bus_timed_pop_filtered   :Tgst_bus_timed_pop_filtered;
-Dgst_message_unref            :Tgst_message_unref;
+DSimpleRun                          :Tgst_funcPChars;
+DgstInit                            :Tgst_voidPChars;
+Dgst_pipeline_new                   :Tgst_pipeline_new;
+Dgst_object_unref                   :Tgst_object_unref;
+Dgst_element_get_bus                :Tgst_element_get_bus;
+Dgst_element_factory_make           :Tgst_element_factory_make;
+Dgst_bin_add                        :Tgst_bin_add;
+Dgst_element_link                   :Tgst_element_link;
+Dgst_element_set_state              :Tgst_element_set_state;
+Dgst_bus_timed_pop_filtered         :Tgst_bus_timed_pop_filtered;
+Dgst_message_unref                  :Tgst_message_unref;
+Dgst_element_get_request_pad        :Tgst_element_get_request_pad;
+Dgst_element_get_static_pad         :Tgst_element_get_static_pad;
+Dgst_pad_get_name                   :Tgst_pad_get_name;
+Dgst_pad_link                       :Tgst_pad_link;
+Dgst_element_release_request_pad    :Tgst_element_release_request_pad;
+
 //These are from GObject that is underlying framework of GStreamer  (called Dg_object...)
 Dg_object_set_int             :Tg_object_set_int;
 Dg_object_set_pchar           :Tg_object_set_pchar;
-
+Dg_object_set_double          :Tg_object_set_double;
 
 DiTmp1,DiTmp2:Ppointer; //for debuging only
 
 const
+GST_MSECOND=int64(1000000); //the GST_Clock runs in nano sec so msec is a milion nano
 GST_CLOCK_TIME_NONE=-1;
 
 function G2dDllLoaded:Boolean;
 function G2dDllLoad:boolean;
 
 function DateToIso(DT:TDateTime):string;
+
+function GstStateName(State:GstState):string;
+function GstPadLinkReturnName(Ret:GstPadLinkReturn):string;
+
 implementation
 //===========================================================================================
 Var
@@ -218,13 +278,47 @@ if not G2dDllLoaded then
      setProcFromDll(@Dgst_element_set_state,'Dgst_element_set_state') or
      setProcFromDll(@Dgst_bus_timed_pop_filtered,'Dgst_bus_timed_pop_filtered') or
      setProcFromDll(@Dgst_message_unref,'Dgst_message_unref') or
+     setProcFromDll(@Dgst_element_get_request_pad,'Dgst_element_get_request_pad') or
+     setProcFromDll(@Dgst_element_get_static_pad,'Dgst_element_get_static_pad') or
+     setProcFromDll(@Dgst_pad_get_name,'Dgst_pad_get_name') or
+     setProcFromDll(@Dgst_pad_link,'Dgst_pad_link') or
+     setProcFromDll(@Dgst_element_release_request_pad,'Dgst_element_release_request_pad') or
+
+     // set Gobject finctions (the above are gstreamer -GST)
      setProcFromDll(@Dg_object_set_int,'Dg_object_set_int') or
-     setProcFromDll(@Dg_object_set_pchar,'Dg_object_set_pchar')
+     setProcFromDll(@Dg_object_set_pchar,'Dg_object_set_pchar') or
+     setProcFromDll(@Dg_object_set_double,'Dg_object_set_double')
        then exit;
   end;
 Result:=true;
 end;
+//------------------------------------------------------------------------------
 
+function GstStateName(State:GstState):string;
+begin
+case State of
+  GST_STATE_VOID_PENDING: Result:='Pending';
+  GST_STATE_NULL:         Result:='Null';
+  GST_STATE_READY:        Result:='Ready';
+  GST_STATE_PAUSED:       Result:='PAUSED';
+  GST_STATE_PLAYING:      Result:='Playing';
+  else Result:='UnKnown';
+end;
+end;
+//-----------------------------------------------------------
+function GstPadLinkReturnName(Ret:GstPadLinkReturn):string;
+begin
+  case Ret of
+  GST_PAD_LINK_OK                :Result:='GST_PAD_LINK_OK';
+  GST_PAD_LINK_WRONG_HIERARCHY   :Result:='GST_PAD_LINK_WRONG_HIERARCHY';
+  GST_PAD_LINK_WAS_LINKED        :Result:='GST_PAD_LINK_WAS_LINKED';
+  GST_PAD_LINK_WRONG_DIRECTION   :Result:='GST_PAD_LINK_WRONG_DIRECTION';
+  GST_PAD_LINK_NOFORMAT          :Result:='GST_PAD_LINK_NOFORMAT';
+  GST_PAD_LINK_NOSCHED           :Result:='GST_PAD_LINK_NOSCHED';
+  GST_PAD_LINK_REFUSED           :Result:='GST_PAD_LINK_REFUSED';
+  else Result:='Link not defined';
+  end;
+end;
 //------------------------------------------------------------------------------
 //--------------                initialization  --------------------------------
 //------------------------------------------------------------------------------
