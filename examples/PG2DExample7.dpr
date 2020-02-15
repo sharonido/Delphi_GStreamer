@@ -121,5 +121,5 @@ begin
     on E: Exception do
       Writeln(E.ClassName, ': ', E.Message);
   end;
-write('press enter to exit');    readln;
+write('press enter to exit ');    readln;
 end.
