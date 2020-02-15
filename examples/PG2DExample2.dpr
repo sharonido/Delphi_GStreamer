@@ -24,7 +24,7 @@ This program is like the previous "PG2DExample" but adds 3 features:
 1.	The program does not wait for the stream in the pipeline to stop. Instead it
     loops until GstFrameWork.MsgResult<>GST_MESSAGE_UNKNOWN and when it gets out
     of the loop, it writes why it got out.
-2.	The program reads parameters for the plugin, in this case ìpattern=18î. And
+2.	The program reads parameters for the plugin, in this case ‚Äúpattern=18‚Äù. And
     builds the videotestsrc plugin accordingly.(A moving ball)
 3.	While stream is running, you are asked to set the pattern with different
     numbers. You can see the change on screen. (When changing to 0 you get
