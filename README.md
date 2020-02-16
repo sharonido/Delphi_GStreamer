@@ -19,7 +19,7 @@ In this stage, it supports very limited operation.
 Here is a partly list of limitations:
 -	Support only windows (tested on windows 10 desktop only)
 -	Support only programs compiled in 64 bit
--	Support only desktops that installed the full GStreamer for windows “68_64” (the 64-bit version). In addition, did not customize any directory places etc.
+-	Support only desktops that installed the full GStreamer for windows “x86_64” (the 64-bit version). In addition, did not customize any directory places etc.
 -	Most of GStreamer function are not yet bridged to pascal. We are only at the beginning of the process.    
 ## Installation
 Before you can start programing with GStreamer in Delphi, you must install two main things:
