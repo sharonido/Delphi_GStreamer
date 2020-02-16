@@ -2,7 +2,7 @@
 ido@pitaron.info
 
 ## Before you start
-For manipulate media there are a number of open source frameworks, each with his own target. The three that I would recommend (With Delphi wrappers) are:   
+For manipulate media there are a number of open source frameworks, each with his own advantages. They also overlap one another. The three that I would recommend (With Delphi wrappers) are:   
 - FFMPEG – best for understanding and unwrapping, wrapping media streams and files from one hand and decoding encoding the streams. (Also used in all kinds of GStreamer plugins).  
 - OpenCV – best for unveiling what reality is actually in the media (Also used in some GStreamer plugins, filters).
 - GStreamer – what is explained here, best for stream routing & filtering of media.    
