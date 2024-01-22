@@ -24,21 +24,6 @@ uses
   G2DCallDll in '..\..\Delphi\G2DCallDll.pas',
   G2DTypes in '..\..\Delphi\G2DTypes.pas';
 
-{---  readme.txt ---------------------------------------------------------------
-
-This is example1. A "Hellow world" program for G2D (Gstreamer bridge to Delphi)
-This follows the example1 in Gsteramer Docs in:
-https://gstreamer.freedesktop.org/documentation/tutorials/basic/hello-world.html?gi-language=c
-but uses an object oriented framework of Delphi
------------
-This grogram uses gstreamer as in gst-launch-1.0.exe
-That is, you can get a similar effect as using from command line:
-gst-launch-1.0 playbin uri=https://www.freedesktop.org/software/gstreamer-sdk/data/media/sintel_trailer-480p.webm
-
-If running "launch-1.0" as in a cmdline,
-you only need this example and example 1A
-------------------------------------------------------------------------------}
-
 //main -------------------------------------------------------------------------
 Var
 GStreamer:GstFrameWork;
