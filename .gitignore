@@ -1,0 +1,28 @@
+# Compiled source #
+###################
+*.com
+*.exe
+*.o
+*.so
+*.~*
+*.dcu
+*.rsm
+*.dproj.local
+*.identcache
+# Packages #
+###################
+*.7z
+*.dmg
+*.gz
+*.iso
+*.jar
+*.rar
+*.tar
+*.zip
+
+#folders
+###################
+/Win64/
+/Debug/
+/__history/
+/__recovery/
