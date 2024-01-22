@@ -18,9 +18,8 @@ unit G2D;
 
 interface
 uses
-G2DCallDll,
-FMX.Dialogs,
-System.Classes, System.SysUtils, System.Generics.Collections, System.Threading;
+G2DCallDll,G2DTypes,
+System.Classes, System.SysUtils, System.Generics.Collections;
 
 // gst objects -----------------------------------------------------------------
 Type
@@ -37,30 +36,31 @@ end;
 GObject=class(GNoUnrefObject)
   public
   Destructor Destroy; override;
+  function GetName:string;
+  Property Name:string read GetName;
 end;
 
-GPlugIn=Class(GObject)
+GPlugin=Class(GObject)
   private
   procedure SetParams;
   protected
-  Ffactory_name, fname:ansistring;
+  Ffactory_name,
+  fname:ansistring;
   ParamList:TArray<String>;
   public
   function Name:string; inline;
-  constructor Create(const Afactory_name,Aname:string); overload;
-  constructor Create(const Params:string); overload;
   property factory_name:AnsiString read Ffactory_name;
+  constructor Create(const Params:string; Aname:string = '');
 end;
 
 GPad=class(GObject)
   private
   PlugRequest: GPlugIn;
-  function GetName:string;
   public
-  Property Name:string read GetName;
   function LinkToSink(SinkPad:GPad):GstPadLinkReturn;
   constructor CreateReqested(plug:GPlugIn;name:string);
-  constructor CreateStatic(plug:GPlugIn;name:string;Dummy:integer=0); //Dummy is added just to eliminate warning
+  constructor CreateStatic(plug:GPlugIn;name:string;Dummy:char=' ');//Dummyis for C++ Warning
+
   Destructor Destroy; override;
   end;
 
@@ -71,11 +71,11 @@ end;
 
 GMsg=class(GObject)   //GMsg has its own unref
   protected
-  RMes:PGst_Mes;
+  RMsg:PGst_Mes;
   function ftype:GstMessageType;
   public
   property MsgType:GstMessageType read ftype;
-  constructor Create(const Bus:GBus;const TimeOut:Int64;const MType:UInt );
+  constructor Create(const TimeOut:Int64;const MType:UInt );
   Destructor Destroy; override;
 end;
 
@@ -97,27 +97,41 @@ End;
 
 GstFrameWork=class(TObject)
   private
-  fPipeline:GPipeLine;   //pipeline & Bus are created with framework cause  they
-  fBus:GBus;             //are used in most normal cases and take less the k mem
-  fMsg:GMsg;
+  class var fPipeline:GPipeLine;   //pipeline & Bus are created with framework cause they
+  class var fBus:GBus;             //are used in most normal cases and take less the k mem
+  class var fMsg:GMsg;
+  class var fterminate:Boolean;
+  class var frunning:Boolean;
   class var fMsgResult:GstMessageType;
   class var fStarted:boolean;
-  procedure ExitStream;
-  function StartLaunchSimlpePipeline(params:string):boolean;
+  class var fMsgUsed:boolean;
+  class var fMsgAssigned:boolean;
+  class var fState:GstState;
+  class var fRunForEver:boolean;
   public
+  class var MsgFilter:integer;
+  class var MsgResult:GstMessageType;
+  //class property MsgUsed:Boolean read fMsgUsed;
   class property Started:Boolean read fStarted;
-  class property MsgResult:GstMessageType read fMsgResult;
-  Property PipeLine:GPipeLine read fPipeline;
-  Property Bus:GBus read fBus;
-  Property Msg:GMsg read fMsg write fMsg;
-  procedure StreamRun(NanoSec:Int64;RetMessageType:Integer;Wait:boolean=true);
-  function BuildPlugInsInPipeLine(params:string):boolean;
-  function LaunchSimlpePipelineAndWaitEos(params:string):boolean;
-  function LaunchSimlpePipelineDoNotWait(params:string):boolean;
+  class Property PipeLine:GPipeLine read fPipeline;
+  class Property Bus:GBus read fBus;
+  class Property Msg:GMsg read fMsg write fMsg;
+  //class Property Running:boolean read frunning;
+  class Property State:GstState read fState;
+  class Property G2DTerminate:Boolean read fterminate write fterminate;
+  procedure SetPadAddedCallback(const SrcPad,SinkPad:GPlugin; const capabilityStr:string);
+  function WaitForPlay(Sec:Integer):boolean; //wait sec seconds for play; if sec=-1 wait forever
+  procedure CheckMsgAndRunFor(TimeInNanoSec:Int64);
+  function BuildPlugInsinPipeLine(params:string):boolean;
+
+  function SimpleBuildLink(params:string):boolean;
+
+  function SimpleBuildLinkPlay(params:string;NanoSecWaitMsg:Int64):boolean;
   constructor Create(const ParamCn:integer; Params:PArrPChar);
   Destructor Destroy; override;
 
 end;
+// -----   Aux  functions ------
 
 function  D_element_set_state(const Pipe:GPipeLine;State:GstState):GstStateChangeReturn;
 
@@ -129,9 +143,12 @@ function  D_element_link(PlugSrc,PlugSink:GPlugIn):boolean; overload;
 function  D_element_link(Pipe:GPipeLine; PlugSrcName,PlugSinkName:string):boolean; overload;
 function  D_element_link_many_by_name(Pipe:GPipeLine;PlugNamesStr:string):string; //PlugNamesStr=(plug names comma seperated) ->Ok=(result='') error=(result='name of broken link pads')
 
+function D_query_stream_position(const Plug:GPlugin;var pos:UInt64):boolean;
+function D_query_stream_duration(const Plug:GPlugin;var duration:UInt64):boolean;
+function D_query_stream_seek(const Plug:GPlugin;const seek_pos:UInt64):boolean;
 implementation
 
-//------------------------------------------------------------------------------
+(* never used
 function StringArrToCPpChar(const StrArr:TArray<string>;var Params:PCharArr;Trim:Boolean=false):PArrPChar;
 var
 I:Integer;
@@ -142,6 +159,7 @@ SetLength(Params,length(StrArr));
             else Params[i]:=Ansistring(StrArr[i]);
 Result:=@Params[0];
 end;
+*)
 //------------------------------------------
 procedure D_object_set_int(plug:GPlugIn;Param:string;val:integer);
 begin
@@ -154,9 +172,9 @@ begin
 Dg_object_set_pchar(plug.RealObject,ansistring(Param),ansistring(val));
 end;
 //------------------------------------------
-procedure D_object_set_double(plug:GPlugIn;Param :string;val:double);
+procedure D_object_set_double(plug:GPlugIn;Param :string;val:double); //never used
 begin
-Dg_object_set_double(plug.RealObject,ansistring(Param),val);
+// not found Dg_object_set_double(plug.RealObject,ansistring(Param),val);
 end;
 //------------------------------------------
 function D_element_set_state(const Pipe:GPipeLine;State:GstState):GstStateChangeReturn;
@@ -177,6 +195,27 @@ end;
 function  D_element_link(Pipe:GPipeLine; PlugSrcName,PlugSinkName:string):boolean;
 begin
 Result:=D_element_link(Pipe.GetPlugByName(PlugSrcName),Pipe.GetPlugByName(PlugSinkName));
+end;
+//------------------------------------------
+
+function D_query_stream_position(const Plug:GPlugin;var pos:UInt64):boolean;
+begin
+result:=Dgst_element_query_position(Plug.RealObject,GST_FORMAT_TIME,@pos) and (pos>=0);
+end;
+//------------------------------------------
+
+function D_query_stream_duration(const Plug:GPlugin;var duration:UInt64):boolean;
+begin
+result:=Dgst_element_query_duration(Plug.RealObject,GST_FORMAT_TIME,@duration)
+  and (duration>=0);
+end;
+//------------------------------------------
+
+function D_query_stream_seek(const Plug:GPlugin;const seek_pos:UInt64):boolean;
+begin
+result:=Dgst_element_seek_simple(Plug.RealObject,GST_FORMAT_TIME,
+  GstSeekFlags( integer(GST_SEEK_FLAG_FLUSH) or integer(GST_SEEK_FLAG_KEY_UNIT)),
+  seek_pos);
 end;
 //------------------------------------------
 
@@ -217,6 +256,13 @@ if RealObject<>nil
 RObject:=nil; //just to be sure
 inherited Destroy;
 end;
+
+function GObject.GetName: string;
+begin
+if isCreated
+  then Result:=String(Dgst_object_get_name(RealObject))
+  else Result:='The object was not created';
+end;
 //-----  GPad=class(GObject)-------
 constructor GPad.CreateReqested(plug:GPlugIn;name:string);
 begin
@@ -224,8 +270,7 @@ inherited Create;
 PlugRequest:=plug;
 RObject:=Dgst_element_get_request_pad(plug.RealObject,ansistring(name));
 end;
-
-constructor GPad.CreateStatic(plug:GPlugIn;name:string;Dummy:integer=0);
+constructor GPad.CreateStatic(plug:GPlugIn;name:string;Dummy:char=' ');//Dummyis for C++ Warning
 begin
 inherited Create;
 PlugRequest:=nil; //this pad is static - not requested
@@ -244,13 +289,6 @@ begin
 Result:=Dgst_pad_link(RealObject,SinkPad.RealObject);
 end;
 
-function GPad.GetName:string;
-begin
-if isCreated
-  then Result:=String(Dgst_pad_get_name(RealObject))
-  else Result:='Pad was not created';
-end;
-
 //---  GBus=class(GObject)  -----------------
 constructor GBus.Create(pipe:GPipeLine);
 begin
@@ -260,30 +298,27 @@ RObject:=Dgst_element_get_bus(pipe.RealObject);
 end;
 
 //---  GPlugIn=Class(GNoUnrefObject) --------
-constructor GPlugIn.Create(const Afactory_name,Aname:string);
+constructor GPlugIn.Create(const Params:string; Aname:string = '');
 begin
 inherited Create;
 fname:=ansistring(Aname);
-Ffactory_name:=ansistring(Afactory_name);
-RObject:=Dgst_element_factory_make(factory_name,fname);
-End;
-
-constructor GPlugIn.Create(const Params:string);
-begin
-Inherited Create;
-ParamList:=params.Trim.Split([' ',#9]); 
+ParamList:=params.Trim.Split([' ',#9]);
 if length(ParamList)<1 then
-  begin
-  showmessage('Error in GPlugIn.Create -no name');
-  halt;
-  end;
-create(ParamList[0],ParamList[0]);
+  WriteOutln('Error in GPlugIn.Create -no name');
+Ffactory_name:=ansistring(ParamList[0]);
+if AName='' then AName:=ParamList[0];
+RObject:=Dgst_element_factory_make(ansistring(ParamList[0]),fname);
+if RObject=nil
+  then WriteOutLn ('Error '+AName+' was not created')
+  else WriteOutLn (AName+' was created');
 SetParams;
-end;
+End;
 
 function GPlugIn.Name:string;
 begin
-Result:=string(fname);
+if fname=''
+  then Result:=string(Ffactory_name)
+  else Result:=string(fname);
 end;
 
 procedure GPlugIn.SetParams;
@@ -328,12 +363,13 @@ Result:=string(fname);
 end;
 
 Destructor GPipeLine.Destroy;
-Var Plug:GPlugIn;
+Var Plug:GPlugin;
 begin
     //plugins will be free but,
     //not their RObject - that is freed by the underlyng C Gsreamer framework
-for plug in PlugIns do Plug.RObject:=nil;
-PlugIns.DisposeOf;  //use dispose so it will also work in Android/ios arm
+for plug in PlugIns do
+  Plug.RObject:=nil;
+PlugIns.Free;  //use dispose so it will also work in Android/ios arm
 D_element_set_state(self,GstState.GST_STATE_NULL);
 inherited Destroy;
 end;
@@ -361,12 +397,14 @@ var I:integer;
 begin
 result:=false;
 for I := 0 to PlugIns.Count-2 do
-  if not D_element_link(PlugIns[I],PlugIns[I+1]) then
+  if not D_element_link(PlugIns[I],PlugIns[I+1])
+    then
     begin
-    writeln('Error '+PlugIns[I].Name+' did not link to '+PlugIns[I+1].Name);
+    WriteOutln('Error '+PlugIns[I].Name+' did not link to '+PlugIns[I+1].Name);
     exit;
     end;
-if PlugIns.Count>1 then writeln(PlugIns.Count.ToString+' plugins were successfully linked');
+
+if PlugIns.Count>1 then WriteOutln(PlugIns.Count.ToString+' plugins were successfully linked');
 result:=true;
 end;
 
@@ -374,20 +412,73 @@ function GPipeLine.ChangeState(NewState:GstState):boolean;
 begin
 Result:=false;
 If D_element_set_state(self,NewState)=GST_STATE_CHANGE_FAILURE
-  then writeln('PipeLine '+Name+' could not change state to '+GstStateName(NewState))
+  then WriteOutln('PipeLine '+Name+' could not change state to '+GstStateName(NewState))
   else
   begin
-  writeln('PipeLine '+Name+' changed state to '+GstStateName(NewState)+' at '+DateToIso(now));
+  WriteOutln('PipeLine '+Name+' started changing state to '+GstStateName(NewState)+' at '+DateToIso(now));
   Result:=true;
   end;
 end;
 
 //----   GMsg=class(GObject)  ----------------
-constructor GMsg.Create(const Bus:GBus;const TimeOut:Int64;const MType:UInt );
+constructor GMsg.Create(const TimeOut:Int64;const MType:UInt );
+var old_state, new_state :GstState;
 begin
 inherited Create;
-RObject:=Dgst_bus_timed_pop_filtered(Bus.RealObject,TimeOut,MType);
-RMes:=RealObject;
+GstFrameWork.fRunForEver:=TimeOut=DoForEver;
+GstFrameWork.fMsgUsed:=false;
+GstFrameWork.fMsgAssigned:=false;
+RObject:=Dgst_bus_timed_pop_filtered(GstFrameWork.Bus.RealObject,TimeOut,MType);
+RMsg:=RealObject;
+if (RMsg <> nil) then  // There is a msg
+  begin
+  GstFrameWork.MsgResult:=MsgType;
+  GstFrameWork.fMsgAssigned:=true;
+    case MsgType of  //* Parse message */
+    GST_MESSAGE_ERROR:
+      begin
+      GstFrameWork.fMsgUsed:=true;
+        {   GError *err;
+            gchar *debug_info;
+              case GST_MESSAGE_ERROR:
+              gst_message_parse_error (msg, &err, &debug_info);
+              g_printerr ("Error received from element %s: %s\n",
+                  GST_OBJECT_NAME (msg->src), err->message);
+              g_printerr ("Debugging information: %s\n",
+                  debug_info ? debug_info : "none");
+              g_clear_error (&err);
+              g_free (debug_info);
+              terminate = TRUE;
+              break; }
+      WriteOutln('');
+      WriteOutln('Gst message: Error in stream');
+      GstFrameWork.fterminate := TRUE;
+      end;
+    GST_MESSAGE_EOS:
+      begin
+      WriteOutln('');
+      WriteOutln('End-Of-Stream reached.');
+      GstFrameWork.fMsgUsed:=true;
+      GstFrameWork.fterminate := TRUE;
+      end;
+    GST_MESSAGE_STATE_CHANGED:
+      begin
+      //* We are only interested in state-changed messages from the pipeline */
+      if (RMsg.src = GstFrameWork.Pipeline.RealObject) then
+
+        begin
+        Dgst_message_parse_state_changed(RMsg , @old_state, @new_state, nil);
+        WriteOutln('Pipeline changed state from ' +
+                    GstStateName(old_state) +
+                    ' to ' +GstStateName(new_state));
+        GstFrameWork.fState:=new_state;
+        GstFrameWork.fMsgUsed:=true;
+        GstFrameWork.frunning:=(GstState(new_state)=GstState.GST_STATE_PLAYING);
+        end;
+      end;
+    else WriteOutln('Internal error in - GMsg.Create');
+    end;
+  end;
 end;
 
 Destructor GMsg.Destroy;
@@ -400,32 +491,33 @@ end;
 
 Function GMsg.ftype:GstMessageType;
 begin
-Result:=RMes^.MType;
+Result:=RMsg^.MType;
 end;
 
 //----   GstFrameWork=class(Tbject)  ----------------
 constructor GstFrameWork.Create(const ParamCn:integer; Params:PArrPChar);
 begin
 if fStarted
-  then writeln('trying to create GstFrameWork twice')
+  then WriteOutln('trying to create GstFrameWork twice')
   else
   begin
   inherited create;
+  MsgFilter:=integer(GST_MESSAGE_ERROR) or integer(GST_MESSAGE_EOS) or integer(GST_MESSAGE_STATE_CHANGED);
+  fterminate:=false;
   fMsgResult:=GstMessageType.GST_MESSAGE_UNKNOWN;
   if G2dDllLoad then //check if G2D.dll was loaded, if not load it
     begin
       try
       DgstInit(ParamCn,Params);  //init the gst framework
-      writeln('Gst Framework started');
+      WriteOutln('Gst Framework started');
       finally
       fStarted:=true;
       end;
     // create a default pipeline
-    fPipeLine:=GPipeLine.Create('Delphi'); //delphi pipeline -just a name
+    fPipeLine:=GPipeLine.Create('DelphiPipeline'); //delphi pipeline -just a name
     if not PipeLine.isCreated then
       begin
-      writeln('Default Pipeline '+PipeLine.name+' was not created');
-      showmessage('Default Pipeline '+string(PipeLine.name)+' was not created');
+      WriteOutln('Default Pipeline '+PipeLine.name+' was not created');
       halt;
       end;
 
@@ -433,8 +525,7 @@ if fStarted
     fBus:=GBus.create(PipeLine);
     if not Bus.isCreated then
       begin
-      writeln('Default Bus was not created');
-      showmessage('Default Bus was not created');
+      writeoutln('Default Bus was not created');
       halt;
       end;
     end;
@@ -443,15 +534,18 @@ end;
 
 Destructor GstFrameWork.Destroy;
 begin
-//clean befor exit
-fMsgResult:=GST_MESSAGE_ANY;
-Bus.DisposeOf;
+Bus.Free;
 if assigned(Pipeline) and not Pipeline.Disposed
-  then PipeLine.DisposeOf;
+  then PipeLine.Free;
+if fstate=GST_STATE_PLAYING then
+  begin
+  WriteOutln('');
+  WriteOutln('Stream had ran until '+DateToIso(Now));
+  end;
 inherited Destroy;
 end;
 
-function GstFrameWork.BuildPlugInsInPipeLine(params:string):boolean;
+function GstFrameWork.BuildPluginsInPipeLine(params:string):boolean;
 var
   PlugStrs:TArray<string>;
   Plug:GPlugIn;
@@ -465,7 +559,7 @@ if Started then //check if G2D.dll was loaded, if not load it
   //the pipeline (they are still not connected to one another)
   if length(PlugStrs)<1 then
     begin
-    writeln('Error no plugins where provided');
+    WriteOutln('Error no plugins where provided');
     exit;
     end;
   for I := 0 to length(PlugStrs)-1 do
@@ -473,82 +567,122 @@ if Started then //check if G2D.dll was loaded, if not load it
     Plug:=GPlugIn.Create(PlugStrs[i]);
     if not Plug.isCreated then
       begin
-      writeln('Error - Plug in  '+Plug.name+' was not found and not created');
-      PipeLine.DisposeOf;
+      WriteOutln('Error - Plug in  '+Plug.name+' was not found and not created');
+      PipeLine.Free;
       fPipeLine:=nil;
       exit;
       end;
     PipeLine.AddPlugIn(Plug);
     end;
-  writeln('pipeline was built successfully');
+  WriteOutln('pipeline was built successfully');
   Result:=true;
   end
-  else WriteLn('GStreamer framework did not start error');
+  else WriteOutln('GStreamer framework did not start error');
+end;
+//****************************************************************************************************************
+
+//****************************************************************************************************************
+//This is the CallBack procedure -When a src pad is trying to connect to a new pad
+Var PadCapabilityString:AnsiString;
+Procedure pad_added_handler(src, new_pad, data:pointer); cdecl;
+var
+n1,n2:string;
+sink_pad:^_GstPad;
+GstCaps:^_GstCaps;
+GstStruct: PGstStructure;
+GstCapsStr:Pansichar;
+begin
+//Get & write names - just for user readabilty
+n2:=string(_GstObject(src^).name);
+n1:=string(_GstObject(new_pad^).name);
+writeln('Received new pad '+n1+' from '+n2);
+GstCaps:=nil;
+//Sink pad is the pad that receives the stream
+sink_pad := Dgst_element_get_static_pad (data{convert.RealObject}, 'sink');
+if Dgst_pad_is_linked(sink_pad)
+  then writeln('We are already linked. Ignoring.')
+  else
+  begin
+  //get the string describing the capability of the sink pad
+    GstCaps:=Dgst_pad_get_current_caps(new_pad);
+  GstStruct:=Dgst_caps_get_structure(GstCaps, 0);
+  GstCapsStr:=Dgst_structure_get_name(GstStruct);
+  n1:=string(GstCapsStr);
+  //check if these are the capabilities we need
+  if not n1.Contains(string(PadCapabilityString))
+    then writeln('This pad is of type '+n1+' which is not '+
+                string(PadCapabilityString)+'. Ignoring.')
+    else
+    begin
+    // do the actual pad Link needed
+    if (Dgst_pad_link(new_pad, sink_pad)<>GstPadLinkReturn.GST_PAD_LINK_OK)
+      then writeln('This pad is of type '+n1+' but link failed.')
+      else writeln('Pad link  with (type '''+n1+''') succeeded.');
+    end;
+  end;
+//free the objects we created here
+if GstCaps<>nil then
+  Dgst_mini_object_unref (@GstCaps.mini_object);
+if sink_pad<>nil then
+  Dgst_object_unref (sink_pad);
+end;
+//****************************************************************************************************************
+
+//****************************************************************************************************************
+procedure GstFrameWork.SetPadAddedCallback(const SrcPad,SinkPad:GPlugin; const capabilityStr:string);
+begin
+PadCapabilityString:=ansistring(capabilityStr);
+Dg_signal_connect (SrcPad.RealObject, ansistring('pad-added'), @pad_added_handler, SinkPad.RealObject);
 end;
 
-function GstFrameWork.StartLaunchSimlpePipeline(params:string):boolean;
+function GstFrameWork.WaitForPlay(Sec:Integer):boolean; //wait sec seconds for play; if sec=-1 wait forever
+Var I:integer;
+begin
+I:=0;
+Result:=true;
+While ((Sec=-1) or (I<(Sec*100))) and not (State=GST_STATE_PLAYING) do
+  begin
+  Inc(I);
+  CheckMsgAndRunFor(10*GST_MSECOND);
+  end;
+if State=GST_STATE_PLAYING
+  then WriteOutln('Gstreamer is running')
+  else
+  begin
+  Result:=false;
+  WriteOutln('Error Gstreamer did not run');
+  end;
+end;
+
+function GstFrameWork.SimpleBuildLink(params:string):boolean;
 begin
 Result:=BuildPlugInsInPipeLine(params);
+if Result
+  then Result:= PipeLine.SimpleLinkAll //link the plugins one to the other
+end;
+
+
+procedure GstFrameWork.CheckMsgAndRunFor(TimeInNanoSec:Int64);
+begin
+  repeat
+  MsgResult:=GST_MESSAGE_UNKNOWN;
+  Msg:=GMsg.Create(TimeInNanoSec,MsgFilter);  //wait upto NanoSec, for Msg in MsgFilter
+  //if there was a msg in the time interval, MsgResult will change
+  Msg.Free;
+  sleep(0);
+  until G2DTerminate or (not fMsgAssigned) or (fMsgUsed and (not fRunForEver))
+  //(MsgResult=GST_MESSAGE_UNKNOWN);
+end;
+
+
+function GstFrameWork.SimpleBuildLinkPlay(params:string;NanoSecWaitMsg:Int64):boolean;
+begin
+Result:=SimpleBuildLink(Params); //Build & Link
 if Result then
   begin
-  if not PipeLine.SimpleLinkAll //link the plugins one to the other
-                                //(as a simple pipe - with no branches)
-     or not PipeLine.ChangeState(GST_STATE_PLAYING)
-    then
-    begin
-    Result:=false;
-    PipeLine.DisposeOf;
-    fPipeLine:=nil;
-    exit;
-    end;
+  Result:=PipeLine.ChangeState(GST_STATE_PLAYING); //Play
+  CheckMsgAndRunFor(NanoSecWaitMsg);
   end;
-end;
-
-procedure GstFrameWork.ExitStream;
-begin
-writeln;
-if Msg.isCreated then
-  begin
-  fMsgResult:=Msg.MsgType;  // check why stoped
-    case MsgResult of
-    GST_MESSAGE_EOS   : writeln('Gst message: End Of Stream');
-    GST_MESSAGE_ERROR : writeln('Gst message: Error in stream');
-    else writeln('Should never be here???');
-    end;
-  Msg.DisposeOf;
-  end;
-end;
-
-procedure GstFrameWork.StreamRun(NanoSec:Int64;RetMessageType:Integer;Wait:boolean=true);
-begin
-if Wait then
-  begin
-  Msg:=GMsg.Create(Bus,NanoSec,RetMessageType);  //wait for error or EoS
-  ExitStream;
-  end
-  else
-  TTask.Run(procedure
-      begin
-      Msg:=GMsg.Create(Bus,1* GST_MSECOND,RetMessageType);
-      while not Msg.isCreated and (MsgResult<>GST_MESSAGE_ANY) do
-        Msg:=GMsg.Create(Bus,NanoSec,RetMessageType);
-      ExitStream;  { TODO -oIdo -cthreads : unsafe should syncronize }
-      end);
-end;
-
-function GstFrameWork.LaunchSimlpePipelineAndWaitEos(params:string):boolean;
-begin
-Result:=StartLaunchSimlpePipeline(Params);
-if Result then
-  StreamRun(GST_CLOCK_TIME_NONE,integer(GST_MESSAGE_ERROR) or integer(GST_MESSAGE_EOS))
-end;
-
-
-function GstFrameWork.LaunchSimlpePipelineDoNotWait(params:string):boolean;
-begin
-Result:=StartLaunchSimlpePipeline(Params); //wait for error or EoS
-if Result then
-  StreamRun(100*GST_MSECOND,integer(GST_MESSAGE_ERROR) or integer(GST_MESSAGE_EOS),false)
 end;
 
 end.
