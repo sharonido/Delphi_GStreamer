@@ -137,55 +137,35 @@ Dgst_static_caps_get          :Tgst_static_caps_get;
 
 DiTmp1,DiTmp2:Ppointer; //for debuging only
 
-//
-gst_root_envBin:string;
-G2ddllpath:string;          //the Directory where the exe was loaded & run
 
-const
-GST_MSECOND=int64(1000000); //the GST_Clock runs in nano sec so msec is a milion nano
-GST_SECOND=1000*GST_MSECOND; //the GST_Clock runs in nano sec so msec is a milion nano
-GST_CLOCK_TIME_NONE=-1;
-DoForEver=GST_CLOCK_TIME_NONE;
 
-function G2dDllLoaded:Boolean;
 function G2dDllLoad:boolean;
 
-function DateToIso(DT:TDateTime):string;
 
-function GstStateName(State:GstState):string;
-function GstPadLinkReturnName(Ret:GstPadLinkReturn):string;
-
-var
-WriteOut :procedure(st:string);
-
-WriteOutln :procedure(st:string);
 implementation
-
-
-procedure stdWriteOut(st:string);
-begin
-  write(st);
-end;
-
-procedure stdWriteOutln(st:string);
-begin
-  stdWriteOut(st+sLineBreak)
-end;
-
 //===========================================================================================
-Var
+var
 G2dDllHnd:HMODULE=0;
 
-function DateToIso(DT:TDateTime):string;
+function findG2Ddll:string;
+var cur:string;
+  procedure DeleteLastDirectory(var APath: string); //internal
+  begin
+  APath := ExcludeTrailingPathDelimiter(ExtractFilePath(APath)); // delete last directory
+  end;
 begin
-DateTimeToString(Result,'dd-MM-yyyy"T"hh:nn:ss',DT);
+Result:='';
+cur:=GetCurrentDir;
+while (not cur.EndsWith(':')) and (not FileExists(cur+'\bin\G2D.dll')) do
+  DeleteLastDirectory(cur);
+if not cur.EndsWith(':') then Result:=cur+'\bin\G2D.dll';
+if not FileExists(Result)   //if dll file in default dir
+      then if FileExists('G2D.dll') then Result:='G2D.dll'  //in current dir
+      else if FileExists('..\G2D.dll') then Result:='..\G2D.dll'  //in parrent dir
+      else result:='';
 end;
 
-//------------------------------------------------------------------------------
-function G2dDllLoaded:Boolean;
-begin
-Result:=G2dDllHnd<>0;
-end;
+
 //-----------------------------------------------------------------------------
 function G2dDllLoad:boolean;
 var
@@ -202,22 +182,38 @@ dllPath:string;
   end;
 begin
 err:=0;//just for warning void
-if not G2dDllLoaded then
+if G2dDllHnd=0 then
   begin
   Result:=false;
-    try
     //look for G2D.dll
-    if FileExists(G2ddllpath)   //if dll file in default dir
-      then dllPath:=G2ddllpath
-      else if FileExists('G2D.dll') then dllPath:='G2D.dll'  //in current dir
-      else if FileExists('..\G2D.dll') then dllPath:='..\G2D.dll';  //in current dir
-
+  dllPath:=findG2Ddll;
+  if dllPath=''
+    then
+    begin
+    WriteOutln('''
+                Error - G2D.dll was not found.
+                You must have G2D.dll file and all its associated dll's
+                in the defoult folder or in your current (exe) folder.
+                look into:
+                https://github.com/sharonido/Delphi_GStreamer/tree/master/bin
+               ''');
+    exit;
+    end
+    else
+    try
     G2dDllHnd := LoadLibrary(PWidechar(dllPath));
     err:=GetLastError;
     finally
     if (err<>0) or (G2dDllHnd=0) then
       begin
       G2dDllHnd:=0;
+      WriteOutln('''
+                Error - G2D.dll was not loaded.
+                The G2D.dll loads other GStreamer dlls,
+                that probably where not found.
+                Common problem might be in the
+                PC ‘path’ environment variable.
+               ''');
       WriteOutln('Error Load Library-'+SysErrorMessage(err));
       end;
     end;
@@ -281,54 +277,11 @@ if not G2dDllLoaded then
 Result:=true;
 end;
 //------------------------------------------------------------------------------
-
-function GstStateName(State:GstState):string;
-begin
-case State of
-  GST_STATE_VOID_PENDING: Result:='Pending';
-  GST_STATE_NULL:         Result:='Null';
-  GST_STATE_READY:        Result:='Ready';
-  GST_STATE_PAUSED:       Result:='PAUSED';
-  GST_STATE_PLAYING:      Result:='Playing';
-  else Result:='UnKnown';
-end;
-end;
-//-----------------------------------------------------------
-function GstPadLinkReturnName(Ret:GstPadLinkReturn):string;
-begin
-  case Ret of
-  GST_PAD_LINK_OK                :Result:='GST_PAD_LINK_OK';
-  GST_PAD_LINK_WRONG_HIERARCHY   :Result:='GST_PAD_LINK_WRONG_HIERARCHY';
-  GST_PAD_LINK_WAS_LINKED        :Result:='GST_PAD_LINK_WAS_LINKED';
-  GST_PAD_LINK_WRONG_DIRECTION   :Result:='GST_PAD_LINK_WRONG_DIRECTION';
-  GST_PAD_LINK_NOFORMAT          :Result:='GST_PAD_LINK_NOFORMAT';
-  GST_PAD_LINK_NOSCHED           :Result:='GST_PAD_LINK_NOSCHED';
-  GST_PAD_LINK_REFUSED           :Result:='GST_PAD_LINK_REFUSED';
-  else Result:='Link not defined';
-  end;
-end;
-//------------------------------------------------------------------------------
 //--------------                initialization  --------------------------------
 //------------------------------------------------------------------------------
-function findG2Ddll:string;
-var cur:string;
-  procedure DeleteLastDirectory(var APath: string); //internal
-  begin
-  APath := ExcludeTrailingPathDelimiter(ExtractFilePath(APath)); // delete last directory
-  end;
-begin
-Result:='';
-cur:=GetCurrentDir;
-while (not cur.EndsWith(':')) and (not FileExists(cur+'\bin\G2D.dll')) do
-  DeleteLastDirectory(cur);
-if not cur.EndsWith(':') then Result:=cur+'\bin\G2D.dll';
-end;
 
 initialization
-G2ddllpath:=findG2Ddll; //find the G2D.dll (if it is on defult dir)
 
-WriteOut := stdWriteOut;
-WriteOutln := stdWriteOutln;
 //check environment variable
 gst_root_envBin:=GetEnvironmentVariable('GSTREAMER_1_0_ROOT_X86_64');
                                        //GSTREAMER_1_0_ROOT_X86_64
@@ -358,6 +311,6 @@ if not FileExists(gst_root_envBin+'libglib-2.0-0.dll') then
 
 //------------------------------------------
 finalization
-if G2dDllLoaded then
+if G2dDllHnd<>0 then
   FreeLibrary(G2dDllHnd);
 end.

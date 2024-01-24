@@ -339,6 +339,71 @@ end;
 PGst_Mes=^Gst_Mes;
 PGstState=^GstState;
 
+
+//--------------------------------
+var
+gst_root_envBin:string='';     //after init =>envirament var..
+//------------------------------------------
+const
+GST_MSECOND=int64(1000000);  //the GST_Clock runs in nano sec so msec is a milion nano
+GST_SECOND=1000*GST_MSECOND; //the GST_Clock runs in nano sec so msec is a milion nano
+GST_CLOCK_TIME_NONE=-1;      //-1=>for ever
+DoForEver=GST_CLOCK_TIME_NONE;
+
+procedure WriteOutln(st:string);
+procedure stdWriteOut(st:string);
+
+function DateToIso(DT:TDateTime):string;
+
+function GstStateName(State:GstState):string;
+function GstPadLinkReturnName(Ret:GstPadLinkReturn):string;
+
+
+var
+WriteOut :procedure(st:string)=stdWriteOut;
+//=============================================================================
 implementation
 
+procedure stdWriteOut(st:string);
+begin
+  write(st);
+end;
+
+procedure WriteOutln(st:string);
+begin
+  stdWriteOut(st+sLineBreak)
+end;
+//------------------------------------------------------------------------------
+function DateToIso(DT:TDateTime):string;
+begin
+DateTimeToString(Result,'dd-MM-yyyy"T"hh:nn:ss',DT);
+end;
+
+//------------------------------------------------------------------------------
+
+function GstStateName(State:GstState):string;
+begin
+case State of
+  GST_STATE_VOID_PENDING: Result:='Pending';
+  GST_STATE_NULL:         Result:='Null';
+  GST_STATE_READY:        Result:='Ready';
+  GST_STATE_PAUSED:       Result:='PAUSED';
+  GST_STATE_PLAYING:      Result:='Playing';
+  else Result:='UnKnown';
+end;
+end;
+//-----------------------------------------------------------
+function GstPadLinkReturnName(Ret:GstPadLinkReturn):string;
+begin
+  case Ret of
+  GST_PAD_LINK_OK                :Result:='GST_PAD_LINK_OK';
+  GST_PAD_LINK_WRONG_HIERARCHY   :Result:='GST_PAD_LINK_WRONG_HIERARCHY';
+  GST_PAD_LINK_WAS_LINKED        :Result:='GST_PAD_LINK_WAS_LINKED';
+  GST_PAD_LINK_WRONG_DIRECTION   :Result:='GST_PAD_LINK_WRONG_DIRECTION';
+  GST_PAD_LINK_NOFORMAT          :Result:='GST_PAD_LINK_NOFORMAT';
+  GST_PAD_LINK_NOSCHED           :Result:='GST_PAD_LINK_NOSCHED';
+  GST_PAD_LINK_REFUSED           :Result:='GST_PAD_LINK_REFUSED';
+  else Result:='Link not defined';
+  end;
+end;
 end.
