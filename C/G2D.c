@@ -156,3 +156,6 @@ const gchar* Dg_quark_to_string (GQuark quark){
 GstCaps* Dgst_static_caps_get (GstStaticCaps *static_caps){
 	return gst_static_caps_get(static_caps);
 }
+void Dgst_bus_add_signal_watch (GstBus* bus){
+	gst_bus_add_signal_watch(bus);
+}

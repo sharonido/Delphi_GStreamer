@@ -58,3 +58,4 @@ extern EXPORTDLL gboolean Dgst_structure_foreach (const GstStructure * structure
 extern EXPORTDLL gchar* Dgst_value_serialize (const GValue *value);
 extern EXPORTDLL const gchar* Dg_quark_to_string (GQuark quark);
 extern EXPORTDLL GstCaps* Dgst_static_caps_get (GstStaticCaps *static_caps);
+extern EXPORTDLL void Dgst_bus_add_signal_watch (GstBus* bus);
