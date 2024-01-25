@@ -1,4 +1,4 @@
-{* copyright (c) 2020 I. Sharon Ltd.
+﻿{* copyright (c) 2020 I. Sharon Ltd.
  *
  * This file is part of GStreamer 2 Delphi bridge (G2D).
  *
@@ -49,7 +49,8 @@ program consul output:
     try
     //launch the gstreamer pipeline
     if not GStreamer.SimpleBuildLinkPlay
-      ('playbin uri=https://www.freedesktop.org/software/gstreamer-sdk/data/media/sintel_trailer-480p.webm',
+     ('playbin uri=https://www.freedesktop.org/software/gstreamer-sdk/data/media/sintel_trailer-480p.webm',
+     //('playbin uri=file:///C:\temp\demo5.mp4',
       DoForEver)
       then writeln('error in the prog');
     finally

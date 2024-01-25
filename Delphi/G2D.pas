@@ -505,29 +505,26 @@ if fStarted
   MsgFilter:=integer(GST_MESSAGE_ERROR) or integer(GST_MESSAGE_EOS) or integer(GST_MESSAGE_STATE_CHANGED);
   fterminate:=false;
   fMsgResult:=GstMessageType.GST_MESSAGE_UNKNOWN;
-  if G2dDllLoad then //check if G2D.dll was loaded, if not load it
+  if G2DcheckEnvironment and //check the GStreamer Enviroment on this machine
+      G2dDllLoad then //check if G2D.dll was loaded, if not load it
     begin
-      try
-      DgstInit(ParamCn,Params);  //init the gst framework
-      WriteOutln('Gst Framework started');
-      finally
-      fStarted:=true;
-      end;
+    DgstInit(ParamCn,Params);  //init the gst framework
+    WriteOutln('Gst Framework started');
     // create a default pipeline
     fPipeLine:=GPipeLine.Create('DelphiPipeline'); //delphi pipeline -just a name
     if not PipeLine.isCreated then
       begin
       WriteOutln('Default Pipeline '+PipeLine.name+' was not created');
-      halt;
+      exit;
       end;
-
     // create a default  bus for the pipeline, to check on stream
     fBus:=GBus.create(PipeLine);
     if not Bus.isCreated then
       begin
       writeoutln('Default Bus was not created');
-      halt;
+      exit;
       end;
+    fStarted:=true;
     end;
   end;
 end;

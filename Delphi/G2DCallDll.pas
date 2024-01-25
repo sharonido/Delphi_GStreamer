@@ -80,6 +80,7 @@ Tgst_structure_foreach = function (const  structure:PGstStructure; func: GstStru
 Tgst_value_serialize = function(const value:pointer):PAnsiChar;cdecl;
 Tg_quark_to_string =function(quark:GQuark):PAnsiChar;cdecl;
 Tgst_static_caps_get =function(static_caps: pointer):PGstCaps;cdecl;
+Tgst_bus_add_signal_watch =procedure(bus: pointer)cdecl;
 // ---End of types of functions/procedures to find in G2D.dll ---
 
 
@@ -133,6 +134,7 @@ Dgst_structure_foreach        :Tgst_structure_foreach;
 Dgst_value_serialize          :Tgst_value_serialize;
 Dg_quark_to_string            :Tg_quark_to_string;
 Dgst_static_caps_get          :Tgst_static_caps_get;
+Dgst_bus_add_signal_watch     :Tgst_bus_add_signal_watch;
 //End of The GST functions that point to nil but will get the right address in G2D.dll by setProcFromDll in G2dDllLoad
 
 DiTmp1,DiTmp2:Ppointer; //for debuging only
@@ -140,7 +142,7 @@ DiTmp1,DiTmp2:Ppointer; //for debuging only
 
 
 function G2dDllLoad:boolean;
-
+function G2DcheckEnvironment:boolean;
 
 implementation
 //===========================================================================================
@@ -167,6 +169,32 @@ end;
 
 
 //-----------------------------------------------------------------------------
+function G2DcheckEnvironment:boolean;
+begin
+//check environment variable
+Result:=false;
+gst_root_envBin:=GetEnvironmentVariable('GSTREAMER_1_0_ROOT_X86_64');
+                                       //GSTREAMER_1_0_ROOT_X86_64
+                                        // GSTREAMER_1_0_ROOT_MSVC_X86_64
+if gst_root_envBin='' then
+  begin
+  WriteOutln('The GStreameer installation for 64bit has errors.'+sLineBreak+
+      'The "GSTREAMER_1_0_ROOT_X86_64" window environment" variable is not deffined');
+  exit;
+  end;
+gst_root_envBin:=gst_root_envBin+'bin\';
+//check bin dir
+if not FileExists(gst_root_envBin+'libglib-2.0-0.dll') then
+  begin
+  WriteOutln('The GStreameer installation for 64bit has errors'+sLineBreak+
+      gst_root_envBin+' does not have the needed DLLs, like libglib-2.0-0.dll');
+  exit;
+  end;
+Result:=true;
+end;
+
+//-----------------------------------------------------------------------------
+
 function G2dDllLoad:boolean;
 var
 err:integer;
@@ -268,7 +296,8 @@ if G2dDllHnd=0 then
      setProcFromDll(@Dgst_structure_foreach,'Dgst_structure_foreach') or
      setProcFromDll(@Dgst_value_serialize,'Dgst_value_serialize') or
      setProcFromDll(@Dg_quark_to_string,'Dg_quark_to_string') or
-     setProcFromDll(@Dgst_static_caps_get,'Dgst_static_caps_get')
+     setProcFromDll(@Dgst_static_caps_get,'Dgst_static_caps_get') or
+     setProcFromDll(@Dgst_bus_add_signal_watch,'Dgst_bus_add_signal_watch')
 
 
      //never used or setProcFromDll(@Dg_object_set_double,'Dg_object_set_double')
@@ -281,7 +310,7 @@ end;
 //------------------------------------------------------------------------------
 
 initialization
-
+ {
 //check environment variable
 gst_root_envBin:=GetEnvironmentVariable('GSTREAMER_1_0_ROOT_X86_64');
                                        //GSTREAMER_1_0_ROOT_X86_64
@@ -289,7 +318,7 @@ gst_root_envBin:=GetEnvironmentVariable('GSTREAMER_1_0_ROOT_X86_64');
 if gst_root_envBin='' then
   begin
   WriteOutln('The GStreameer installation for 64bit has errors'+sLineBreak+
-      'The GSTREAMER_1_0_ROOT_X86_64 window environment variable is not deffined');
+      'The "GSTREAMER_1_0_ROOT_X86_64 window environment" variable is not deffined');
   halt;
   end;
 gst_root_envBin:=gst_root_envBin+'bin\';
@@ -300,15 +329,7 @@ if not FileExists(gst_root_envBin+'libglib-2.0-0.dll') then
       gst_root_envBin+' does not have the needed DLLs, like libglib-2.0-0.dll');
   halt;
   end;
-
-{if setCurrentDir(gst_root_envBin)
-  then WriteOutln ('changed current dir to: '+gst_root_envBin)
-  else
-  begin
-  WriteOutln('Fatal error-the program can not change current dir to: '+gst_root_envBin);
-  halt;
-  end;  }
-
+        }
 //------------------------------------------
 finalization
 if G2dDllHnd<>0 then
