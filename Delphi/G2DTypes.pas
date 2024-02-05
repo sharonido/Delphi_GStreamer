@@ -217,6 +217,80 @@ _GstElementFactory = record
   {more fields}
   end;
 PGstElementFactory = ^_GstElementFactory;
+///////////////////////////////////////////
+
+_GRecMutex  =record
+  p:pointer;
+  i:array[0..1] of uint;
+  end;
+
+_GCond =record  //same as _GRecMutex
+  p:pointer;
+  i:array[0..1] of uint;
+  end;
+
+const
+GST_PADDING	= 4;
+Type
+_GstBus  =record
+  _object :_GstObject;
+  //*< private >*/
+  priv    : pointer; //GstBusPrivate;
+  _gst_reserved :array[0..GST_PADDING-1] of pointer;//gpointer _gst_reserved[GST_PADDING];
+end;
+
+_GstClock = record
+  _object: _GstObject;
+  //*< private >*/
+  priv :pointer;// GstClockPrivate *priv;
+  _gst_reserved :array[0..GST_PADDING-1] of pointer;//gpointer _gst_reserved[GST_PADDING];
+  end;
+
+
+_GList = record
+  data  :pointer;//gpointer data;
+  next  :^_GList;//GList *next;
+  prev  :^_GList;//GList *prev;
+  end;
+
+_GstElement =record
+  //*< public >*/ /* with LOCK */
+  _object :_GstObject;
+  state_lock:_GRecMutex;
+
+  //* element state */
+  state_cond: _GCond;
+  state_cookie  :uint;
+
+  target_state,
+  current_state,
+  next_state,
+  pending_state:GstState;
+  last_return: GstStateChangeReturn;
+  bus :_GstBus;
+
+  //* allocated clock */
+  clock :^_GstClock;
+  base_time :int64; //GstClockTimeDiff; //* NULL/READY: 0 - PAUSED: current time - PLAYING: difference to clock */
+  start_time:uint64;  //GstClockTime
+
+  //* element pads, these lists can only be iterated while holding
+  // * the LOCK or checking the cookie after each LOCK. */
+  numpads :uint16;
+  pads    :^_GList;     //  GList                *pads;
+  numsrcpads  :uint16;  //guint16               numsrcpads;
+  srcpads     :^_GList; //GList                *srcpads;
+  numsinkpads :uint16;  //guint16               numsinkpads;
+  sinkpads    :^_GList; //GList                *sinkpads;
+  pads_cookie :uint32;//guint32               pads_cookie;
+
+  //* with object LOCK */
+  contexts    :^_GList;//GList                *contexts;
+
+  //*< private >*/
+  _gst_reserved :array[0..GST_PADDING-2] of pointer;//gpointer _gst_reserved[GST_PADDING-1]
+  end;
+
 _GstCaps = record
 
   mini_object:_GstMiniObject;
@@ -235,15 +309,13 @@ _GstStructure = record
   }
   end;
 GstStructure = _GstStructure;
-
 PGstStructure = ^GstStructure;
 
 PGstPad = ^_GstPad;
 _GstPad =record
 _object   :_GstObject;
 //this is only first elements of the pad record
-end;
-(*the full _GstPad
+(*the "full" _GstPad
 {
   GstObject                      object;
 
@@ -322,6 +394,8 @@ end;
   } ABI;
 };
 *)
+end;
+
 
 
 
@@ -332,8 +406,8 @@ Gst_Mes=record
   timestamp: Uint64;
   src: pointer; //to gobject
   seqnum: Uint32;
-  //GMutex          lock;                 /* lock and cond for async delivery */
-  //GCond           cond;
+  lock  : _GRecMutex;//GMutex          lock;                 /* lock and cond for async delivery */
+  cond  : _GCond;//GCond           cond;
 end;
 
 PGst_Mes=^Gst_Mes;
