@@ -31,17 +31,35 @@ GNoUnrefObject=class(tobject)  //object that will not un_ref its RObject
   RObject:pointer; //pointer to the real gst memory (psedu object)
   public
   function isCreated:boolean;
-  property RealObject:pointer read RObject;
+  property RealObject:pointer read RObject write RObject;
 end;
 
 GObject=class(GNoUnrefObject)
+  protected
+  function GetReal:PGObject;
+
   public
   Destructor Destroy; override;
   function GetName:string;
   Property Name:string read GetName;
+  property RealObject:PGObject read GetReal;// write RObject;
 end;
 
-GPlugin=Class(GObject)
+GstObject=class(GObject)
+  protected
+  function GetReal:PGstObject;
+  public
+  property RealObject:PGstObject read GetReal;// write RObject;
+end;
+
+GstElement=class(GstObject)
+  protected
+  function GetReal:PGstElement;
+  public
+  property RealObject:PGstElement read GetReal;// write RObject;
+end;
+
+GPlugin=Class(GstElement)
   private
   procedure SetParams;
   protected
@@ -53,6 +71,8 @@ GPlugin=Class(GObject)
   property factory_name:AnsiString read Ffactory_name;
   constructor Create(const Params:string; Aname:string = '');
 end;
+
+
 
 GPad=class(GObject)
   private
@@ -73,15 +93,17 @@ end;
 GMsg=class(GObject)   //GMsg has its own unref
   protected
   RMsg:PGst_Mes;
+  function GetReal:PGst_Mes;
   function ftype:GstMessageType;
   public
   property MsgType:GstMessageType read ftype;
+  property RealObject:PGst_Mes read GetReal;// write RObject;
   constructor Create(const TimeOut:Int64;const MType:UInt );
   Destructor Destroy; override;
 end;
 
 
-GPipeLine=Class(GObject)
+GPipeLine=Class(GstElement)
   protected
   fname:ansistring;
   fPlugIns:TObjectList<GPlugIn>;
@@ -155,11 +177,28 @@ RObject:=nil; //just to be sure
 inherited Destroy;
 end;
 
+function GObject.GetReal:PGObject;
+begin
+  Result:=PGObject(RObject);
+end;
+
 function GObject.GetName: string;
 begin
 if isCreated
   then Result:=String(_Gst_object_get_name(RealObject))
   else Result:='The object was not created';
+end;
+//------- GstObject -------------------
+
+function GstObject.GetReal:PGstObject;
+begin
+  Result:=PGstObject(RObject);
+end;
+
+//------- GstElement=class(GstObject) ----
+function GstElement.GetReal:PGstElement;
+begin
+  Result:=PGstElement(RObject);
 end;
 //-----  GPad=class(GObject)-------
 constructor GPad.CreateReqested(plug:GPlugIn;name:string);
@@ -384,6 +423,11 @@ if RealObject<>nil
   then _Gst_message_unref(RealObject);
 RObject:=nil;  //so it will not be unref as Gobject
 inherited Destroy;
+end;
+
+function GMsg.GetReal:PGst_Mes;
+begin
+Result:=PGst_Mes(RObject);
 end;
 
 Function GMsg.ftype:GstMessageType;
