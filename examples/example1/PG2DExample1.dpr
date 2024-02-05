@@ -30,8 +30,8 @@ GStreamer:GstFrameWork;
 begin
 {$IfDef VER360}
 WriteOutln('''
-This is example1. A "Hellow world" program for G2D (Gstreamer bridge to Delphi)
-This follows the example1 in Gsteramer Docs in:
+This is example 1. It is a "Hellow world" program for G2D a
+(Gstreamer bridge to Delphi). This follows the example1 in Gsteramer Docs in:
 https://gstreamer.freedesktop.org/documentation/tutorials/basic/hello-world.html?gi-language=c
 but uses an object oriented framework of Delphi
 -----------
@@ -46,11 +46,12 @@ program consul output:
 {$Endif}
   try
   GStreamer:=GstFrameWork.Create(0,nil); //no parameters needed here
+  if GStreamer.Started then
     try
     //launch the gstreamer pipeline
     if not GStreamer.SimpleBuildLinkPlay
      ('playbin uri=https://www.freedesktop.org/software/gstreamer-sdk/data/media/sintel_trailer-480p.webm',
-     //('playbin uri=file:///C:\temp\demo5.mp4',
+     //('playbin uri=file:///C:\temp\demo5.mp4',  //if you have a mp4 file...
       DoForEver)
       then writeln('error in the prog');
     finally

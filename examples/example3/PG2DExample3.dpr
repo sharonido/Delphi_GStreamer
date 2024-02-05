@@ -50,6 +50,7 @@ DoOnce:boolean=True;
 begin
   try
   GStreamer:=GstFrameWork.Create(0,nil); //no parameters needed here
+  if GStreamer.Started then
     try
     //Creating the Src & Sink Pluin classes & Adding the plugins to the pipe line
     //   data.source = gst_element_factory_make ("uridecodebin", "source");

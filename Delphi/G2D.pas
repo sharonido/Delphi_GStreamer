@@ -137,7 +137,7 @@ function  D_element_set_state(const Pipe:GPipeLine;State:GstState):GstStateChang
 
 procedure D_object_set_int(plug:GPlugIn;Param:string;val:integer);
 procedure D_object_set_string(plug:GPlugIn;Param,val:string);
-procedure D_object_set_double(plug:GPlugIn;Param :string; val:double);
+//procedure D_object_set_double(plug:GPlugIn;Param :string; val:double);
 
 function  D_element_link(PlugSrc,PlugSink:GPlugIn):boolean; overload;
 function  D_element_link(Pipe:GPipeLine; PlugSrcName,PlugSinkName:string):boolean; overload;
@@ -163,23 +163,18 @@ end;
 //------------------------------------------
 procedure D_object_set_int(plug:GPlugIn;Param:string;val:integer);
 begin
-Dg_object_set_int(plug.RealObject,ansistring(Param),val);
+_G_object_set_int(plug.RealObject,ansistring(Param),val);
 end;
 
 //------------------------------------------
 procedure D_object_set_string(plug:GPlugIn;Param,val:string);
 begin
-Dg_object_set_pchar(plug.RealObject,ansistring(Param),ansistring(val));
-end;
-//------------------------------------------
-procedure D_object_set_double(plug:GPlugIn;Param :string;val:double); //never used
-begin
-// not found Dg_object_set_double(plug.RealObject,ansistring(Param),val);
+_G_object_set_pchar(plug.RealObject,ansistring(Param),ansistring(val));
 end;
 //------------------------------------------
 function D_element_set_state(const Pipe:GPipeLine;State:GstState):GstStateChangeReturn;
 begin
-Result:=Dgst_element_set_state(pipe.RealObject,state);
+Result:=_Gst_element_set_state(pipe.RealObject,state);
 end;
 //------------------------------------------
 
@@ -188,7 +183,7 @@ function  D_element_link(PlugSrc,PlugSink:GPlugIn):boolean;
 begin
 if (PlugSrc=nil) or (PlugSink=nil)
   then Result:=false
-  else Result:=Dgst_element_link(PlugSrc.RealObject,PlugSink.RealObject);
+  else Result:=_Gst_element_link(PlugSrc.RealObject,PlugSink.RealObject);
 end;
 //------------------------------------------
 
@@ -200,20 +195,20 @@ end;
 
 function D_query_stream_position(const Plug:GPlugin;var pos:UInt64):boolean;
 begin
-result:=Dgst_element_query_position(Plug.RealObject,GST_FORMAT_TIME,@pos) and (pos>=0);
+result:=_Gst_element_query_position(Plug.RealObject,GST_FORMAT_TIME,@pos) and (pos>=0);
 end;
 //------------------------------------------
 
 function D_query_stream_duration(const Plug:GPlugin;var duration:UInt64):boolean;
 begin
-result:=Dgst_element_query_duration(Plug.RealObject,GST_FORMAT_TIME,@duration)
+result:=_Gst_element_query_duration(Plug.RealObject,GST_FORMAT_TIME,@duration)
   and (duration>=0);
 end;
 //------------------------------------------
 
 function D_query_stream_seek(const Plug:GPlugin;const seek_pos:UInt64):boolean;
 begin
-result:=Dgst_element_seek_simple(Plug.RealObject,GST_FORMAT_TIME,
+result:=_Gst_element_seek_simple(Plug.RealObject,GST_FORMAT_TIME,
   GstSeekFlags( integer(GST_SEEK_FLAG_FLUSH) or integer(GST_SEEK_FLAG_KEY_UNIT)),
   seek_pos);
 end;
@@ -252,7 +247,7 @@ end;
 Destructor GObject.Destroy;
 begin
 if RealObject<>nil
-  then Dgst_object_unref(RealObject);
+  then _Gst_object_unref(RealObject);
 RObject:=nil; //just to be sure
 inherited Destroy;
 end;
@@ -260,7 +255,7 @@ end;
 function GObject.GetName: string;
 begin
 if isCreated
-  then Result:=String(Dgst_object_get_name(RealObject))
+  then Result:=String(_Gst_object_get_name(RealObject))
   else Result:='The object was not created';
 end;
 //-----  GPad=class(GObject)-------
@@ -268,32 +263,32 @@ constructor GPad.CreateReqested(plug:GPlugIn;name:string);
 begin
 inherited Create;
 PlugRequest:=plug;
-RObject:=Dgst_element_get_request_pad(plug.RealObject,ansistring(name));
+RObject:=_Gst_element_get_request_pad(plug.RealObject,ansistring(name));
 end;
 constructor GPad.CreateStatic(plug:GPlugIn;name:string;Dummy:char=' ');//Dummyis for C++ Warning
 begin
 inherited Create;
 PlugRequest:=nil; //this pad is static - not requested
-RObject:=Dgst_element_get_static_pad(plug.RealObject,ansistring(name));
+RObject:=_Gst_element_get_static_pad(plug.RealObject,ansistring(name));
 end;
 
 Destructor GPad.Destroy;
 begin
 if PlugRequest<>nil then
-  Dgst_element_release_request_pad(PlugRequest.RealObject,RealObject);
+  _Gst_element_release_request_pad(PlugRequest.RealObject,RealObject);
 inherited Destroy;
 end;
 
 function GPad.LinkToSink(SinkPad:GPad):GstPadLinkReturn;
 begin
-Result:=Dgst_pad_link(RealObject,SinkPad.RealObject);
+Result:=_Gst_pad_link(RealObject,SinkPad.RealObject);
 end;
 
 //---  GBus=class(GObject)  -----------------
 constructor GBus.Create(pipe:GPipeLine);
 begin
 inherited Create;
-RObject:=Dgst_element_get_bus(pipe.RealObject);
+RObject:=_Gst_element_get_bus(pipe.RealObject);
 //DiTmp2^:= RObject;//debuging
 end;
 
@@ -307,7 +302,7 @@ if length(ParamList)<1 then
   WriteOutln('Error in GPlugIn.Create -no name');
 Ffactory_name:=ansistring(ParamList[0]);
 if AName='' then AName:=ParamList[0];
-RObject:=Dgst_element_factory_make(ansistring(ParamList[0]),fname);
+RObject:=_Gst_element_factory_make(ansistring(ParamList[0]),fname);
 if RObject=nil
   then WriteOutLn ('Error '+AName+' was not created')
   else WriteOutLn (AName+' was created');
@@ -326,7 +321,6 @@ var
   I: Integer;
   par: TArray<string>;
   X: Integer;
-  D: Double;
 begin
   for I := 1 to Length(ParamList) - 1 do
     if ParamList[i].Trim <> '' then
@@ -337,8 +331,6 @@ begin
       if Par[0].Trim='name' then fName:=ansistring(Par[1].Trim);
       if TryStrToInt(Par[1].Trim, X)
         then D_object_set_int(Self, Par[0].Trim, x)
-        else if TryStrToFloat(Par[1].Trim, D)
-        then D_object_set_double(Self, Par[0].Trim, D)
         else D_object_set_string(Self,Par[0].Trim, Par[1]);
       end;
     end;
@@ -352,7 +344,7 @@ fPlugIns:=TObjectList<GPlugIn>.Create(true);
 //plugins will be free but,
 //not their RObject that is freed by the underlyng C Gsreamer framework
 fName:=ansistring(Aname);
-RObject:=Dgst_pipeline_new(AnsiString(name));
+RObject:=_Gst_pipeline_new(AnsiString(name));
 
 //DiTmp1^:= RObject;//debuging
 end;
@@ -377,7 +369,7 @@ end;
 function GPipeLine.AddPlugIn(Plug:GPlugIn):boolean;
 begin
 PlugIns.Add(Plug);
-result:=Dgst_bin_add(Self.RealObject,Plug.RealObject);
+result:=_Gst_bin_add(Self.RealObject,Plug.RealObject);
 end;
 
 function GPipeLine.GetPlugByName(PlugName:String):GPlugIn;
@@ -428,7 +420,7 @@ inherited Create;
 GstFrameWork.fRunForEver:=TimeOut=DoForEver;
 GstFrameWork.fMsgUsed:=false;
 GstFrameWork.fMsgAssigned:=false;
-RObject:=Dgst_bus_timed_pop_filtered(GstFrameWork.Bus.RealObject,TimeOut,MType);
+RObject:=_Gst_bus_timed_pop_filtered(GstFrameWork.Bus.RealObject,TimeOut,MType);
 RMsg:=RealObject;
 if (RMsg <> nil) then  // There is a msg
   begin
@@ -452,6 +444,8 @@ if (RMsg <> nil) then  // There is a msg
               break; }
       WriteOutln('');
       WriteOutln('Gst message: Error in stream');
+      If GstFrameWork.State=GstState.GST_STATE_READY
+        then WriteOutln('Probebly stream src not found');
       GstFrameWork.fterminate := TRUE;
       end;
     GST_MESSAGE_EOS:
@@ -467,7 +461,7 @@ if (RMsg <> nil) then  // There is a msg
       if (RMsg.src = GstFrameWork.Pipeline.RealObject) then
 
         begin
-        Dgst_message_parse_state_changed(RMsg , @old_state, @new_state, nil);
+        _Gst_message_parse_state_changed(RMsg , @old_state, @new_state, nil);
         WriteOutln('Pipeline changed state from ' +
                     GstStateName(old_state) +
                     ' to ' +GstStateName(new_state));
@@ -484,7 +478,7 @@ end;
 Destructor GMsg.Destroy;
 begin
 if RealObject<>nil
-  then Dgst_message_unref(RealObject);
+  then _Gst_message_unref(RealObject);
 RObject:=nil;  //so it will not be unref as Gobject
 inherited Destroy;
 end;
@@ -508,7 +502,7 @@ if fStarted
   if G2DcheckEnvironment and //check the GStreamer Enviroment on this machine
       G2dDllLoad then //check if G2D.dll was loaded, if not load it
     begin
-    DgstInit(ParamCn,Params);  //init the gst framework
+    _Gst_Init(ParamCn,Params);  //init the gst framework
     WriteOutln('Gst Framework started');
     // create a default pipeline
     fPipeLine:=GPipeLine.Create('DelphiPipeline'); //delphi pipeline -just a name
@@ -595,15 +589,15 @@ n1:=string(_GstObject(new_pad^).name);
 writeln('Received new pad '+n1+' from '+n2);
 GstCaps:=nil;
 //Sink pad is the pad that receives the stream
-sink_pad := Dgst_element_get_static_pad (data{convert.RealObject}, 'sink');
-if Dgst_pad_is_linked(sink_pad)
+sink_pad := _Gst_element_get_static_pad (data{convert.RealObject}, 'sink');
+if _Gst_pad_is_linked(sink_pad)
   then writeln('We are already linked. Ignoring.')
   else
   begin
   //get the string describing the capability of the sink pad
-    GstCaps:=Dgst_pad_get_current_caps(new_pad);
-  GstStruct:=Dgst_caps_get_structure(GstCaps, 0);
-  GstCapsStr:=Dgst_structure_get_name(GstStruct);
+    GstCaps:=_Gst_pad_get_current_caps(new_pad);
+  GstStruct:=_Gst_caps_get_structure(GstCaps, 0);
+  GstCapsStr:=_Gst_structure_get_name(GstStruct);
   n1:=string(GstCapsStr);
   //check if these are the capabilities we need
   if not n1.Contains(string(PadCapabilityString))
@@ -612,16 +606,16 @@ if Dgst_pad_is_linked(sink_pad)
     else
     begin
     // do the actual pad Link needed
-    if (Dgst_pad_link(new_pad, sink_pad)<>GstPadLinkReturn.GST_PAD_LINK_OK)
+    if (_Gst_pad_link(new_pad, sink_pad)<>GstPadLinkReturn.GST_PAD_LINK_OK)
       then writeln('This pad is of type '+n1+' but link failed.')
       else writeln('Pad link  with (type '''+n1+''') succeeded.');
     end;
   end;
 //free the objects we created here
 if GstCaps<>nil then
-  Dgst_mini_object_unref (@GstCaps.mini_object);
+  _Gst_mini_object_unref (@GstCaps.mini_object);
 if sink_pad<>nil then
-  Dgst_object_unref (sink_pad);
+  _Gst_object_unref (sink_pad);
 end;
 //****************************************************************************************************************
 
@@ -629,7 +623,7 @@ end;
 procedure GstFrameWork.SetPadAddedCallback(const SrcPad,SinkPad:GPlugin; const capabilityStr:string);
 begin
 PadCapabilityString:=ansistring(capabilityStr);
-Dg_signal_connect (SrcPad.RealObject, ansistring('pad-added'), @pad_added_handler, SinkPad.RealObject);
+_G_signal_connect (SrcPad.RealObject, ansistring('pad-added'), @pad_added_handler, SinkPad.RealObject);
 end;
 
 function GstFrameWork.WaitForPlay(Sec:Integer):boolean; //wait sec seconds for play; if sec=-1 wait forever

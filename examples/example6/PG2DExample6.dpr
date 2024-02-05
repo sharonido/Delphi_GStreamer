@@ -37,18 +37,18 @@ padtemplate :^_GstStaticPadTemplate;
 PadNum:integer;
 begin
 caps:=nil;
-TemplatePlugin:=Dgst_element_factory_find(ansistring(name));
+TemplatePlugin:=_Gst_element_factory_find(ansistring(name));
   try
   if not Assigned(TemplatePlugin) then WriteOutln(name+ 'Template Plugin '+Name+' Not found')
     else
     begin
-    Plugname:=string((Dgst_element_factory_get_metadata(TemplatePlugin,ansistring('long-name'))));
+    Plugname:=string((_Gst_element_factory_get_metadata(TemplatePlugin,ansistring('long-name'))));
     WriteOutln('Pad Templates for '+Plugname+':');
-    PadNum:=Dgst_element_factory_get_num_pad_templates(TemplatePlugin);
+    PadNum:=_Gst_element_factory_get_num_pad_templates(TemplatePlugin);
     if PadNum<1 then WriteOutln('Plugin '+Plugname+' has no pads')
       else
       begin
-      pads := Dgst_element_factory_get_static_pad_templates(TemplatePlugin);
+      pads := _Gst_element_factory_get_static_pad_templates(TemplatePlugin);
       while pads<>nil do
         begin
         padtemplate := pads.data;
@@ -69,7 +69,7 @@ TemplatePlugin:=Dgst_element_factory_find(ansistring(name));
           then
           begin
           WriteOutln('---- Capabilities ----');
-          caps:=Dgst_static_caps_get (@padtemplate.static_caps);
+          caps:=_Gst_static_caps_get (@padtemplate.static_caps);
           print_caps (caps, #9);
           WriteOutln('----------------------');
           end;
@@ -78,8 +78,8 @@ TemplatePlugin:=Dgst_element_factory_find(ansistring(name));
       end;
     end;
   finally
-    Dgst_object_unref(@(TemplatePlugin._object));
-    Dgst_mini_object_unref(caps);
+    _Gst_object_unref(@(TemplatePlugin._object));
+    _Gst_mini_object_unref(caps);
   end;
 end;
 
@@ -87,8 +87,8 @@ function print_field(const field:GQuark; const value:pointer;pfx:Pointer):boolea
 Var
 st,qname:AnsiString;
 begin
-st:=AnsiString(Dgst_value_serialize (value));
-qname:=AnsiString(Dg_quark_to_string(field));
+st:=AnsiString(_Gst_value_serialize (value));
+qname:=AnsiString(_G_quark_to_string(field));
 //k:=format(PAnsichar(pfx)+' %15s: %s',[qname,st]);
 WriteOutln(format(PAnsichar(pfx)+' %15s: %s',[qname,st]));
 Result:=true;
@@ -103,18 +103,18 @@ begin
 if (caps=nil) then WriteOutln('Warning: Caps are nil')
   else
   begin
-  if Dgst_caps_is_any(caps) then WriteOutln(pfx+'Caps = "Any"')
+  if _Gst_caps_is_any(caps) then WriteOutln(pfx+'Caps = "Any"')
     else
     begin
-    if Dgst_caps_is_empty(caps) then WriteOutln(pfx+'Caps = "Empty"')
+    if _Gst_caps_is_empty(caps) then WriteOutln(pfx+'Caps = "Empty"')
       else
       begin
-      CapsSize:=Dgst_caps_get_size(caps);
+      CapsSize:=_Gst_caps_get_size(caps);
       for i := 0 to CapsSize-1 do
         begin
-        PStruct:=Dgst_caps_get_structure(caps,i);
-        WriteOutln(pfx+string(Dgst_structure_get_name(PStruct)));
-        Dgst_structure_foreach (PStruct, print_field, PAnsiChar(AnsiString(pfx)));
+        PStruct:=_Gst_caps_get_structure(caps,i);
+        WriteOutln(pfx+string(_Gst_structure_get_name(PStruct)));
+        _Gst_structure_foreach (PStruct, print_field, PAnsiChar(AnsiString(pfx)));
         end;
 
       end;
@@ -129,11 +129,11 @@ caps:PGstCaps;
 begin
 pad:=GPad.CreateStatic(Plug,PadName);
 WriteOutln('Capabilities for '+PadName+' Pad:');
-caps := Dgst_pad_get_current_caps(pad.RealObject);
-If not Assigned(caps) then caps:=Dgst_pad_query_caps(pad.RealObject,nil);
+caps := _Gst_pad_get_current_caps(pad.RealObject);
+If not Assigned(caps) then caps:=_Gst_pad_query_caps(pad.RealObject,nil);
 print_caps(caps,#9);
 pad.Free;
-Dgst_mini_object_unref(caps);
+_Gst_mini_object_unref(caps);
 end;
 
 //main -------------------------------------------------------------------------
@@ -159,6 +159,7 @@ program consul output:
 {$Endif}
   try
   GStreamer:=GstFrameWork.Create(0,nil); //no parameters needed here
+  if GStreamer.Started then
     try
     //---  print Template of Plugin Capabilities before plugin was created
     printTemplatePlugCaps('audiotestsrc');

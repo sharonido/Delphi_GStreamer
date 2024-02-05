@@ -210,7 +210,7 @@ _GstObject= record
   guint64        last_sync;
   gpointer _gst_reserved;  }
   end;
-
+PGstObject=^_GstObject;
 
 _GstElementFactory = record
   _object : _GObject ;

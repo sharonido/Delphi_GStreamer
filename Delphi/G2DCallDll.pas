@@ -81,6 +81,7 @@ Tgst_value_serialize = function(const value:pointer):PAnsiChar;cdecl;
 Tg_quark_to_string =function(quark:GQuark):PAnsiChar;cdecl;
 Tgst_static_caps_get =function(static_caps: pointer):PGstCaps;cdecl;
 Tgst_bus_add_signal_watch =procedure(bus: pointer)cdecl;
+Tgst_video_overlay_set_window_handle = procedure (plugbin : pointer {PGstElement};handle:UInt64 {guintptr});cdecl;
 // ---End of types of functions/procedures to find in G2D.dll ---
 
 
@@ -89,52 +90,53 @@ Var
 
 //The GST functions that point to nil but will get the right address in G2D.dll by setProcFromDll in G2dDllLoad
 DSimpleRun                          :Tgst_funcPChars=nil;
-DgstInit                            :Tgst_voidPChars;
-Dgst_pipeline_new                   :Tgst_pipeline_new;
-Dgst_object_unref                   :Tgst_object_unref;
-Dgst_mini_object_unref              :Tgst_mini_object_unref;
-Dgst_element_get_bus                :Tgst_element_get_bus;
-Dgst_element_factory_make           :Tgst_element_factory_make;
-Dgst_bin_add                        :Tgst_bin_add;
-Dgst_element_link                   :Tgst_element_link;
-Dgst_element_set_state              :Tgst_element_set_state;
-Dgst_bus_timed_pop_filtered         :Tgst_bus_timed_pop_filtered;
-Dgst_message_unref                  :Tgst_message_unref;
-Dgst_element_get_request_pad        :Tgst_element_get_request_pad;
-Dgst_element_get_static_pad         :Tgst_element_get_static_pad;
-Dgst_pad_link                       :Tgst_pad_link;
-Dgst_element_release_request_pad    :Tgst_element_release_request_pad;
-Dgst_message_parse_state_changed    :Tgst_message_parse_state_changed;
-Dgst_pad_is_linked                  :Tgst_pad_is_linked;
-Dgst_pad_get_current_caps           :Tgst_pad_get_current_caps;
-Dgst_caps_get_structure             :Tgst_caps_get_structure;
-Dgst_structure_get_name             :Tgst_structure_get_name;
-Dgst_element_factory_find           :Tgst_element_factory_find;
-Dgst_element_factory_get_metadata   :Tgst_element_factory_get_metadata;
-Dgst_element_factory_get_static_pad_templates
+_Gst_Init                           :Tgst_voidPChars;
+_Gst_pipeline_new                   :Tgst_pipeline_new;
+_Gst_object_unref                   :Tgst_object_unref;
+_Gst_mini_object_unref              :Tgst_mini_object_unref;
+_Gst_element_get_bus                :Tgst_element_get_bus;
+_Gst_element_factory_make           :Tgst_element_factory_make;
+_Gst_bin_add                        :Tgst_bin_add;
+_Gst_element_link                   :Tgst_element_link;
+_Gst_element_set_state              :Tgst_element_set_state;
+_Gst_bus_timed_pop_filtered         :Tgst_bus_timed_pop_filtered;
+_Gst_message_unref                  :Tgst_message_unref;
+_Gst_element_get_request_pad        :Tgst_element_get_request_pad;
+_Gst_element_get_static_pad         :Tgst_element_get_static_pad;
+_Gst_pad_link                       :Tgst_pad_link;
+_Gst_element_release_request_pad    :Tgst_element_release_request_pad;
+_Gst_message_parse_state_changed    :Tgst_message_parse_state_changed;
+_Gst_pad_is_linked                  :Tgst_pad_is_linked;
+_Gst_pad_get_current_caps           :Tgst_pad_get_current_caps;
+_Gst_caps_get_structure             :Tgst_caps_get_structure;
+_Gst_structure_get_name             :Tgst_structure_get_name;
+_Gst_element_factory_find           :Tgst_element_factory_find;
+_Gst_element_factory_get_metadata   :Tgst_element_factory_get_metadata;
+_Gst_element_factory_get_static_pad_templates
                                     :Tgst_element_factory_get_static_pad_templates;
-Dgst_element_factory_get_num_pad_templates
+_Gst_element_factory_get_num_pad_templates
                                     :Tgst_element_factory_get_num_pad_templates;
 
-//These are from GObject that is underlying framework of GStreamer  (called Dg_object...)
-Dg_object_set_int             :Tg_object_set_int;
-Dg_object_set_pchar           :Tg_object_set_pchar;
-//never used Dg_object_set_double          :Tg_object_set_double;
-Dgst_object_get_name          :Tgst_object_get_name;
-Dg_signal_connect             :Tg_signal_connect;
+//These are from GObject that is underlying framework of GStreamer  (called _G_object...)
+_G_object_set_int             :Tg_object_set_int;
+_G_object_set_pchar           :Tg_object_set_pchar;
+//never used _G_object_set_double          :Tg_object_set_double;
+_Gst_object_get_name          :Tgst_object_get_name;
+_G_signal_connect             :Tg_signal_connect;
 
-Dgst_element_query_position   :Tgst_element_query_position;
-Dgst_element_query_duration   :Tgst_element_query_duration;
-Dgst_element_seek_simple      :Tgst_element_seek_simple;
-Dgst_pad_query_caps           :Tgst_pad_query_caps;
-Dgst_caps_get_size            :Tgst_caps_get_size;
-Dgst_caps_is_any              :Tgst_caps_is_any;
-Dgst_caps_is_empty            :Tgst_caps_is_empty;
-Dgst_structure_foreach        :Tgst_structure_foreach;
-Dgst_value_serialize          :Tgst_value_serialize;
-Dg_quark_to_string            :Tg_quark_to_string;
-Dgst_static_caps_get          :Tgst_static_caps_get;
-Dgst_bus_add_signal_watch     :Tgst_bus_add_signal_watch;
+_Gst_element_query_position   :Tgst_element_query_position;
+_Gst_element_query_duration   :Tgst_element_query_duration;
+_Gst_element_seek_simple      :Tgst_element_seek_simple;
+_Gst_pad_query_caps           :Tgst_pad_query_caps;
+_Gst_caps_get_size            :Tgst_caps_get_size;
+_Gst_caps_is_any              :Tgst_caps_is_any;
+_Gst_caps_is_empty            :Tgst_caps_is_empty;
+_Gst_structure_foreach        :Tgst_structure_foreach;
+_Gst_value_serialize          :Tgst_value_serialize;
+_G_quark_to_string            :Tg_quark_to_string;
+_Gst_static_caps_get          :Tgst_static_caps_get;
+_Gst_bus_add_signal_watch     :Tgst_bus_add_signal_watch;
+_Gst_video_overlay_set_window_handle  :Tgst_video_overlay_set_window_handle;
 //End of The GST functions that point to nil but will get the right address in G2D.dll by setProcFromDll in G2dDllLoad
 
 DiTmp1,DiTmp2:Ppointer; //for debuging only
@@ -206,7 +208,7 @@ dllPath:string;
   begin
   ref := GetProcAddress(G2dDllHnd, pansichar(name));
   Result:=Ref=nil;
-  if Result then  WriteOutln('Error in '+pansichar(name)+' procedure not found in DLL');
+  if Result then  WriteOutln('Error: '+pansichar(name)+' procedure not found in G2D.dll');
   end;
 begin
 err:=0;//just for warning void
@@ -235,6 +237,7 @@ if G2dDllHnd=0 then
     if (err<>0) or (G2dDllHnd=0) then
       begin
       G2dDllHnd:=0;
+      WriteOutln('Error Loading G2D.dll Library-'+SysErrorMessage(err));
       WriteOutln('''
                 Error - G2D.dll was not loaded.
                 The G2D.dll loads other GStreamer dlls,
@@ -242,7 +245,6 @@ if G2dDllHnd=0 then
                 Common problem might be in the
                 PC ‘path’ environment variable.
                ''');
-      WriteOutln('Error Load Library-'+SysErrorMessage(err));
       end;
     end;
   if G2dDllHnd=0 then exit;
@@ -251,56 +253,56 @@ if G2dDllHnd=0 then
   setProcFromDll(pointer(DiTmp2),'iTmp2');   //for debuging
 
   // set procedures entery points in G2D.dll
-  if //setProcFromDll(@DSimpleRun,'run_gst') or     //DSimpleRun is no longer a function in the dll
-     //gst functions
-     setProcFromDll(@Dgst_element_factory_make,'Dgst_element_factory_make') or
-     setProcFromDll(@DgstInit,'Dgst_init') or
-     setProcFromDll(@Dgst_pipeline_new,'Dgst_pipeline_new') or
-     setProcFromDll(@Dgst_object_unref,'Dgst_object_unref') or
-     setProcFromDll(@Dgst_mini_object_unref,'Dgst_mini_object_unref') or
-     setProcFromDll(@Dgst_element_get_bus,'Dgst_element_get_bus') or
-     setProcFromDll(@Dgst_bin_add,'Dgst_bin_add') or
-     setProcFromDll(@Dgst_element_link,'Dgst_element_link') or
-     setProcFromDll(@Dgst_element_set_state,'Dgst_element_set_state') or
-     setProcFromDll(@Dgst_bus_timed_pop_filtered,'Dgst_bus_timed_pop_filtered') or
-     setProcFromDll(@Dgst_message_unref,'Dgst_message_unref') or
-     setProcFromDll(@Dgst_element_get_request_pad,'Dgst_element_get_request_pad') or
-     setProcFromDll(@Dgst_element_get_static_pad,'Dgst_element_get_static_pad') or
-     setProcFromDll(@Dgst_object_get_name,'Dgst_object_get_name') or
-     setProcFromDll(@Dgst_pad_link,'Dgst_pad_link') or
-     setProcFromDll(@Dgst_element_release_request_pad,'Dgst_element_release_request_pad') or
-     setProcFromDll(@Dgst_message_parse_state_changed,'Dgst_message_parse_state_changed') or
-     setProcFromDll(@Dgst_pad_is_linked,'Dgst_pad_is_linked') or
-     setProcFromDll(@Dgst_pad_get_current_caps,'Dgst_pad_get_current_caps') or
-     setProcFromDll(@Dgst_caps_get_structure,'Dgst_caps_get_structure') or
-     setProcFromDll(@Dgst_structure_get_name,'Dgst_structure_get_name') or
+  if //gst functions
+     setProcFromDll(@_Gst_element_factory_make,'_Gst_element_factory_make') or
+     setProcFromDll(@_Gst_Init,'_Gst_init') or
+     setProcFromDll(@_Gst_pipeline_new,'_Gst_pipeline_new') or
+     setProcFromDll(@_Gst_object_unref,'_Gst_object_unref') or
+     setProcFromDll(@_Gst_mini_object_unref,'_Gst_mini_object_unref') or
+     setProcFromDll(@_Gst_element_get_bus,'_Gst_element_get_bus') or
+     setProcFromDll(@_Gst_bin_add,'_Gst_bin_add') or
+     setProcFromDll(@_Gst_element_link,'_Gst_element_link') or
+     setProcFromDll(@_Gst_element_set_state,'_Gst_element_set_state') or
+     setProcFromDll(@_Gst_bus_timed_pop_filtered,'_Gst_bus_timed_pop_filtered') or
+     setProcFromDll(@_Gst_message_unref,'_Gst_message_unref') or
+     setProcFromDll(@_Gst_element_get_request_pad,'_Gst_element_get_request_pad') or
+     setProcFromDll(@_Gst_element_get_static_pad,'_Gst_element_get_static_pad') or
+     setProcFromDll(@_Gst_object_get_name,'_Gst_object_get_name') or
+     setProcFromDll(@_Gst_pad_link,'_Gst_pad_link') or
+     setProcFromDll(@_Gst_element_release_request_pad,'_Gst_element_release_request_pad') or
+     setProcFromDll(@_Gst_message_parse_state_changed,'_Gst_message_parse_state_changed') or
+     setProcFromDll(@_Gst_pad_is_linked,'_Gst_pad_is_linked') or
+     setProcFromDll(@_Gst_pad_get_current_caps,'_Gst_pad_get_current_caps') or
+     setProcFromDll(@_Gst_caps_get_structure,'_Gst_caps_get_structure') or
+     setProcFromDll(@_Gst_structure_get_name,'_Gst_structure_get_name') or
 
      // Callback  for gobject
-     setProcFromDll(@Dg_signal_connect,'Dg_signal_connect') or
+     setProcFromDll(@_G_signal_connect,'_G_signal_connect') or
 
      // set Gobject functions
-     setProcFromDll(@Dg_object_set_int,'Dg_object_set_int') or
-     setProcFromDll(@Dg_object_set_pchar,'Dg_object_set_pchar') or
+     setProcFromDll(@_G_object_set_int,'_G_object_set_int') or
+     setProcFromDll(@_G_object_set_pchar,'_G_object_set_pchar') or
 
-     setProcFromDll(@Dgst_element_query_position,'Dgst_element_query_position') or
-     setProcFromDll(@Dgst_element_query_duration,'Dgst_element_query_duration') or
-     setProcFromDll(@Dgst_element_seek_simple,'Dgst_element_seek_simple') or
-     setProcFromDll(@Dgst_element_factory_find,'Dgst_element_factory_find') or
-     setProcFromDll(@Dgst_element_factory_get_metadata,'Dgst_element_factory_get_metadata') or
-     setProcFromDll(@Dgst_element_factory_get_static_pad_templates,'Dgst_element_factory_get_static_pad_templates') or
-     setProcFromDll(@Dgst_element_factory_get_num_pad_templates,'Dgst_element_factory_get_num_pad_templates') or
-     setProcFromDll(@Dgst_pad_query_caps,'Dgst_pad_query_caps') or
-     setProcFromDll(@Dgst_caps_get_size,'Dgst_caps_get_size') or
-     setProcFromDll(@Dgst_caps_is_any,'Dgst_caps_is_any') or
-     setProcFromDll(@Dgst_caps_is_empty,'Dgst_caps_is_empty') or
-     setProcFromDll(@Dgst_structure_foreach,'Dgst_structure_foreach') or
-     setProcFromDll(@Dgst_value_serialize,'Dgst_value_serialize') or
-     setProcFromDll(@Dg_quark_to_string,'Dg_quark_to_string') or
-     setProcFromDll(@Dgst_static_caps_get,'Dgst_static_caps_get') or
-     setProcFromDll(@Dgst_bus_add_signal_watch,'Dgst_bus_add_signal_watch')
+     setProcFromDll(@_Gst_element_query_position,'_Gst_element_query_position') or
+     setProcFromDll(@_Gst_element_query_duration,'_Gst_element_query_duration') or
+     setProcFromDll(@_Gst_element_seek_simple,'_Gst_element_seek_simple') or
+     setProcFromDll(@_Gst_element_factory_find,'_Gst_element_factory_find') or
+     setProcFromDll(@_Gst_element_factory_get_metadata,'_Gst_element_factory_get_metadata') or
+     setProcFromDll(@_Gst_element_factory_get_static_pad_templates,'_Gst_element_factory_get_static_pad_templates') or
+     setProcFromDll(@_Gst_element_factory_get_num_pad_templates,'_Gst_element_factory_get_num_pad_templates') or
+     setProcFromDll(@_Gst_pad_query_caps,'_Gst_pad_query_caps') or
+     setProcFromDll(@_Gst_caps_get_size,'_Gst_caps_get_size') or
+     setProcFromDll(@_Gst_caps_is_any,'_Gst_caps_is_any') or
+     setProcFromDll(@_Gst_caps_is_empty,'_Gst_caps_is_empty') or
+     setProcFromDll(@_Gst_structure_foreach,'_Gst_structure_foreach') or
+     setProcFromDll(@_Gst_value_serialize,'_Gst_value_serialize') or
+     setProcFromDll(@_G_quark_to_string,'_G_quark_to_string') or
+     setProcFromDll(@_Gst_static_caps_get,'_Gst_static_caps_get') or
+     setProcFromDll(@_Gst_bus_add_signal_watch,'_Gst_bus_add_signal_watch')or
+     setProcFromDll(@_Gst_video_overlay_set_window_handle,'_Gst_video_overlay_set_window_handle')
 
 
-     //never used or setProcFromDll(@Dg_object_set_double,'Dg_object_set_double')
+     //never used or setProcFromDll(@_G_object_set_double,'_G_object_set_double')
        then exit;
   end;
 Result:=true;

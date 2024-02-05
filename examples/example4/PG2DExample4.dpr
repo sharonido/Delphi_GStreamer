@@ -63,6 +63,7 @@ program consul output:
 {$Endif}
   try
   GStreamer:=GstFrameWork.Create(0,nil); //no parameters needed here
+  if GStreamer.Started then
     try
     //Creating the Src & Sink Pluin classes & Adding the plugins to the pipe line
     playbin:=GPlugIn.Create('playbin'+

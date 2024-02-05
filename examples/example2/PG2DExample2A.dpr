@@ -53,6 +53,7 @@ DoOnce:boolean=true;
 begin
   try
   GStreamer:=GstFrameWork.Create(0,nil); //no parameters needed here
+  if GStreamer.Started then
     try
     //Creating the Src & Sink Pluin classes & Adding the plugins to the pipe line
     Src:=GPlugIn.Create('videotestsrc','A video test source plugin');

@@ -58,28 +58,28 @@ n2:=string(_GstObject(src^).name);
 n1:=string(_GstObject(new_pad^).name);
 writeln('Received new pad '+n1+' from '+n2);
 GstCaps:=nil;
-sink_pad := Dgst_element_get_static_pad (data{convert.RealObject}, 'sink');
-if Dgst_pad_is_linked(sink_pad)
+sink_pad := _Gst_element_get_static_pad (data{convert.RealObject}, 'sink');
+if _Gst_pad_is_linked(sink_pad)
   then writeln('We are already linked. Ignoring.')
   else
   begin
-  GstCaps:=Dgst_pad_get_current_caps(new_pad);
-  PStruct:=Dgst_caps_get_structure(GstCaps, 0);
-  GstCapsStr:=Dgst_structure_get_name(PStruct);
+  GstCaps:=_Gst_pad_get_current_caps(new_pad);
+  PStruct:=_Gst_caps_get_structure(GstCaps, 0);
+  GstCapsStr:=_Gst_structure_get_name(PStruct);
   n1:=string(GstCapsStr);
   if not n1.Contains('audio')
     then writeln('This pad is of type '+n1+' which is not audio. Ignoring.')
     else
     begin
-    if (Dgst_pad_link(new_pad, sink_pad)<>GstPadLinkReturn.GST_PAD_LINK_OK)
+    if (_Gst_pad_link(new_pad, sink_pad)<>GstPadLinkReturn.GST_PAD_LINK_OK)
       then writeln('This pad is of type '+n1+' but link failed.')
       else writeln('Pad link  with (type '''+n1+''') succeeded.');
     end;
   end;
 if GstCaps<>nil then
-  Dgst_mini_object_unref (@GstCaps.mini_object);
+  _Gst_mini_object_unref (@GstCaps.mini_object);
 if sink_pad<>nil then
-  Dgst_object_unref (sink_pad);
+  _Gst_object_unref (sink_pad);
 end;
 
 //main -------------------------------------------------------------------------
@@ -90,6 +90,7 @@ c:char='A';
 begin
   try
   GStreamer:=GstFrameWork.Create(0,nil); //no parameters needed here
+  if GStreamer.Started then
     try
     //Creating the Src & Sink Pluin classes & Adding the plugins to the pipe line
     //   data.source = gst_element_factory_make ("uridecodebin", "source");
@@ -113,7 +114,7 @@ begin
     D_object_set_string(Src,'uri',
       'https://www.freedesktop.org/software/gstreamer-sdk/data/media/sintel_trailer-480p.webm');
 
-    Dg_signal_connect (Src.RealObject, ansistring('pad-added'), @pad_added_handler, convert.RealObject);
+    _G_signal_connect (Src.RealObject, ansistring('pad-added'), @pad_added_handler, convert.RealObject);
 
     if not GStreamer.PipeLine.ChangeState(GST_STATE_PLAYING)  then //change pipeline stste to "play"
       begin
