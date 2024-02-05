@@ -18,7 +18,8 @@ unit G2D;
 
 interface
 uses
-G2DCallDll,G2DTypes,
+//G2DCallDll,  //in implementation anti cyrculer calls
+G2DTypes,
 System.Classes, System.SysUtils, System.Generics.Collections;
 
 // gst objects -----------------------------------------------------------------
@@ -131,108 +132,10 @@ GstFrameWork=class(TObject)
   Destructor Destroy; override;
 
 end;
-// -----   Aux  functions ------
 
-function  D_element_set_state(const Pipe:GPipeLine;State:GstState):GstStateChangeReturn;
-
-procedure D_object_set_int(plug:GPlugIn;Param:string;val:integer);
-procedure D_object_set_string(plug:GPlugIn;Param,val:string);
-//procedure D_object_set_double(plug:GPlugIn;Param :string; val:double);
-
-function  D_element_link(PlugSrc,PlugSink:GPlugIn):boolean; overload;
-function  D_element_link(Pipe:GPipeLine; PlugSrcName,PlugSinkName:string):boolean; overload;
-function  D_element_link_many_by_name(Pipe:GPipeLine;PlugNamesStr:string):string; //PlugNamesStr=(plug names comma seperated) ->Ok=(result='') error=(result='name of broken link pads')
-
-function D_query_stream_position(const Plug:GPlugin;var pos:UInt64):boolean;
-function D_query_stream_duration(const Plug:GPlugin;var duration:UInt64):boolean;
-function D_query_stream_seek(const Plug:GPlugin;const seek_pos:UInt64):boolean;
 implementation
-
-(* never used
-function StringArrToCPpChar(const StrArr:TArray<string>;var Params:PCharArr;Trim:Boolean=false):PArrPChar;
-var
-I:Integer;
-begin
-SetLength(Params,length(StrArr));
-  for I := 0 to length(StrArr)-1 do
-    if Trim then Params[i]:=Ansistring(StrArr[i].Trim)
-            else Params[i]:=Ansistring(StrArr[i]);
-Result:=@Params[0];
-end;
-*)
-//------------------------------------------
-procedure D_object_set_int(plug:GPlugIn;Param:string;val:integer);
-begin
-_G_object_set_int(plug.RealObject,ansistring(Param),val);
-end;
-
-//------------------------------------------
-procedure D_object_set_string(plug:GPlugIn;Param,val:string);
-begin
-_G_object_set_pchar(plug.RealObject,ansistring(Param),ansistring(val));
-end;
-//------------------------------------------
-function D_element_set_state(const Pipe:GPipeLine;State:GstState):GstStateChangeReturn;
-begin
-Result:=_Gst_element_set_state(pipe.RealObject,state);
-end;
-//------------------------------------------
-
-
-function  D_element_link(PlugSrc,PlugSink:GPlugIn):boolean;
-begin
-if (PlugSrc=nil) or (PlugSink=nil)
-  then Result:=false
-  else Result:=_Gst_element_link(PlugSrc.RealObject,PlugSink.RealObject);
-end;
-//------------------------------------------
-
-function  D_element_link(Pipe:GPipeLine; PlugSrcName,PlugSinkName:string):boolean;
-begin
-Result:=D_element_link(Pipe.GetPlugByName(PlugSrcName),Pipe.GetPlugByName(PlugSinkName));
-end;
-//------------------------------------------
-
-function D_query_stream_position(const Plug:GPlugin;var pos:UInt64):boolean;
-begin
-result:=_Gst_element_query_position(Plug.RealObject,GST_FORMAT_TIME,@pos) and (pos>=0);
-end;
-//------------------------------------------
-
-function D_query_stream_duration(const Plug:GPlugin;var duration:UInt64):boolean;
-begin
-result:=_Gst_element_query_duration(Plug.RealObject,GST_FORMAT_TIME,@duration)
-  and (duration>=0);
-end;
-//------------------------------------------
-
-function D_query_stream_seek(const Plug:GPlugin;const seek_pos:UInt64):boolean;
-begin
-result:=_Gst_element_seek_simple(Plug.RealObject,GST_FORMAT_TIME,
-  GstSeekFlags( integer(GST_SEEK_FLAG_FLUSH) or integer(GST_SEEK_FLAG_KEY_UNIT)),
-  seek_pos);
-end;
-//------------------------------------------
-
-function  D_element_link_many_by_name(Pipe:GPipeLine;PlugNamesStr:string):string; //PlugNamesStr=(plug names comma seperated) ->Ok=(result='') error=(result='name of broken link pads')
-Var
-  I:Integer;
-  NameArr:TArray<string>;
-begin
-Result:='';
-NameArr:=PlugNamesStr.Split([',']);
-if Length(NameArr)<2 then
-  begin
-  Result:='Error Less then 2 plugins can not be linked!?';
-  exit;
-  end;
-for I := 0 to Length(NameArr)-2 do
-  if not D_element_link(Pipe,Trim(NameArr[I]), Trim(NameArr[I+1])) then
-    begin
-    Result:='Error '+Trim(NameArr[I])+' & '+Trim(NameArr[I+1])+' not linked';
-    exit;
-    end;
-end;
+uses
+G2DCallDll;
 //------------------------------------------------------------------------------
 // Gst Delphi objects
 //------------------------------------------------------------------------------
@@ -502,7 +405,7 @@ if fStarted
   if G2DcheckEnvironment and //check the GStreamer Enviroment on this machine
       G2dDllLoad then //check if G2D.dll was loaded, if not load it
     begin
-    _Gst_Init(ParamCn,Params);  //init the gst framework
+    DGst_Init(ParamCn,Params);  //init the gst framework
     WriteOutln('Gst Framework started');
     // create a default pipeline
     fPipeLine:=GPipeLine.Create('DelphiPipeline'); //delphi pipeline -just a name
@@ -617,7 +520,6 @@ if GstCaps<>nil then
 if sink_pad<>nil then
   _Gst_object_unref (sink_pad);
 end;
-//****************************************************************************************************************
 
 //****************************************************************************************************************
 procedure GstFrameWork.SetPadAddedCallback(const SrcPad,SinkPad:GPlugin; const capabilityStr:string);

@@ -18,7 +18,7 @@ unit G2DCallDll;
 
 interface
 uses
-G2DTypes,
+G2DTypes, G2D,
 {$IFDEF MSWINDOWS}
 Winapi.Windows,
 {$ENDIF }
@@ -29,8 +29,8 @@ Type
 GstStructureForeachFunc=function(const field_id:GQuark; const value:pointer;user_data:Pointer):boolean; cdecl ;
 
 // --- types of functions/procedures to find in G2D.dll ---
-Tgst_funcPChars = function (const PlugNum:integer;const PlugNames:PArrPChar):integer; cdecl ;
-Tgst_voidPChars = procedure (const PlugNum:integer;const PlugNames:PArrPChar); cdecl ;
+Tgst_init = procedure (const ParCount:integer;const ParStr:PArrPChar); cdecl ;
+//Tgst_funcPChars = function (const PlugNum:integer;const PlugNames:PArrPChar):integer; cdecl ;
 Tgst_pipeline_new = function (const name:ansistring):pointer; cdecl ;
 Tgst_element_get_bus = function (const Pipe:Pointer):pointer; cdecl ;
 Tgst_object_unref = procedure (ref:pointer); cdecl ;
@@ -89,8 +89,8 @@ Tgst_video_overlay_set_window_handle = procedure (plugbin : pointer {PGstElement
 Var
 
 //The GST functions that point to nil but will get the right address in G2D.dll by setProcFromDll in G2dDllLoad
-DSimpleRun                          :Tgst_funcPChars=nil;
-_Gst_Init                           :Tgst_voidPChars;
+//DSimpleRun                          :Tgst_funcPChars=nil;
+//_Gst_Init                           :Tgst_init;
 _Gst_pipeline_new                   :Tgst_pipeline_new;
 _Gst_object_unref                   :Tgst_object_unref;
 _Gst_mini_object_unref              :Tgst_mini_object_unref;
@@ -146,8 +146,31 @@ DiTmp1,DiTmp2:Ppointer; //for debuging only
 function G2dDllLoad:boolean;
 function G2DcheckEnvironment:boolean;
 
+
+
+//function to translate Gstreamer c to delphi
+procedure DGst_init(const ParCount:integer;const ParStr:PArrPChar);
+function  D_element_set_state(const Pipe:GPipeLine;State:GstState):GstStateChangeReturn;
+
+procedure D_object_set_int(plug:GPlugIn;Param:string;val:integer);
+procedure D_object_set_string(plug:GPlugIn;Param,val:string);
+//procedure D_object_set_double(plug:GPlugIn;Param :string; val:double);
+
+function  D_element_link(PlugSrc,PlugSink:GPlugIn):boolean; overload;
+function  D_element_link(Pipe:GPipeLine; PlugSrcName,PlugSinkName:string):boolean; overload;
+function  D_element_link_many_by_name(Pipe:GPipeLine;PlugNamesStr:string):string; //PlugNamesStr=(plug names comma seperated) ->Ok=(result='') error=(result='name of broken link pads')
+
+function D_query_stream_position(const Plug:GPlugin;var pos:UInt64):boolean;
+function D_query_stream_duration(const Plug:GPlugin;var duration:UInt64):boolean;
+function D_query_stream_seek(const Plug:GPlugin;const seek_pos:UInt64):boolean;
+
 implementation
 //===========================================================================================
+Var
+//Internal The GST functions that point to nil but will get the right address in G2D.dll by setProcFromDll in G2dDllLoad
+
+_Gst_Init                           :Tgst_init;
+
 var
 G2dDllHnd:HMODULE=0;
 
@@ -307,31 +330,106 @@ if G2dDllHnd=0 then
   end;
 Result:=true;
 end;
+
+
+
+//------------------------------------------
+//function to translate Gstreamer c to delphi
+//------------------------------------------
+
+procedure DGst_init(const ParCount:integer;const ParStr:PArrPChar);
+begin
+_Gst_Init(ParCount,ParStr);
+end;
+(*Var
+I:integer;
+PArr:PCharArr;
+begin
+SetLength(PArr,ParamCount);
+for I := 1 to ParamCount do PArr[i-1]:=ParamStr(I);
+if ParamCount=0
+  then _Gst_Init(ParamCount,nil)
+  else _Gst_Init(ParamCount,@PArr);
+end;
+*)
+//------------------------------------------
+procedure D_object_set_int(plug:GPlugIn;Param:string;val:integer);
+begin
+_G_object_set_int(plug.RealObject,ansistring(Param),val);
+end;
+
+//------------------------------------------
+procedure D_object_set_string(plug:GPlugIn;Param,val:string);
+begin
+_G_object_set_pchar(plug.RealObject,ansistring(Param),ansistring(val));
+end;
+//------------------------------------------
+function D_element_set_state(const Pipe:GPipeLine;State:GstState):GstStateChangeReturn;
+begin
+Result:=_Gst_element_set_state(pipe.RealObject,state);
+end;
+//------------------------------------------
+
+
+function  D_element_link(PlugSrc,PlugSink:GPlugIn):boolean;
+begin
+if (PlugSrc=nil) or (PlugSink=nil)
+  then Result:=false
+  else Result:=_Gst_element_link(PlugSrc.RealObject,PlugSink.RealObject);
+end;
+//------------------------------------------
+
+function  D_element_link(Pipe:GPipeLine; PlugSrcName,PlugSinkName:string):boolean;
+begin
+Result:=D_element_link(Pipe.GetPlugByName(PlugSrcName),Pipe.GetPlugByName(PlugSinkName));
+end;
+//------------------------------------------
+
+function D_query_stream_position(const Plug:GPlugin;var pos:UInt64):boolean;
+begin
+result:=_Gst_element_query_position(Plug.RealObject,GST_FORMAT_TIME,@pos) and (pos>=0);
+end;
+//------------------------------------------
+
+function D_query_stream_duration(const Plug:GPlugin;var duration:UInt64):boolean;
+begin
+result:=_Gst_element_query_duration(Plug.RealObject,GST_FORMAT_TIME,@duration)
+  and (duration>=0);
+end;
+//------------------------------------------
+
+function D_query_stream_seek(const Plug:GPlugin;const seek_pos:UInt64):boolean;
+begin
+result:=_Gst_element_seek_simple(Plug.RealObject,GST_FORMAT_TIME,
+  GstSeekFlags( integer(GST_SEEK_FLAG_FLUSH) or integer(GST_SEEK_FLAG_KEY_UNIT)),
+  seek_pos);
+end;
+//------------------------------------------
+
+function  D_element_link_many_by_name(Pipe:GPipeLine;PlugNamesStr:string):string; //PlugNamesStr=(plug names comma seperated) ->Ok=(result='') error=(result='name of broken link pads')
+Var
+  I:Integer;
+  NameArr:TArray<string>;
+begin
+Result:='';
+NameArr:=PlugNamesStr.Split([',']);
+if Length(NameArr)<2 then
+  begin
+  Result:='Error Less then 2 plugins can not be linked!?';
+  exit;
+  end;
+for I := 0 to Length(NameArr)-2 do
+  if not D_element_link(Pipe,Trim(NameArr[I]), Trim(NameArr[I+1])) then
+    begin
+    Result:='Error '+Trim(NameArr[I])+' & '+Trim(NameArr[I+1])+' not linked';
+    exit;
+    end;
+end;
 //------------------------------------------------------------------------------
 //--------------                initialization  --------------------------------
 //------------------------------------------------------------------------------
 
 initialization
- {
-//check environment variable
-gst_root_envBin:=GetEnvironmentVariable('GSTREAMER_1_0_ROOT_X86_64');
-                                       //GSTREAMER_1_0_ROOT_X86_64
-                                        // GSTREAMER_1_0_ROOT_MSVC_X86_64
-if gst_root_envBin='' then
-  begin
-  WriteOutln('The GStreameer installation for 64bit has errors'+sLineBreak+
-      'The "GSTREAMER_1_0_ROOT_X86_64 window environment" variable is not deffined');
-  halt;
-  end;
-gst_root_envBin:=gst_root_envBin+'bin\';
-//check bin dir
-if not FileExists(gst_root_envBin+'libglib-2.0-0.dll') then
-  begin
-  WriteOutln('The GStreameer installation for 64bit has errors'+sLineBreak+
-      gst_root_envBin+' does not have the needed DLLs, like libglib-2.0-0.dll');
-  halt;
-  end;
-        }
 //------------------------------------------
 finalization
 if G2dDllHnd<>0 then
