@@ -250,7 +250,6 @@ constructor GBus.Create(pipe:GPipeLine);
 begin
 inherited Create;
 RObject:=_Gst_element_get_bus(pipe.RealObject);
-//DiTmp2^:= RObject;//debuging
 end;
 
 //---  GPlugIn=Class(GNoUnrefObject) --------
