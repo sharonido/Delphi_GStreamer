@@ -88,36 +88,36 @@ GstSeekFlags =(
 GstMessageType=(
   GST_MESSAGE_UNKNOWN           = 0,
   GST_MESSAGE_EOS               = (1 shl 0),
-  GST_MESSAGE_ERROR             = 2,//(1 shl 1),
-  GST_MESSAGE_WARNING           = 4,//(1 shl 2),
-  GST_MESSAGE_INFO              = 8,//(1 shl 3),
-  GST_MESSAGE_TAG               = $10,//(1 shl 4),
-  GST_MESSAGE_BUFFERING         = $20,//(1 shl 5),
-  GST_MESSAGE_STATE_CHANGED     = $40,//(1 shl 6),
-  GST_MESSAGE_STATE_DIRTY       = $80,//(1 shl 7),
-  GST_MESSAGE_STEP_DONE         = $100,//(1 shl 8),
-  GST_MESSAGE_CLOCK_PROVIDE     = $200,   //(1 shl 9),
-  GST_MESSAGE_CLOCK_LOST        = $400,//(1 shl 10),
-  GST_MESSAGE_NEW_CLOCK         = $800,//(1 shl 11),
-  GST_MESSAGE_STRUCTURE_CHANGE  = $1000,//(1 shl 12),
-  GST_MESSAGE_STREAM_STATUS     = $2000,//(1 shl 13),
-  GST_MESSAGE_APPLICATION       = $4000,//(1 shl 14),
-  GST_MESSAGE_ELEMENT           = $8000,//(1 shl 15),
-  GST_MESSAGE_SEGMENT_START     = $10000,//(1 shl 16),
-  GST_MESSAGE_SEGMENT_DONE      = $20000,//(1 shl 17),
-  GST_MESSAGE_DURATION_CHANGED  = $40000,//(1 shl 18),
-  GST_MESSAGE_LATENCY           = $80000,//(1 shl 19),
-  GST_MESSAGE_ASYNC_START       = $100000,//(1 shl 20),
-  GST_MESSAGE_ASYNC_DONE        = $200000,//(1 shl 21),
-  GST_MESSAGE_REQUEST_STATE     = $400000,//(1 shl 22),
-  GST_MESSAGE_STEP_START        = $800000,//(1 shl 23),
-  GST_MESSAGE_QOS               = $1000000,//(1 shl 24),
-  GST_MESSAGE_PROGRESS          = $2000000,//(1 shl 25),
-  GST_MESSAGE_TOC               = $4000000,//(1 shl 26),
-  GST_MESSAGE_RESET_TIME        = $8000000,//(1 shl 27),
-  GST_MESSAGE_STREAM_START      = $10000000,//(1 shl 28),
-  GST_MESSAGE_NEED_CONTEXT      = $20000000,//(1 shl 29),
-  GST_MESSAGE_HAVE_CONTEXT      = $40000000,//(1 shl 30),
+  GST_MESSAGE_ERROR             = (1 shl 1),
+  GST_MESSAGE_WARNING           = (1 shl 2),
+  GST_MESSAGE_INFO              = (1 shl 3),
+  GST_MESSAGE_TAG               = (1 shl 4),
+  GST_MESSAGE_BUFFERING         = (1 shl 5),
+  GST_MESSAGE_STATE_CHANGED     = (1 shl 6),
+  GST_MESSAGE_STATE_DIRTY       = (1 shl 7),
+  GST_MESSAGE_STEP_DONE         = (1 shl 8),
+  GST_MESSAGE_CLOCK_PROVIDE     = (1 shl 9),
+  GST_MESSAGE_CLOCK_LOST        = (1 shl 10),
+  GST_MESSAGE_NEW_CLOCK         = (1 shl 11),
+  GST_MESSAGE_STRUCTURE_CHANGE  = (1 shl 12),
+  GST_MESSAGE_STREAM_STATUS     = (1 shl 13),
+  GST_MESSAGE_APPLICATION       = (1 shl 14),
+  GST_MESSAGE_ELEMENT           = (1 shl 15),
+  GST_MESSAGE_SEGMENT_START     = (1 shl 16),
+  GST_MESSAGE_SEGMENT_DONE      = (1 shl 17),
+  GST_MESSAGE_DURATION_CHANGED  = (1 shl 18),
+  GST_MESSAGE_LATENCY           = (1 shl 19),
+  GST_MESSAGE_ASYNC_START       = (1 shl 20),
+  GST_MESSAGE_ASYNC_DONE        = (1 shl 21),
+  GST_MESSAGE_REQUEST_STATE     = (1 shl 22),
+  GST_MESSAGE_STEP_START        = (1 shl 23),
+  GST_MESSAGE_QOS               = (1 shl 24),
+  GST_MESSAGE_PROGRESS          = (1 shl 25),
+  GST_MESSAGE_TOC               = (1 shl 26),
+  GST_MESSAGE_RESET_TIME        = (1 shl 27),
+  GST_MESSAGE_STREAM_START      = (1 shl 28),
+  GST_MESSAGE_NEED_CONTEXT      = (1 shl 29),
+  GST_MESSAGE_HAVE_CONTEXT      = (1 shl 30),
   GST_MESSAGE_EXTENDED          = -$80000000,//(1 shl 31),  bypass the error
   GST_MESSAGE_DEVICE_ADDED      = GST_MESSAGE_EXTENDED + 1,
   GST_MESSAGE_DEVICE_REMOVED    = GST_MESSAGE_EXTENDED + 2,
@@ -162,6 +162,7 @@ _GstMiniObject= record
   priv_uint:integer;     //guint
   priv_pointer:pointer;  //gpointer
   end;
+PGstMiniObject=^_GstMiniObject;
 
 PGstCaps = ^GstCaps;
 GstCaps = _GstMiniObject;
@@ -191,7 +192,7 @@ _GObject= record
   qdata    :pointer //GData
   end;
 GObject = _GObject;
-PObject = ^GObject;
+PGObject = ^GObject;
 
 _GstObject= record
         //not packed record, cause will be difrent in 64/32 os and on android/ios
@@ -217,7 +218,6 @@ _GstElementFactory = record
   {more fields}
   end;
 PGstElementFactory = ^_GstElementFactory;
-///////////////////////////////////////////
 
 _GRecMutex  =record
   p:pointer;
@@ -290,9 +290,9 @@ _GstElement =record
   //*< private >*/
   _gst_reserved :array[0..GST_PADDING-2] of pointer;//gpointer _gst_reserved[GST_PADDING-1]
   end;
+PGstElement=^_GstElement;
 
 _GstCaps = record
-
   mini_object:_GstMiniObject;
   end;
 
@@ -308,12 +308,22 @@ _GstStructure = record
   GQuark name;
   }
   end;
+
 GstStructure = _GstStructure;
 PGstStructure = ^GstStructure;
 
 PGstPad = ^_GstPad;
 _GstPad =record
-_object   :_GstObject;
+_object       :_GstObject; //GstObject       object;
+//*< public >*/
+element_private:pointer;//gpointer       element_private;
+padtemplate   :pointer;{ TODO : change pointer to GstPadTemplate }//GstPadTemplate  *padtemplate;
+direction     :GstPadDirection;//GstPadDirection   direction;
+//*< private >*/
+//* streaming rec_lock */
+stream_rec_lock : _GRecMutex; //GRecMutex		         stream_rec_lock;
+task            :pointer; { TODO : change pointer to ^GstTask }//  GstTask			*task;
+ { TODO : complet the record... }
 //this is only first elements of the pad record
 (*the "full" _GstPad
 {

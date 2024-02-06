@@ -64,3 +64,5 @@ examples/test/Unit1.fmx
 examples/test/Unit1.pas
 examples/test/Uvcl.dfm
 examples/test/Uvcl.pas
+Delphi/__recovery/__recovery.ini
+Delphi/__recovery/G2D.pas

@@ -30,8 +30,7 @@ GstStructureForeachFunc=function(const field_id:GQuark; const value:pointer;user
 
 // --- types of functions/procedures to find in G2D.dll ---
 Tgst_init = procedure (const ParCount:integer;const ParStr:PArrPChar); cdecl ;
-//Tgst_funcPChars = function (const PlugNum:integer;const PlugNames:PArrPChar):integer; cdecl ;
-Tgst_pipeline_new = function (const name:ansistring):pointer; cdecl ;
+Tgst_pipeline_new = function (const name:ansistring):PGstElement; cdecl ;
 Tgst_element_get_bus = function (const Pipe:Pointer):pointer; cdecl ;
 Tgst_object_unref = procedure (ref:pointer); cdecl ;
 Tgst_mini_object_unref = procedure(mini_object:pointer) cdecl;
@@ -91,7 +90,6 @@ Var
 //The GST functions that point to nil but will get the right address in G2D.dll by setProcFromDll in G2dDllLoad
 //DSimpleRun                          :Tgst_funcPChars=nil;
 //_Gst_Init                           :Tgst_init;
-_Gst_pipeline_new                   :Tgst_pipeline_new;
 _Gst_object_unref                   :Tgst_object_unref;
 _Gst_mini_object_unref              :Tgst_mini_object_unref;
 _Gst_element_get_bus                :Tgst_element_get_bus;
@@ -150,7 +148,8 @@ function G2DcheckEnvironment:boolean;
 
 //function to translate Gstreamer c to delphi
 procedure DGst_init(const ParCount:integer;const ParStr:PArrPChar);
-function  D_element_set_state(const Pipe:GPipeLine;State:GstState):GstStateChangeReturn;
+function D_element_set_state(const Pipe:GPipeLine;State:GstState):GstStateChangeReturn;
+function DGst_pipeline_new(name:string):PGstElement;
 
 procedure D_object_set_int(plug:GPlugIn;Param:string;val:integer);
 procedure D_object_set_string(plug:GPlugIn;Param,val:string);
@@ -170,6 +169,7 @@ Var
 //Internal The GST functions that point to nil but will get the right address in G2D.dll by setProcFromDll in G2dDllLoad
 
 _Gst_Init                           :Tgst_init;
+_Gst_pipeline_new                   :Tgst_pipeline_new;
 
 var
 G2dDllHnd:HMODULE=0;
@@ -352,6 +352,10 @@ if ParamCount=0
   else _Gst_Init(ParamCount,@PArr);
 end;
 *)
+function DGst_pipeline_new(name:string):PGstElement;
+begin
+  Result:=_Gst_pipeline_new(ansistring(name));
+end;
 //------------------------------------------
 procedure D_object_set_int(plug:GPlugIn;Param:string;val:integer);
 begin

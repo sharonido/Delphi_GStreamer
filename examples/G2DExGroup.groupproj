@@ -6,6 +6,9 @@
         <Projects Include="example1\PG2DExample1.dproj">
             <Dependencies/>
         </Projects>
+        <Projects Include="example2\PG2DExample2.dproj">
+            <Dependencies/>
+        </Projects>
         <Projects Include="example3\PG2DExample3.dproj">
             <Dependencies/>
         </Projects>
@@ -19,9 +22,6 @@
             <Dependencies/>
         </Projects>
         <Projects Include="example7\PG2DExample7.dproj">
-            <Dependencies/>
-        </Projects>
-        <Projects Include="example2\PG2DExample2.dproj">
             <Dependencies/>
         </Projects>
         <Projects Include="example2\PG2DExample2A.dproj">
@@ -52,6 +52,15 @@
     </Target>
     <Target Name="PG2DExample1:Make">
         <MSBuild Projects="example1\PG2DExample1.dproj" Targets="Make"/>
+    </Target>
+    <Target Name="PG2DExample2">
+        <MSBuild Projects="example2\PG2DExample2.dproj"/>
+    </Target>
+    <Target Name="PG2DExample2:Clean">
+        <MSBuild Projects="example2\PG2DExample2.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="PG2DExample2:Make">
+        <MSBuild Projects="example2\PG2DExample2.dproj" Targets="Make"/>
     </Target>
     <Target Name="PG2DExample3">
         <MSBuild Projects="example3\PG2DExample3.dproj"/>
@@ -98,15 +107,6 @@
     <Target Name="PG2DExample7:Make">
         <MSBuild Projects="example7\PG2DExample7.dproj" Targets="Make"/>
     </Target>
-    <Target Name="PG2DExample2">
-        <MSBuild Projects="example2\PG2DExample2.dproj"/>
-    </Target>
-    <Target Name="PG2DExample2:Clean">
-        <MSBuild Projects="example2\PG2DExample2.dproj" Targets="Clean"/>
-    </Target>
-    <Target Name="PG2DExample2:Make">
-        <MSBuild Projects="example2\PG2DExample2.dproj" Targets="Make"/>
-    </Target>
     <Target Name="PG2DExample2A">
         <MSBuild Projects="example2\PG2DExample2A.dproj"/>
     </Target>
@@ -144,13 +144,13 @@
         <MSBuild Projects="test\Ptest4.dproj" Targets="Make"/>
     </Target>
     <Target Name="Build">
-        <CallTarget Targets="PG2DExample1;PG2DExample3;PG2DExample3A;PG2DExample4;PG2DExample6;PG2DExample7;PG2DExample2;PG2DExample2A;ptest2;Ptest3;Ptest4"/>
+        <CallTarget Targets="PG2DExample1;PG2DExample2;PG2DExample3;PG2DExample3A;PG2DExample4;PG2DExample6;PG2DExample7;PG2DExample2A;ptest2;Ptest3;Ptest4"/>
     </Target>
     <Target Name="Clean">
-        <CallTarget Targets="PG2DExample1:Clean;PG2DExample3:Clean;PG2DExample3A:Clean;PG2DExample4:Clean;PG2DExample6:Clean;PG2DExample7:Clean;PG2DExample2:Clean;PG2DExample2A:Clean;ptest2:Clean;Ptest3:Clean;Ptest4:Clean"/>
+        <CallTarget Targets="PG2DExample1:Clean;PG2DExample2:Clean;PG2DExample3:Clean;PG2DExample3A:Clean;PG2DExample4:Clean;PG2DExample6:Clean;PG2DExample7:Clean;PG2DExample2A:Clean;ptest2:Clean;Ptest3:Clean;Ptest4:Clean"/>
     </Target>
     <Target Name="Make">
-        <CallTarget Targets="PG2DExample1:Make;PG2DExample3:Make;PG2DExample3A:Make;PG2DExample4:Make;PG2DExample6:Make;PG2DExample7:Make;PG2DExample2:Make;PG2DExample2A:Make;ptest2:Make;Ptest3:Make;Ptest4:Make"/>
+        <CallTarget Targets="PG2DExample1:Make;PG2DExample2:Make;PG2DExample3:Make;PG2DExample3A:Make;PG2DExample4:Make;PG2DExample6:Make;PG2DExample7:Make;PG2DExample2A:Make;ptest2:Make;Ptest3:Make;Ptest4:Make"/>
     </Target>
     <Import Project="$(BDS)\Bin\CodeGear.Group.Targets" Condition="Exists('$(BDS)\Bin\CodeGear.Group.Targets')"/>
 </Project>

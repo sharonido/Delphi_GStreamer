@@ -37,7 +37,6 @@ end;
 GObject=class(GNoUnrefObject)
   protected
   function GetReal:PGObject;
-
   public
   Destructor Destroy; override;
   function GetName:string;
@@ -45,7 +44,32 @@ GObject=class(GNoUnrefObject)
   property RealObject:PGObject read GetReal;// write RObject;
 end;
 
-GstObject=class(GObject)
+GstMiniObject=class(GNoUnrefObject)
+  protected
+  function GetReal:PGstMiniObject;
+  public
+  property RealObject:PGstMiniObject read GetReal;// write RObject;
+end;
+
+GBus=class(GObject)   //GBus<>GMes cause future will do diffrent properties
+  public
+  constructor Create(pipe:GPipeLine);
+end;
+
+GMsg=class(GstMiniObject)   //GMsg has its own unref
+  protected
+  RMsg:PGst_Mes;
+  function GetReal:PGst_Mes;
+  function ftype:GstMessageType;
+  public
+  property MsgType:GstMessageType read ftype;
+  property RealObject:PGst_Mes read GetReal;// write RObject;
+  constructor Create(const TimeOut:Int64;const MType:UInt );
+  Destructor Destroy; override;
+end;
+
+
+GstObject=class(GstMiniObject)
   protected
   function GetReal:PGstObject;
   public
@@ -58,6 +82,9 @@ GstElement=class(GstObject)
   public
   property RealObject:PGstElement read GetReal;// write RObject;
 end;
+
+
+//GPlugin=Class(GstElement); //forward
 
 GPlugin=Class(GstElement)
   private
@@ -73,35 +100,17 @@ GPlugin=Class(GstElement)
 end;
 
 
-
-GPad=class(GObject)
+GPad=class(GstObject)
   private
   PlugRequest: GPlugIn;
+  function GetReal:PGstPad;
   public
+  property RealObject:PGstPad read GetReal;// write RObject;
   function LinkToSink(SinkPad:GPad):GstPadLinkReturn;
   constructor CreateReqested(plug:GPlugIn;name:string);
   constructor CreateStatic(plug:GPlugIn;name:string;Dummy:char=' ');//Dummyis for C++ Warning
-
-  Destructor Destroy; override;
-  end;
-
-GBus=class(GObject)   //GBus<>GMes cause future will do diffrent properties
-  public
-  constructor Create(pipe:GPipeLine);
-end;
-
-GMsg=class(GObject)   //GMsg has its own unref
-  protected
-  RMsg:PGst_Mes;
-  function GetReal:PGst_Mes;
-  function ftype:GstMessageType;
-  public
-  property MsgType:GstMessageType read ftype;
-  property RealObject:PGst_Mes read GetReal;// write RObject;
-  constructor Create(const TimeOut:Int64;const MType:UInt );
   Destructor Destroy; override;
 end;
-
 
 GPipeLine=Class(GstElement)
   protected
@@ -167,6 +176,11 @@ begin
 Result:= RealObject<>nil;
 end;
 
+//----- GstMiniObject=class(GNoUnrefObject) -------------------------
+function GstMiniObject.GetReal:PGstMiniObject;
+begin
+  Result:=PGstMiniObject(RObject);
+end;
 
 //----   GObject=class(GNoUnrefObject)  ----
 Destructor GObject.Destroy;
@@ -224,6 +238,11 @@ end;
 function GPad.LinkToSink(SinkPad:GPad):GstPadLinkReturn;
 begin
 Result:=_Gst_pad_link(RealObject,SinkPad.RealObject);
+end;
+
+function GPad.GetReal:PGstPad;
+begin
+  Result:=PGstPad(RObject);
 end;
 
 //---  GBus=class(GObject)  -----------------
@@ -286,9 +305,7 @@ fPlugIns:=TObjectList<GPlugIn>.Create(true);
 //plugins will be free but,
 //not their RObject that is freed by the underlyng C Gsreamer framework
 fName:=ansistring(Aname);
-RObject:=_Gst_pipeline_new(AnsiString(name));
-
-//DiTmp1^:= RObject;//debuging
+RObject:=DGst_pipeline_new(name);
 end;
 
 function GPipeLine.Name:string;
