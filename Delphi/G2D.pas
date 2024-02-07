@@ -20,7 +20,8 @@ interface
 uses
 //G2DCallDll,  //in implementation anti cyrculer calls
 G2DTypes,
-System.Classes, System.SysUtils, System.Generics.Collections;
+System.Classes, System.SysUtils, System.Generics.Collections,
+Vcl.Forms, Vcl.ExtCtrls;
 
 // gst objects -----------------------------------------------------------------
 Type
@@ -140,9 +141,11 @@ GstFrameWork=class(TObject)
   class var fMsgAssigned:boolean;
   class var fState:GstState;
   class var fRunForEver:boolean;
+  procedure PrTimer(Sender:TObject);
   public
   class var MsgFilter:integer;
   class var MsgResult:GstMessageType;
+  class var MsgTimer:TTimer;
   //class property MsgUsed:Boolean read fMsgUsed;
   class property Started:Boolean read fStarted;
   class Property PipeLine:GPipeLine read fPipeline;
@@ -361,6 +364,8 @@ end;
 function GPipeLine.ChangeState(NewState:GstState):boolean;
 begin
 Result:=false;
+If Assigned(Application) then //if in win env
+  GstFrameWork.MsgTimer.Enabled:=True;
 If D_element_set_state(self,NewState)=GST_STATE_CHANGE_FAILURE
   then WriteOutln('PipeLine '+Name+' could not change state to '+GstStateName(NewState))
   else
@@ -459,6 +464,13 @@ if fStarted
   else
   begin
   inherited create;
+  if Assigned(Application) then  //if in window env
+    begin
+    MsgTimer:=TTimer.Create(Application);
+    MsgTimer.Enabled:=false; //don't start running until pipeline.changstate cmd
+    MsgTimer.Interval:=300; //300 mSec =s times in a sec
+    MsgTimer.OnTimer:=PrTimer;
+    end;
   MsgFilter:=integer(GST_MESSAGE_ERROR) or integer(GST_MESSAGE_EOS) or integer(GST_MESSAGE_STATE_CHANGED);
   fterminate:=false;
   fMsgResult:=GstMessageType.GST_MESSAGE_UNKNOWN;
@@ -466,7 +478,7 @@ if fStarted
       G2dDllLoad then //check if G2D.dll was loaded, if not load it
     begin
     DGst_Init(ParamCn,Params);  //init the gst framework
-    WriteOutln('Gst Framework started');
+    WriteOutln('Gst Framework initialized');
     // create a default pipeline
     fPipeLine:=GPipeLine.Create('DelphiPipeline'); //delphi pipeline -just a name
     if not PipeLine.isCreated then
@@ -497,6 +509,11 @@ if fstate=GST_STATE_PLAYING then
   WriteOutln('Stream had ran until '+DateToIso(Now));
   end;
 inherited Destroy;
+end;
+
+procedure GstFrameWork.PrTimer(Sender:TObject);
+begin
+CheckMsgAndRunFor(0); //just check for a new message (3 times a sec)
 end;
 
 function GstFrameWork.BuildPluginsInPipeLine(params:string):boolean;

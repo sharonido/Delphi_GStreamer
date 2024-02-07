@@ -31,7 +31,7 @@ begin
 {$IfDef VER360}
 WriteOutln('''
 This is example 1. It is a "Hellow world" program for G2D a
-(Gstreamer bridge to Delphi). This program follows the example1 in Gsteramer Docs in:
+(Gstreamer bridge to Delphi). This program follows the example 1 in Gsteramer Docs in:
 https://gstreamer.freedesktop.org/documentation/tutorials/basic/hello-world.html?gi-language=c
 but uses an object oriented framework of Delphi
 -----------

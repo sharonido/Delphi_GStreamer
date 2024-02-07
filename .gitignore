@@ -66,3 +66,7 @@ examples/test/Uvcl.dfm
 examples/test/Uvcl.pas
 Delphi/__recovery/__recovery.ini
 Delphi/__recovery/G2D.pas
+*.bmp
+examples/example4/play.JPG
+examples/test/UFPlayPauseBtn.dfm
+examples/test/UFPlayPauseBtn.pas

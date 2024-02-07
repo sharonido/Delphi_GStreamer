@@ -243,13 +243,15 @@ if G2dDllHnd=0 then
   if dllPath=''
     then
     begin
+    WriteOutln('Error - G2D.dll was not found.');
+{$IfDef VER360}
     WriteOutln('''
-                Error - G2D.dll was not found.
                 You must have G2D.dll file and all its associated dll's
                 in the defoult folder or in your current (exe) folder.
                 look into:
                 https://github.com/sharonido/Delphi_GStreamer/tree/master/bin
                ''');
+{$Endif}
     exit;
     end
     else
@@ -261,7 +263,11 @@ if G2dDllHnd=0 then
       begin
       G2dDllHnd:=0;
       WriteOutln('Error Loading G2D.dll Library-'+SysErrorMessage(err));
-      WriteOutln('''
+{$IfDef VER360}
+      if SysErrorMessage(err).IndexOf('Win32')<>-1
+        then WriteOutln('apllication must be compiled as 64bit')
+        else
+        WriteOutln('''
                 Error - G2D.dll was not loaded.
                 The G2D.dll loads other GStreamer dlls,
                 that probably where not found.
@@ -269,6 +275,7 @@ if G2dDllHnd=0 then
                 PC ‘path’ environment variable.
                ''');
       end;
+{$Endif}
     end;
   if G2dDllHnd=0 then exit;
 

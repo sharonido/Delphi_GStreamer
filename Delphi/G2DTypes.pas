@@ -455,7 +455,7 @@ end;
 
 procedure WriteOutln(st:string);
 begin
-  stdWriteOut(st+sLineBreak)
+  WriteOut(st+sLineBreak)
 end;
 //------------------------------------------------------------------------------
 function DateToIso(DT:TDateTime):string;
