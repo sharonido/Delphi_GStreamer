@@ -438,6 +438,7 @@ procedure WriteOutln(st:string);
 procedure stdWriteOut(st:string);
 
 function DateToIso(DT:TDateTime):string;
+function NanoToSecStr(Nano:Uint64):string;
 
 function GstStateName(State:GstState):string;
 function GstPadLinkReturnName(Ret:GstPadLinkReturn):string;
@@ -464,6 +465,23 @@ DateTimeToString(Result,'dd-MM-yyyy"T"hh:nn:ss',DT);
 end;
 
 //------------------------------------------------------------------------------
+function SecondsToTimeString(seconds: Int64): string;
+var
+  hours, minutes: Int64;
+begin
+  hours := seconds div 3600;
+  seconds := seconds mod 3600;
+  minutes := seconds div 60;
+  seconds := seconds mod 60;
+  Result := Format('%d:%.2d:%.2d', [hours, minutes, seconds]);
+end;
+
+function NanoToSecStr(Nano:Uint64):string;
+begin
+  if int64(Nano)<0
+    then Result:='Null'
+    else Result:=SecondsToTimeString(Nano div 1000000000);
+end;
 
 function GstStateName(State:GstState):string;
 begin

@@ -77,7 +77,7 @@ GstObject=class(GstMiniObject)
   property RealObject:PGstObject read GetReal;// write RObject;
 end;
 
-GstElement=class(GstObject)
+TGstElement=class(GstObject)
   protected
   function GetReal:PGstElement;
   public
@@ -87,7 +87,7 @@ end;
 
 //GPlugin=Class(GstElement); //forward
 
-GPlugin=Class(GstElement)
+GPlugin=Class(TGstElement)
   private
   procedure SetParams;
   protected
@@ -113,7 +113,7 @@ GPad=class(GstObject)
   Destructor Destroy; override;
 end;
 
-GPipeLine=Class(GstElement)
+GPipeLine=Class(TGstElement)
   protected
   fname:ansistring;
   fPlugIns:TObjectList<GPlugIn>;
@@ -141,15 +141,18 @@ GstFrameWork=class(TObject)
   class var fMsgAssigned:boolean;
   class var fState:GstState;
   class var fRunForEver:boolean;
+  class var fDuration:int64;
   procedure PrTimer(Sender:TObject);
   public
   class var MsgFilter:integer;
   class var MsgResult:GstMessageType;
   class var MsgTimer:TTimer;
+  class var OnDuration:TNotifyEvent;
   //class property MsgUsed:Boolean read fMsgUsed;
   class property Started:Boolean read fStarted;
   class Property PipeLine:GPipeLine read fPipeline;
   class Property Bus:GBus read fBus;
+  class Property Duration:int64 read fDuration;
   class Property Msg:GMsg read fMsg write fMsg;
   //class Property Running:boolean read frunning;
   class Property State:GstState read fState;
@@ -213,7 +216,7 @@ begin
 end;
 
 //------- GstElement=class(GstObject) ----
-function GstElement.GetReal:PGstElement;
+function TGstElement.GetReal:PGstElement;
 begin
   Result:=PGstElement(RObject);
 end;
@@ -378,6 +381,8 @@ end;
 //----   GMsg=class(GObject)  ----------------
 constructor GMsg.Create(const TimeOut:Int64;const MType:UInt );
 var old_state, new_state :GstState;
+kk:uint64;
+kp:GPlugin;
 begin
 inherited Create;
 GstFrameWork.fRunForEver:=TimeOut=DoForEver;
@@ -433,6 +438,11 @@ if (RMsg <> nil) then  // There is a msg
         GstFrameWork.frunning:=(GstState(new_state)=GstState.GST_STATE_PLAYING);
         end;
       end;
+    GST_MESSAGE_DURATION_CHANGED:
+      begin
+      GstFrameWork.fDuration:=0;
+      //GstFrameWork.fDuration:=
+      end;
     else WriteOutln('Internal error in - GMsg.Create');
     end;
   end;
@@ -471,8 +481,12 @@ if fStarted
     MsgTimer.Interval:=300; //300 mSec =s times in a sec
     MsgTimer.OnTimer:=PrTimer;
     end;
-  MsgFilter:=integer(GST_MESSAGE_ERROR) or integer(GST_MESSAGE_EOS) or integer(GST_MESSAGE_STATE_CHANGED);
+  MsgFilter:=integer(GST_MESSAGE_ERROR) or
+             integer(GST_MESSAGE_EOS) or
+             integer(GST_MESSAGE_STATE_CHANGED) or
+             integer(GST_MESSAGE_DURATION_CHANGED);
   fterminate:=false;
+  fDuration:=-1;
   fMsgResult:=GstMessageType.GST_MESSAGE_UNKNOWN;
   if G2DcheckEnvironment and //check the GStreamer Enviroment on this machine
       G2dDllLoad then //check if G2D.dll was loaded, if not load it
@@ -514,6 +528,14 @@ end;
 procedure GstFrameWork.PrTimer(Sender:TObject);
 begin
 CheckMsgAndRunFor(0); //just check for a new message (3 times a sec)
+if fDuration=0 then   //this stream changed its duration (so it has duration)
+  begin
+  D_query_stream_duration(PipeLine,uint64(fDuration));
+  if fDuration=-1
+    then fDuration:=0 //keep checking
+    else if Assigned(OnDuration)
+      then OnDuration(nil);
+  end;
 end;
 
 function GstFrameWork.BuildPluginsInPipeLine(params:string):boolean;
