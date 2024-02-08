@@ -30,7 +30,7 @@
         <Projects Include="example5a\PExample5a.dproj">
             <Dependencies/>
         </Projects>
-        <Projects Include="test\Ptest4.dproj">
+        <Projects Include="example5b\PExample5b.dproj">
             <Dependencies/>
         </Projects>
     </ItemGroup>
@@ -122,23 +122,23 @@
     <Target Name="PExample5a:Make">
         <MSBuild Projects="example5a\PExample5a.dproj" Targets="Make"/>
     </Target>
-    <Target Name="Ptest4">
-        <MSBuild Projects="test\Ptest4.dproj"/>
+    <Target Name="PExample5b">
+        <MSBuild Projects="example5b\PExample5b.dproj"/>
     </Target>
-    <Target Name="Ptest4:Clean">
-        <MSBuild Projects="test\Ptest4.dproj" Targets="Clean"/>
+    <Target Name="PExample5b:Clean">
+        <MSBuild Projects="example5b\PExample5b.dproj" Targets="Clean"/>
     </Target>
-    <Target Name="Ptest4:Make">
-        <MSBuild Projects="test\Ptest4.dproj" Targets="Make"/>
+    <Target Name="PExample5b:Make">
+        <MSBuild Projects="example5b\PExample5b.dproj" Targets="Make"/>
     </Target>
     <Target Name="Build">
-        <CallTarget Targets="PG2DExample1;PG2DExample2;PG2DExample2A;PG2DExample3;PG2DExample3A;PG2DExample4;PG2DExample6;PG2DExample7;PExample5a;Ptest4"/>
+        <CallTarget Targets="PG2DExample1;PG2DExample2;PG2DExample2A;PG2DExample3;PG2DExample3A;PG2DExample4;PG2DExample6;PG2DExample7;PExample5a;PExample5b"/>
     </Target>
     <Target Name="Clean">
-        <CallTarget Targets="PG2DExample1:Clean;PG2DExample2:Clean;PG2DExample2A:Clean;PG2DExample3:Clean;PG2DExample3A:Clean;PG2DExample4:Clean;PG2DExample6:Clean;PG2DExample7:Clean;PExample5a:Clean;Ptest4:Clean"/>
+        <CallTarget Targets="PG2DExample1:Clean;PG2DExample2:Clean;PG2DExample2A:Clean;PG2DExample3:Clean;PG2DExample3A:Clean;PG2DExample4:Clean;PG2DExample6:Clean;PG2DExample7:Clean;PExample5a:Clean;PExample5b:Clean"/>
     </Target>
     <Target Name="Make">
-        <CallTarget Targets="PG2DExample1:Make;PG2DExample2:Make;PG2DExample2A:Make;PG2DExample3:Make;PG2DExample3A:Make;PG2DExample4:Make;PG2DExample6:Make;PG2DExample7:Make;PExample5a:Make;Ptest4:Make"/>
+        <CallTarget Targets="PG2DExample1:Make;PG2DExample2:Make;PG2DExample2A:Make;PG2DExample3:Make;PG2DExample3A:Make;PG2DExample4:Make;PG2DExample6:Make;PG2DExample7:Make;PExample5a:Make;PExample5b:Make"/>
     </Target>
     <Import Project="$(BDS)\Bin\CodeGear.Group.Targets" Condition="Exists('$(BDS)\Bin\CodeGear.Group.Targets')"/>
 </Project>
