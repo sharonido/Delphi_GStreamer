@@ -23,6 +23,7 @@ type
     Label2: TLabel;
     FPlayPauseBtns1: TFPlayPauseBtns;
     procedure FormCreate(Sender: TObject);
+    procedure PanelVideoClick(Sender: TObject);
   private
     { Private declarations }
   public
@@ -95,6 +96,11 @@ if GStreamer.Started then
   PanelVideo.Caption:='Wait for video';
   GStreamer.PipeLine.ChangeState(GST_STATE_PAUSED);
   end;
+end;
+
+procedure TFormVideoWin.PanelVideoClick(Sender: TObject);
+begin
+FPlayPauseBtns1.sbPlayClick(nil);
 end;
 
 end.

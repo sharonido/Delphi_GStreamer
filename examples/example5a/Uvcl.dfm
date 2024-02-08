@@ -13,10 +13,11 @@ object FormVideoWin: TFormVideoWin
   OnCreate = FormCreate
   TextHeight = 15
   object Splitter1: TSplitter
-    Left = 305
+    Left = 281
     Top = 41
     Width = 6
     Height = 470
+    ExplicitLeft = 305
   end
   object Panel1: TPanel
     Left = 0
@@ -50,7 +51,7 @@ object FormVideoWin: TFormVideoWin
   object Panel2: TPanel
     Left = 0
     Top = 41
-    Width = 305
+    Width = 281
     Height = 470
     Align = alLeft
     BevelInner = bvRaised
@@ -59,61 +60,70 @@ object FormVideoWin: TFormVideoWin
     ShowCaption = False
     TabOrder = 1
     object Label2: TLabel
-      Left = 5
-      Top = 160
-      Width = 69
+      Left = 2
+      Top = 2
+      Width = 277
       Height = 15
+      Align = alTop
       Caption = 'Activity  Log:'
+      ExplicitLeft = 5
+      ExplicitTop = 160
+      ExplicitWidth = 69
     end
     object Mlog: TMemo
       Left = 2
-      Top = 181
-      Width = 301
-      Height = 287
-      Align = alBottom
+      Top = 17
+      Width = 277
+      Height = 451
+      Align = alClient
       Lines.Strings = (
         'This is example 5a.'
         'This program follows tutorial 5 of, '
         'Gsteramer Docs in:'
-        'https://gstreamer.freedesktop.org/documentation/t'
-        'utorials/basic/toolkit-integration.html?gi-'
-        'language=c'
-        'but uses an object oriented framework of Delphi'
+        
+          'https://gstreamer.freedesktop.org/documentation/tutorials/basic/' +
+          'toolkit-integration.html?gi-language=c'
+        'But uses an object oriented framework of Delphi.'
         '-----------'
-        'After you understand this 5a prograrm you can '
-        'move to example 5b that integrats all of tutorial 5.'
-        'This grogram should use FMX so it can be easly '
-        'integrated in android ios etc.'
-        'but it uses VCL because geting a handle of a TPanel '
-        'is much mor simple (In FMX you must embed a '
-        'form in the panel)'
+        
+          'After you understand this 5a prograrm you can move to example 5b' +
+          ' that integrats more of tutorial 5.'
+        
+          'This grogram should use FMX, so it can be easly integrated in an' +
+          'droid ios etc.'
+        
+          'But it uses VCL, because geting a handle of a TPanel is much mor' +
+          'e simple. In FMX can not get a panel handle, so you must embed a' +
+          ' form in the panel.'
         '-----------'
         'This program:'
         '1. starts the gstreamer'
         '2. builds a playbin plugin'
-        '3. gives the playbin a hanlde to a panel (PanelVideo)'
+        '3. gives the playbin a hanlde to a panel '
+        '(PanelVideo)'
         '4 response to the play, pause, stop buttons'
         '-------------------------------------------'
         '')
-      ScrollBars = ssVertical
+      ScrollBars = ssBoth
       TabOrder = 0
+      ExplicitLeft = -2
     end
   end
   object Panel4: TPanel
-    Left = 311
+    Left = 287
     Top = 41
-    Width = 660
+    Width = 684
     Height = 470
     Align = alClient
     Caption = 'Panel4'
     ShowCaption = False
     TabOrder = 2
-    ExplicitLeft = 275
-    ExplicitWidth = 696
+    ExplicitLeft = 311
+    ExplicitWidth = 660
     object PanelVideo: TPanel
       Left = 1
       Top = 1
-      Width = 658
+      Width = 682
       Height = 431
       Align = alClient
       BevelOuter = bvNone
@@ -125,19 +135,19 @@ object FormVideoWin: TFormVideoWin
       Font.Style = [fsBold, fsItalic]
       ParentFont = False
       TabOrder = 0
-      ExplicitWidth = 694
-      ExplicitHeight = 417
+      OnClick = PanelVideoClick
+      ExplicitWidth = 658
     end
     object Panel3: TPanel
       Left = 1
       Top = 432
-      Width = 658
+      Width = 682
       Height = 37
       Align = alBottom
       Caption = 'Panel3'
       ShowCaption = False
       TabOrder = 1
-      ExplicitWidth = 694
+      ExplicitWidth = 658
       inline FPlayPauseBtns1: TFPlayPauseBtns
         Left = -1
         Top = 2
@@ -151,6 +161,8 @@ object FormVideoWin: TFormVideoWin
         inherited ToolBar1: TToolBar
           Width = 62
           Height = 45
+          ExplicitWidth = 62
+          ExplicitHeight = 45
         end
       end
     end
