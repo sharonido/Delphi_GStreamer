@@ -152,7 +152,7 @@ GstFrameWork=class(TObject)
   class property Started:Boolean read fStarted;
   class Property PipeLine:GPipeLine read fPipeline;
   class Property Bus:GBus read fBus;
-  class Property Duration:int64 read fDuration;
+  class Property Duration:int64 read fDuration write fDuration;
   class Property Msg:GMsg read fMsg write fMsg;
   //class Property Running:boolean read frunning;
   class Property State:GstState read fState;
@@ -381,8 +381,6 @@ end;
 //----   GMsg=class(GObject)  ----------------
 constructor GMsg.Create(const TimeOut:Int64;const MType:UInt );
 var old_state, new_state :GstState;
-kk:uint64;
-kp:GPlugin;
 begin
 inherited Create;
 GstFrameWork.fRunForEver:=TimeOut=DoForEver;
