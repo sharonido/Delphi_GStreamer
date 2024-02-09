@@ -1,7 +1,7 @@
 object FormVideoWin: TFormVideoWin
   Left = 0
   Top = 0
-  Caption = 'Example 4 Video window'
+  Caption = 'Example 5a Video window'
   ClientHeight = 511
   ClientWidth = 971
   Color = clBtnFace
@@ -66,8 +66,6 @@ object FormVideoWin: TFormVideoWin
       Height = 15
       Align = alTop
       Caption = 'Activity  Log:'
-      ExplicitLeft = 5
-      ExplicitTop = 160
       ExplicitWidth = 69
     end
     object Mlog: TMemo
@@ -106,7 +104,6 @@ object FormVideoWin: TFormVideoWin
         '')
       ScrollBars = ssBoth
       TabOrder = 0
-      ExplicitLeft = -2
     end
   end
   object Panel4: TPanel
@@ -118,8 +115,6 @@ object FormVideoWin: TFormVideoWin
     Caption = 'Panel4'
     ShowCaption = False
     TabOrder = 2
-    ExplicitLeft = 311
-    ExplicitWidth = 660
     object PanelVideo: TPanel
       Left = 1
       Top = 1
@@ -136,7 +131,6 @@ object FormVideoWin: TFormVideoWin
       ParentFont = False
       TabOrder = 0
       OnClick = PanelVideoClick
-      ExplicitWidth = 658
     end
     object Panel3: TPanel
       Left = 1
@@ -147,7 +141,6 @@ object FormVideoWin: TFormVideoWin
       Caption = 'Panel3'
       ShowCaption = False
       TabOrder = 1
-      ExplicitWidth = 658
       inline FPlayPauseBtns1: TFPlayPauseBtns
         Left = -1
         Top = 2

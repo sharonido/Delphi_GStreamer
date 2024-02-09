@@ -1,7 +1,7 @@
 object FormVideoWin: TFormVideoWin
   Left = 0
   Top = 0
-  Caption = 'Example 4 Video window'
+  Caption = 'Example 5b Video window'
   ClientHeight = 507
   ClientWidth = 995
   Color = clBtnFace
@@ -150,8 +150,6 @@ object FormVideoWin: TFormVideoWin
       Height = 15
       Align = alTop
       Caption = 'Activity  Log:'
-      ExplicitLeft = 5
-      ExplicitTop = 160
       ExplicitWidth = 69
     end
     object Mlog: TMemo
