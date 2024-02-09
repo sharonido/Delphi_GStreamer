@@ -28,12 +28,10 @@ type
     LPosition: TLabel;
     Label4: TLabel;
     LDuration: TLabel;
-    Timer1: TTimer;
     CBSrc: TComboBox;
     DialogSrc: TOpenDialog;
     BLoad: TBitBtn;
     procedure FormCreate(Sender: TObject);
-    procedure Timer1Timer(Sender: TObject);
     procedure PosSliderChange(Sender: TObject);
     procedure CBSrcChange(Sender: TObject);
     procedure BLoadClick(Sender: TObject);
@@ -42,11 +40,11 @@ type
     { Private declarations }
     playbin:GPlugIn;
     NoSeek:Boolean;
-    procedure SetPosition;
+    procedure ActPosition(NewPos:Int64);
+    Procedure ActButton(Btn:TBtnPressed;Status:TBtnsStatus);
+    Procedure ActDuration(NewDuration:Int64);
   public
     { Public declarations }
-    Procedure ActButton(Btn:TBtnPressed;Status:TBtnsStatus);
-    Procedure ActDuration(Sendet:tobject);
   end;
 
 var
@@ -79,7 +77,6 @@ begin
     begin
     writeoutln('Stop cmd');
     GStreamer.PipeLine.ChangeState(GST_STATE_READY);
-    GStreamer.Duration:=-1;
     PanelDuration.Visible:=false;
     end;
     else writeoutln('Btn press Error');
@@ -87,36 +84,26 @@ begin
 end;
 
 
-procedure TFormVideoWin.SetPosition;
-var Sec:Uint64;
+procedure TFormVideoWin.ActPosition(NewPos:Int64);
 begin
-D_query_stream_position(GStreamer.PipeLine ,Sec);
-if int64(sec)>=0 then
+if NewPos>=0 then
   begin
-  LPosition.Caption:=NanoToSecStr(Sec);
-  Sec:=Sec div Uint64(GST_SECOND);   //uint for warning
+  LPosition.Caption:=NanoToSecStr(NewPos);
+  NewPos:=NewPos div GST_100MSEC;
   NoSeek:=true;
-  PosSlider.Position:=Sec;
+  PosSlider.Position:=NewPos;
   NoSeek:=false;
   end;
 end;
 
-//check every time if stream position changed
-procedure TFormVideoWin.Timer1Timer(Sender: TObject);
-begin
-if (GStreamer.Duration>-1) and not NoSeek then SetPosition;
-end;
-
 //This is a callback from the stream to say it has a duriation
-Procedure TFormVideoWin.ActDuration(Sendet:tobject);
-var Sec:Uint64;
+Procedure TFormVideoWin.ActDuration(NewDuration:Int64);
 begin
-LDuration.Caption:=NanoToSecStr(GStreamer.Duration);
-Sec:=GStreamer.Duration div GST_SECOND;
-if sec>0 then
+LDuration.Caption:=NanoToSecStr(NewDuration);
+if NewDuration>0 then
   begin
-  PosSlider.Max:=Sec;
-  Timer1.Enabled:=true;
+  PosSlider.Max:=NewDuration div GST_100MSEC;
+  PosSlider.Frequency:=PosSlider.Max div 10;
   PanelDuration.Visible:=true;
   end;
 end;
@@ -127,7 +114,7 @@ var
 srcStr:string;
 begin
 WriteOut:=writeLog; //re-route activity log to the memo instead of console
-//botton play stop init
+//button play/pause/stop init
 FPlayPauseBtns1.OnBtnPressed:=ActButton; //set callback for action on button click
 FPlayPauseBtns1.Status:=bsPaused;
 FPlayPauseBtns1.sbPlay.Down:=false;
@@ -139,6 +126,7 @@ GStreamer:=GstFrameWork.Create(0,nil); //no parameters needed here
 if GStreamer.Started then
   begin
   GStreamer.OnDuration:=ActDuration;  //set callback for stream duration function.
+  GStreamer.OnPosition:=ActPosition;  //set callback for stream duration function.
   srcStr:=CBSrc.Text;
   if not srcStr.StartsWith('https:') then srcStr:='file:///'+srcStr;
   //Build the pipe line with "playbin" plugin
@@ -159,19 +147,22 @@ begin
 if not NoSeek then //check if the movment of the slider was done by user
   begin
   // the slider was changed by user seek the position of the slider in the stream
-  D_query_stream_seek(GStreamer.PipeLine, PosSlider.Position*GST_SECOND);
+  D_query_stream_seek(GStreamer.PipeLine, PosSlider.Position*GST_100MSEC);
   end;
 end;
 
 procedure TFormVideoWin.CBSrcChange(Sender: TObject);
 var srcStr:string;
 begin  //stream source has been changed by user
+//set the buttons
 FPlayPauseBtns1.sbStop.Enabled:=false;
 FPlayPauseBtns1.sbPlay.down:=false;
-ActButton(TBtnPressed.bpStop,TBtnsStatus.bsStoped);//GStreamer.OnDuration:=ActDuration;  //set callback for stream duration function.
+ActButton(TBtnPressed.bpStop,TBtnsStatus.bsStoped);
+//get & set user src
 srcStr:=CBSrc.Text;
 if not srcStr.StartsWith('https:') then srcStr:='file:///'+srcStr;
 _G_object_set_pchar(playbin.RealObject,ansistring('uri'),ansistring(srcStr));
+//go to pause state (ready for streaming)
 GStreamer.PipeLine.ChangeState(GST_STATE_PAUSED);
 end;
 

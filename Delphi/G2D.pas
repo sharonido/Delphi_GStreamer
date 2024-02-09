@@ -128,6 +128,7 @@ GPipeLine=Class(TGstElement)
   Destructor Destroy; override;
 End;
 
+TGetInt64Event = procedure(AInt64: Int64) of object;
 GstFrameWork=class(TObject)
   private
   class var fPipeline:GPipeLine;   //pipeline & Bus are created with framework cause they
@@ -147,7 +148,8 @@ GstFrameWork=class(TObject)
   class var MsgFilter:integer;
   class var MsgResult:GstMessageType;
   class var MsgTimer:TTimer;
-  class var OnDuration:TNotifyEvent;
+  class var OnDuration:TGetInt64Event;
+  class var OnPosition:TGetInt64Event;
   //class property MsgUsed:Boolean read fMsgUsed;
   class property Started:Boolean read fStarted;
   class Property PipeLine:GPipeLine read fPipeline;
@@ -432,6 +434,8 @@ if (RMsg <> nil) then  // There is a msg
                     GstStateName(old_state) +
                     ' to ' +GstStateName(new_state));
         GstFrameWork.fState:=new_state;
+        If (new_state=GstState.GST_STATE_READY) or (new_state=GstState.GST_STATE_NULL)
+          then GstFrameWork.fDuration:=-1; //flag that the stream has no duration
         GstFrameWork.fMsgUsed:=true;
         GstFrameWork.frunning:=(GstState(new_state)=GstState.GST_STATE_PLAYING);
         end;
@@ -524,15 +528,22 @@ inherited Destroy;
 end;
 
 procedure GstFrameWork.PrTimer(Sender:TObject);
+var Nano:Int64;
 begin
-CheckMsgAndRunFor(0); //just check for a new message (3 times a sec)
+CheckMsgAndRunFor(0); //check for a new message -without waiting (3 times a sec)
 if fDuration=0 then   //this stream changed its duration (so it has duration)
   begin
   D_query_stream_duration(PipeLine,uint64(fDuration));
   if fDuration=-1
     then fDuration:=0 //keep checking
     else if Assigned(OnDuration)
-      then OnDuration(nil);
+      then OnDuration(fDuration);
+  end;
+if (fDuration>0) and (GstFrameWork.State>GstState.GST_STATE_READY) and  Assigned(OnDuration)
+  then
+  begin
+  D_query_stream_position(PipeLine ,Nano);
+  OnPosition(Nano);
   end;
 end;
 

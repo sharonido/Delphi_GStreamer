@@ -280,18 +280,12 @@ object FormVideoWin: TFormVideoWin
           Top = 5
           Width = 357
           Height = 29
+          Frequency = 2
           TabOrder = 0
           OnChange = PosSliderChange
         end
       end
     end
-  end
-  object Timer1: TTimer
-    Enabled = False
-    Interval = 300
-    OnTimer = Timer1Timer
-    Left = 416
-    Top = 394
   end
   object DialogSrc: TOpenDialog
     Filter = 'Mpeg4 Video file|*.mp4|OGG Video File|*.ogg'

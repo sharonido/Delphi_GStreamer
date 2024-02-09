@@ -430,6 +430,7 @@ gst_root_envBin:string='';     //after init =>envirament var..
 //------------------------------------------
 const
 GST_MSECOND=int64(1000000);  //the GST_Clock runs in nano sec so msec is a milion nano
+GST_100MSEC=100*GST_MSECOND;
 GST_SECOND=1000*GST_MSECOND; //the GST_Clock runs in nano sec so msec is a milion nano
 GST_CLOCK_TIME_NONE=-1;      //-1=>for ever
 DoForEver=GST_CLOCK_TIME_NONE;
