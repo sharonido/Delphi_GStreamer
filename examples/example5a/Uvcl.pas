@@ -40,7 +40,8 @@ implementation
 //writing to log in memo
 procedure writeLog(st:string);
 begin
-FormVideoWin.Mlog.Text:=FormVideoWin.Mlog.Text+st;
+if st.EndsWith(sLineBreak) then st:=st.Remove(st.Length-1);//lines.add inserts slineBreak
+FormVideoWin.Mlog.Lines.Add(st);
 end;
 
 //callback function when bottons are pressed
