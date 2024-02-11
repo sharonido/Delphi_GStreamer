@@ -147,8 +147,19 @@ GstPadPresence  =(
   GST_PAD_SOMETIMES,
   GST_PAD_REQUEST);
 
+//not packed records, cause will be difrent in 64/32 os and on android/ios
+
+
+GQuark=UInt32;
+_GError = record
+ domain   :GQuark;      //GQuark   domain;
+ code     :Integer;     //gint     code;
+ Amessage :pansichar;   //gchar *message;
+end;
+PGError=^_GError;
+PPGError=^PGError;
+
 _GstMiniObject= record
-  //not packed record, cause will be difrent in 64/32 os and on android/ios
   GMiniObjectType:   uint64;
 
    refcount:integer;
@@ -296,7 +307,6 @@ _GstCaps = record
   mini_object:_GstMiniObject;
   end;
 
-GQuark = int32;
 
 _GstStructure = record
   GstType :UInt64;
@@ -414,7 +424,7 @@ Gst_Mes=record
   RMiniObj:_GstMiniObject;
   MType:GstMessageType;
   timestamp: Uint64;
-  src: pointer; //to gobject
+  src: pointer;//PGstObject;
   seqnum: Uint32;
   lock  : _GRecMutex;//GMutex          lock;                 /* lock and cond for async delivery */
   cond  : _GCond;//GCond           cond;

@@ -39,6 +39,7 @@ Tgst_bin_add = function (const Pipe,plug:pointer):boolean; cdecl;
 Tgst_element_link =function (const plugA,plugB:pointer):boolean; cdecl; //like Tgst_bin_add but diffrent in dll
 Tgst_element_set_state =function (const pipe:pointer;const state:GstState):GstStateChangeReturn; cdecl;
 Tgst_bus_timed_pop_filtered = function (const Bus:pointer;const TimeOut:Int64;const MType:UInt):pointer; cdecl;
+Tgst_message_parse_error= procedure (mes :PGst_Mes; gerror:PPGError; debug:PPAnsiChar); cdecl ;
 Tgst_message_unref = procedure (ref:pointer); cdecl ;
 Tgst_element_get_request_pad =function (Const pad:pointer; const name:AnsiString):pointer; cdecl ;
 Tgst_element_get_static_pad =function (Const pad:pointer; const name:AnsiString):pointer; cdecl ;
@@ -55,6 +56,7 @@ Tgst_structure_get_name =function(const structure:pointer):PAnsiChar; cdecl;
 Tg_object_set_int =procedure (const plug:pointer; const param:ansistring; const val:integer); cdecl;
 Tg_object_set_pchar =procedure (const plug:pointer; const param,val:ansistring); cdecl;
 Tg_object_set_double =procedure (const plug:pointer; const param:ansistring; const val:double); cdecl;
+Tg_object_get =procedure (const Gobject: pointer; const pKey,pVal: pointer ); cdecl;
 Tgst_object_get_name =function (Const pad:pointer):Pansichar;  cdecl ;
 
 Tg_signal_connect =procedure (const instance: pointer; const detailed_signal:ansistring;
@@ -104,6 +106,7 @@ _Gst_element_get_static_pad         :Tgst_element_get_static_pad;
 _Gst_pad_link                       :Tgst_pad_link;
 _Gst_element_release_request_pad    :Tgst_element_release_request_pad;
 _Gst_message_parse_state_changed    :Tgst_message_parse_state_changed;
+_Gst_message_parse_error            :Tgst_message_parse_error;
 _Gst_pad_is_linked                  :Tgst_pad_is_linked;
 _Gst_pad_get_current_caps           :Tgst_pad_get_current_caps;
 _Gst_caps_get_structure             :Tgst_caps_get_structure;
@@ -118,6 +121,7 @@ _Gst_element_factory_get_num_pad_templates
 //These are from GObject that is underlying framework of GStreamer  (called _G_object...)
 _G_object_set_int             :Tg_object_set_int;
 _G_object_set_pchar           :Tg_object_set_pchar;
+_G_object_get                 :Tg_object_get;
 //never used _G_object_set_double          :Tg_object_set_double;
 _Gst_object_get_name          :Tgst_object_get_name;
 _G_signal_connect             :Tg_signal_connect;
@@ -301,6 +305,7 @@ if G2dDllHnd=0 then
      setProcFromDll(@_Gst_pad_link,'_Gst_pad_link') or
      setProcFromDll(@_Gst_element_release_request_pad,'_Gst_element_release_request_pad') or
      setProcFromDll(@_Gst_message_parse_state_changed,'_Gst_message_parse_state_changed') or
+     setProcFromDll(@_Gst_message_parse_error,'_Gst_message_parse_error') or
      setProcFromDll(@_Gst_pad_is_linked,'_Gst_pad_is_linked') or
      setProcFromDll(@_Gst_pad_get_current_caps,'_Gst_pad_get_current_caps') or
      setProcFromDll(@_Gst_caps_get_structure,'_Gst_caps_get_structure') or
@@ -312,6 +317,7 @@ if G2dDllHnd=0 then
      // set Gobject functions
      setProcFromDll(@_G_object_set_int,'_G_object_set_int') or
      setProcFromDll(@_G_object_set_pchar,'_G_object_set_pchar') or
+     setProcFromDll(@_G_object_get,'_G_object_get') or
 
      setProcFromDll(@_Gst_element_query_position,'_Gst_element_query_position') or
      setProcFromDll(@_Gst_element_query_duration,'_Gst_element_query_duration') or

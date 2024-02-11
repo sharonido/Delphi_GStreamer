@@ -150,6 +150,7 @@ GstFrameWork=class(TObject)
   class var MsgTimer:TTimer;
   class var OnDuration:TGetInt64Event;
   class var OnPosition:TGetInt64Event;
+  class var OnApplication:TGetInt64Event;
   //class property MsgUsed:Boolean read fMsgUsed;
   class property Started:Boolean read fStarted;
   class Property PipeLine:GPipeLine read fPipeline;
@@ -162,6 +163,7 @@ GstFrameWork=class(TObject)
   procedure SetPadAddedCallback(const SrcPad,SinkPad:GPlugin; const capabilityStr:string);
   function WaitForPlay(Sec:Integer):boolean; //wait sec seconds for play; if sec=-1 wait forever
   procedure CheckMsgAndRunFor(TimeInNanoSec:Int64);
+  procedure CheckMsg;
   function BuildPlugInsinPipeLine(params:string):boolean;
 
   function SimpleBuildLink(params:string):boolean;
@@ -382,7 +384,11 @@ end;
 
 //----   GMsg=class(GObject)  ----------------
 constructor GMsg.Create(const TimeOut:Int64;const MType:UInt );
-var old_state, new_state :GstState;
+var
+old_state, new_state :GstState;
+err:PGError;
+debug_info:PAnsichar;
+st:string;
 begin
 inherited Create;
 GstFrameWork.fRunForEver:=TimeOut=DoForEver;
@@ -398,20 +404,16 @@ if (RMsg <> nil) then  // There is a msg
     GST_MESSAGE_ERROR:
       begin
       GstFrameWork.fMsgUsed:=true;
-        {   GError *err;
-            gchar *debug_info;
-              case GST_MESSAGE_ERROR:
-              gst_message_parse_error (msg, &err, &debug_info);
-              g_printerr ("Error received from element %s: %s\n",
-                  GST_OBJECT_NAME (msg->src), err->message);
-              g_printerr ("Debugging information: %s\n",
-                  debug_info ? debug_info : "none");
-              g_clear_error (&err);
-              g_free (debug_info);
-              terminate = TRUE;
-              break; }
-      WriteOutln('');
-      WriteOutln('Gst message: Error in stream');
+      debug_info:=nil;
+      _Gst_message_parse_error(RMsg,@err,@debug_info);
+      WriteOutln(
+            format('Error received from element %s: %s',
+                  [string(PGstObject(RMsg.src).name), string(err.Amessage)])
+                );
+      if Assigned(debug_info)
+        then st:=string(debug_info)
+        else st:='None';
+      WriteOutln('Gst debug info: '+st);
       If GstFrameWork.State=GstState.GST_STATE_READY
         then WriteOutln('Probebly stream src not found');
       GstFrameWork.fterminate := TRUE;
@@ -443,8 +445,12 @@ if (RMsg <> nil) then  // There is a msg
     GST_MESSAGE_DURATION_CHANGED:
       begin
       GstFrameWork.fDuration:=0;
-      //GstFrameWork.fDuration:=
       end;
+    GST_MESSAGE_APPLICATION:
+      Begin
+      if Assigned(GstFrameWork.OnApplication) then
+        GstFrameWork.OnApplication(0);
+      End;
     else WriteOutln('Internal error in - GMsg.Create');
     end;
   end;
@@ -486,7 +492,8 @@ if fStarted
   MsgFilter:=integer(GST_MESSAGE_ERROR) or
              integer(GST_MESSAGE_EOS) or
              integer(GST_MESSAGE_STATE_CHANGED) or
-             integer(GST_MESSAGE_DURATION_CHANGED);
+             integer(GST_MESSAGE_DURATION_CHANGED) or
+             integer(GST_MESSAGE_APPLICATION);
   fterminate:=false;
   fDuration:=-1;
   fMsgResult:=GstMessageType.GST_MESSAGE_UNKNOWN;
@@ -530,7 +537,8 @@ end;
 procedure GstFrameWork.PrTimer(Sender:TObject);
 var Nano:Int64;
 begin
-CheckMsgAndRunFor(0); //check for a new message -without waiting (3 times a sec)
+//CheckMsgAndRunFor(0); //check for a new message -without waiting (3 times a sec)
+CheckMsg; //check for a new message -without waiting (3 times a sec)
 if fDuration=0 then   //this stream changed its duration (so it has duration)
   begin
   D_query_stream_duration(PipeLine,uint64(fDuration));
@@ -662,6 +670,13 @@ if Result
   then Result:= PipeLine.SimpleLinkAll //link the plugins one to the other
 end;
 
+
+procedure GstFrameWork.CheckMsg;
+begin
+  repeat
+  Msg:=GMsg.Create(0,MsgFilter);
+  until not fMsgAssigned;
+end;
 
 procedure GstFrameWork.CheckMsgAndRunFor(TimeInNanoSec:Int64);
 begin
