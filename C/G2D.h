@@ -25,6 +25,7 @@ extern EXPORTDLL GstStateChangeReturn _Gst_element_set_state(GstElement* element
 
 extern EXPORTDLL GstMessage* _Gst_bus_timed_pop_filtered(GstBus* bus, GstClockTime timeout, GstMessageType types);
 extern EXPORTDLL void _Gst_message_parse_state_changed(GstMessage* message, GstState* oldstate, GstState* newstate, GstState* pending);
+extern EXPORTDLL void _Gst_message_parse_error(GstMessage* message, GError** gerror, gchar** debug);
 extern EXPORTDLL void _Gst_message_unref(GstMessage* msg);
 
 extern EXPORTDLL void _G_object_set_int(GstElement* element, const gchar* firstparam, const int val);
@@ -60,3 +61,4 @@ extern EXPORTDLL const gchar* _G_quark_to_string (GQuark quark);
 extern EXPORTDLL GstCaps* _Gst_static_caps_get (GstStaticCaps *static_caps);
 extern EXPORTDLL void _Gst_bus_add_signal_watch (GstBus* bus);
 extern EXPORTDLL void _Gst_video_overlay_set_window_handle(GstElement* plugbin, guintptr handle);
+extern EXPORTDLL void _G_object_get(const gpointer object, const gpointer pkey, const gpointer pval);

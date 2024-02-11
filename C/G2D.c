@@ -84,6 +84,10 @@ void _Gst_message_parse_state_changed(GstMessage* message, GstState* oldstate,
     gst_message_parse_state_changed(message, oldstate, newstate, pending);
 }
 
+void _Gst_message_parse_error(GstMessage* message, GError** gerror, gchar** debug) {
+    gst_message_parse_error(message, gerror, debug);
+}
+
 void _G_signal_connect(gpointer instance, const gchar* detailed_signal, GCallback c_handler, gpointer data) {
     g_signal_connect(instance, detailed_signal, c_handler, data);
 }
@@ -164,4 +168,7 @@ void _Gst_bus_add_signal_watch (GstBus* bus){
 }
 void _Gst_video_overlay_set_window_handle(GstElement* plugbin, guintptr handle) {
     gst_video_overlay_set_window_handle(GST_VIDEO_OVERLAY(plugbin), handle);
+}
+void _G_object_get(const gpointer object, const gpointer pkey, const gpointer pval) {
+    g_object_get(object, pkey, pval, NULL);
 }
