@@ -289,4 +289,9 @@ object FormVideoWin: TFormVideoWin
     Left = 568
     Top = 8
   end
+  object Timer1: TTimer
+    OnTimer = Timer1Timer
+    Left = 632
+    Top = 434
+  end
 end

@@ -33,15 +33,17 @@ type
     CBSrc: TComboBox;
     DialogSrc: TOpenDialog;
     BLoad: TBitBtn;
+    Timer1: TTimer;
     procedure FormCreate(Sender: TObject);
     procedure PosSliderChange(Sender: TObject);
     procedure CBSrcChange(Sender: TObject);
     procedure BLoadClick(Sender: TObject);
     procedure PanelVideoClick(Sender: TObject);
+    procedure Timer1Timer(Sender: TObject);
   private
     { Private declarations }
     playbin:GPlugIn;
-    NoSeek:Boolean;
+    NoSeek,NoPos:Boolean;
     procedure ActPosition(NewPos:Int64);
     Procedure ActButton(Btn:TBtnPressed;Status:TBtnsStatus);
     Procedure ActDuration(NewDuration:Int64);
@@ -89,7 +91,7 @@ end;
 
 procedure TFormVideoWin.ActPosition(NewPos:Int64);
 begin
-if NewPos>=0 then
+if (NewPos>=0) and not NoPos then
   begin
   LPosition.Caption:=NanoToSecStr(NewPos);
   NewPos:=NewPos div GST_100MSEC;
@@ -149,14 +151,26 @@ if GStreamer.Started then
   end;
 end;
 
+//--------------------  PosSliderChange &  Timer1Timer ------------------------
+//the PosSliderChange & Timer1Timer are capled -to overcome a bug in vcl
 procedure TFormVideoWin.PosSliderChange(Sender: TObject);
 begin
 if not NoSeek then //check if the movment of the slider was done by user
   begin
-  // the slider was changed by user seek the position of the slider in the stream
-  D_query_stream_seek(GStreamer.PipeLine, PosSlider.Position*GST_100MSEC);
+  NoPos:=true;   //disable the position update of the slider
+  Timer1.Enabled:=false; //reset timer
+  Timer1.Enabled:=true;  //timer will call the seek
   end;
 end;
+
+procedure TFormVideoWin.Timer1Timer(Sender: TObject);
+begin
+Timer1.Enabled:=false; //close the timer
+//we must not seek before the prev seek finished so we delay (with timer)
+D_query_stream_seek(GStreamer.PipeLine, PosSlider.Position*GST_100MSEC);
+NoPos:=false;  //disable the position update of the slider
+end;
+//-end of  PosSliderChange &  Timer1Timer ------------------------------------
 
 procedure TFormVideoWin.CBSrcChange(Sender: TObject);
 var srcStr:string;
