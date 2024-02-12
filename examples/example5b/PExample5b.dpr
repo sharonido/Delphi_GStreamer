@@ -8,7 +8,8 @@ uses
   G2D in '..\..\Delphi\G2D.pas',
   G2DCallDll in '..\..\Delphi\G2DCallDll.pas',
   G2DTypes in '..\..\Delphi\G2DTypes.pas',
-  UFPlayPauseBtn in '..\..\Delphi\UFPlayPauseBtn.pas' {FPlayPauseBtns: TFrame};
+  UFPlayPauseBtn in '..\..\Delphi\UFPlayPauseBtn.pas' {FPlayPauseBtns: TFrame},
+  WinConsoleFunction in '..\..\Delphi\WinConsoleFunction.pas';
 
 {$R *.res}
 

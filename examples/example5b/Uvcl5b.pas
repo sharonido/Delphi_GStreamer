@@ -7,7 +7,9 @@ uses
   Vcl.Controls, Vcl.Forms, Vcl.Dialogs,
   G2D,
   G2DCallDll,
-  G2DTypes, Vcl.ExtCtrls, Vcl.StdCtrls, Vcl.Buttons, UFPlayPauseBtn,
+  G2DTypes,
+  WinConsoleFunction,
+  Vcl.ExtCtrls, Vcl.StdCtrls, Vcl.Buttons, UFPlayPauseBtn,
   Vcl.ComCtrls;
 
 type
@@ -115,6 +117,10 @@ var
 srcStr:string;
 begin
 WriteOut:=writeLog; //re-route activity log to the memo instead of console
+//find full path of Ocean.mp4 file and add it to CBSrc (To let user easly choose)
+srcStr:= GetFullPathToParentFile('\Delphi\Ocean.mp4');
+if (srcStr <> '')
+  then CBSrc.Items.Add(srcStr+'\Delphi\Ocean.mp4');
 //button play/pause/stop init
 FPlayPauseBtns1.OnBtnPressed:=ActButton; //set callback for action on button click
 FPlayPauseBtns1.Status:=bsPaused;

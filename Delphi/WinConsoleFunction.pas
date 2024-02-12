@@ -2,6 +2,7 @@ unit WinConsoleFunction;
 
 interface
 uses
+System.SysUtils,
 {$ifdef mswindows}
 WinAPI.Windows;
 
@@ -12,7 +13,7 @@ VK_RETURN=WinAPI.Windows.VK_RETURN;
 
 function KeyPressed(var key:char):Boolean;
 function StrEnter(var TheInString:String; WriteKey:boolean=true):boolean;
-
+function GetFullPathToParentFile(filename:string):string;
 implementation
 
 
@@ -60,5 +61,14 @@ result:= KeyPressed(c) and ((ord(c)=VK_ESCAPE) or (ord(c)=VK_RETURN));
   end;
 end;
 
-
+function GetFullPathToParentFile(filename:string):string;
+begin
+Result:=GetCurrentDir;
+while (Result <> '') and not fileExists(Result+'\Delphi\Ocean.mp4') do
+  begin   // Move to the parent directory
+  Result := ExcludeTrailingPathDelimiter(Result);
+  Result := ExtractFilePath(Result);
+  if Result.EndsWith(':') then Result:='';
+  end;
+end;
 end.

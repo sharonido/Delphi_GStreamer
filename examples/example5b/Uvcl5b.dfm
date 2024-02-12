@@ -51,8 +51,7 @@ object FormVideoWin: TFormVideoWin
       Items.Strings = (
         
           'https://www.freedesktop.org/software/gstreamer-sdk/data/media/si' +
-          'ntel_trailer-480p.webm'
-        'C:\temp\demo5.mp4')
+          'ntel_trailer-480p.webm')
     end
     object BLoad: TBitBtn
       Left = 639
