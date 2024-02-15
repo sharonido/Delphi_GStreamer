@@ -63,5 +63,6 @@ extern EXPORTDLL void _Gst_bus_add_signal_watch (GstBus* bus);
 extern EXPORTDLL void _Gst_video_overlay_set_window_handle(GstElement* plugbin, guintptr handle);
 extern EXPORTDLL void _G_object_get(const gpointer object, const gpointer pkey, const gpointer pval);
 extern EXPORTDLL void _G_signal_emit_by_name(gpointer instance, const gchar* detailed_signal, gint index, gpointer pval);
-extern EXPORTDLL void _Gst_tag_list_get_string(const GstTagList* list, const gchar* tag, gchar** value);
+extern EXPORTDLL gboolean _Gst_tag_list_get_string(const GstTagList* list, const gchar* tag, gchar** value);
+extern EXPORTDLL gboolean _Gst_tag_list_get_uint(const GstTagList* list, const gchar* tag, guint* value);
 	
