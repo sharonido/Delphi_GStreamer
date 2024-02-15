@@ -27,7 +27,7 @@ System.SysUtils;
 Type
 
 GstStructureForeachFunc=function(const field_id:GQuark; const value:pointer;user_data:Pointer):boolean; cdecl ;
-
+  { TODO : check ansistyring vs pansichar on all }
 // --- types of functions/procedures to find in G2D.dll ---
 Tgst_init = procedure (const ParCount:integer;const ParStr:PArrPChar); cdecl ;
 Tgst_pipeline_new = function (const name:ansistring):PGstElement; cdecl ;
@@ -83,8 +83,9 @@ Tg_quark_to_string =function(quark:GQuark):PAnsiChar;cdecl;
 Tgst_static_caps_get =function(static_caps: pointer):PGstCaps;cdecl;
 Tgst_bus_add_signal_watch =procedure(bus: pointer)cdecl;
 Tgst_video_overlay_set_window_handle = procedure (plugbin : pointer {PGstElement};handle:UInt64 {guintptr});cdecl;
+Tg_signal_emit_by_name = procedure (instance:pointer; detailed_signal:PAnsichar;index:integer;pval:pointer);cdecl;
+TGst_tag_list_get_string = procedure (const list :PGstMiniObject; const tag:pansichar; value:PPAnsiChar);cdecl;
 // ---End of types of functions/procedures to find in G2D.dll ---
-
 
 
 Var
@@ -125,7 +126,7 @@ _G_object_get                 :Tg_object_get;
 //never used _G_object_set_double          :Tg_object_set_double;
 _Gst_object_get_name          :Tgst_object_get_name;
 _G_signal_connect             :Tg_signal_connect;
-
+_G_signal_emit_by_name        :Tg_signal_emit_by_name;
 _Gst_element_query_position   :Tgst_element_query_position;
 _Gst_element_query_duration   :Tgst_element_query_duration;
 _Gst_element_seek_simple      :Tgst_element_seek_simple;
@@ -139,6 +140,7 @@ _G_quark_to_string            :Tg_quark_to_string;
 _Gst_static_caps_get          :Tgst_static_caps_get;
 _Gst_bus_add_signal_watch     :Tgst_bus_add_signal_watch;
 _Gst_video_overlay_set_window_handle  :Tgst_video_overlay_set_window_handle;
+_Gst_tag_list_get_string      :TGst_tag_list_get_string;
 //End of The GST functions that point to nil but will get the right address in G2D.dll by setProcFromDll in G2dDllLoad
 
 DiTmp1,DiTmp2:Ppointer; //for debuging only
@@ -335,7 +337,9 @@ if G2dDllHnd=0 then
      setProcFromDll(@_G_quark_to_string,'_G_quark_to_string') or
      setProcFromDll(@_Gst_static_caps_get,'_Gst_static_caps_get') or
      setProcFromDll(@_Gst_bus_add_signal_watch,'_Gst_bus_add_signal_watch')or
-     setProcFromDll(@_Gst_video_overlay_set_window_handle,'_Gst_video_overlay_set_window_handle')
+     setProcFromDll(@_Gst_video_overlay_set_window_handle,'_Gst_video_overlay_set_window_handle')or
+     setProcFromDll(@_G_signal_emit_by_name,'_G_signal_emit_by_name')or
+     setProcFromDll(@_Gst_tag_list_get_string,'_Gst_tag_list_get_string')
 
 
      //never used or setProcFromDll(@_G_object_set_double,'_G_object_set_double')
