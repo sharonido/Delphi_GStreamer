@@ -172,3 +172,12 @@ void _Gst_video_overlay_set_window_handle(GstElement* plugbin, guintptr handle) 
 void _G_object_get(const gpointer object, const gpointer pkey, const gpointer pval) {
     g_object_get(object, pkey, pval, NULL);
 }
+
+void _G_signal_emit_by_name(gpointer instance, const gchar* detailed_signal, gint index, gpointer pval) {
+    g_signal_emit_by_name(instance, detailed_signal, index, pval);
+}
+
+void _Gst_tag_list_get_string(const GstTagList* list, const gchar* tag, gchar** value) {
+    gst_tag_list_get_string(list, tag, value);
+}
+
