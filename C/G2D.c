@@ -177,7 +177,10 @@ void _G_signal_emit_by_name(gpointer instance, const gchar* detailed_signal, gin
     g_signal_emit_by_name(instance, detailed_signal, index, pval);
 }
 
-void _Gst_tag_list_get_string(const GstTagList* list, const gchar* tag, gchar** value) {
-    gst_tag_list_get_string(list, tag, value);
+gboolean _Gst_tag_list_get_string(const GstTagList* list, const gchar* tag, gchar** value) {
+    return gst_tag_list_get_string(list, tag, value);
 }
 
+gboolean _Gst_tag_list_get_uint(const GstTagList* list, const gchar* tag, guint* value) {
+    return gst_tag_list_get_uint(list, tag, value);
+}

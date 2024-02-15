@@ -84,7 +84,8 @@ Tgst_static_caps_get =function(static_caps: pointer):PGstCaps;cdecl;
 Tgst_bus_add_signal_watch =procedure(bus: pointer)cdecl;
 Tgst_video_overlay_set_window_handle = procedure (plugbin : pointer {PGstElement};handle:UInt64 {guintptr});cdecl;
 Tg_signal_emit_by_name = procedure (instance:pointer; detailed_signal:PAnsichar;index:integer;pval:pointer);cdecl;
-TGst_tag_list_get_string = procedure (const list :PGstMiniObject; const tag:pansichar; value:PPAnsiChar);cdecl;
+TGst_tag_list_get_string = function (const list :PGstMiniObject; const tag:pansichar; value:PPAnsiChar):boolean;cdecl;
+TGst_tag_list_get_uint = function (const list :PGstMiniObject; const tag:pansichar; value:PUInt):boolean;cdecl;
 // ---End of types of functions/procedures to find in G2D.dll ---
 
 
@@ -141,6 +142,7 @@ _Gst_static_caps_get          :Tgst_static_caps_get;
 _Gst_bus_add_signal_watch     :Tgst_bus_add_signal_watch;
 _Gst_video_overlay_set_window_handle  :Tgst_video_overlay_set_window_handle;
 _Gst_tag_list_get_string      :TGst_tag_list_get_string;
+_Gst_tag_list_get_uint        :TGst_tag_list_get_uint;
 //End of The GST functions that point to nil but will get the right address in G2D.dll by setProcFromDll in G2dDllLoad
 
 DiTmp1,DiTmp2:Ppointer; //for debuging only
@@ -339,8 +341,8 @@ if G2dDllHnd=0 then
      setProcFromDll(@_Gst_bus_add_signal_watch,'_Gst_bus_add_signal_watch')or
      setProcFromDll(@_Gst_video_overlay_set_window_handle,'_Gst_video_overlay_set_window_handle')or
      setProcFromDll(@_G_signal_emit_by_name,'_G_signal_emit_by_name')or
-     setProcFromDll(@_Gst_tag_list_get_string,'_Gst_tag_list_get_string')
-
+     setProcFromDll(@_Gst_tag_list_get_string,'_Gst_tag_list_get_string')or
+     setProcFromDll(@_Gst_tag_list_get_uint,'_Gst_tag_list_get_uint')
 
      //never used or setProcFromDll(@_G_object_set_double,'_G_object_set_double')
        then exit;
