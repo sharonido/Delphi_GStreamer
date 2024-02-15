@@ -64,56 +64,7 @@ if st.EndsWith(sLineBreak) then st:=st.Remove(st.Length-1);//lines.add inserts s
 FormVideoWin.Mlog.Lines.Add(st);
 end;
 
-//callback function when bottons are pressed
-Procedure TFormVideoWin.ActButton(Btn:TBtnPressed;Status:TBtnsStatus);
-begin
-  case status of
-    TBtnsStatus.bsPlaying:
-    begin
-    writeoutln('Start play cmd');
-    GStreamer.PipeLine.ChangeState(GST_STATE_PLAYING);
-    end;
-    TBtnsStatus.bsPaused:
-    begin
-    writeoutln('Pause cmd');
-    GStreamer.PipeLine.ChangeState(GST_STATE_PAUSED);
-    end;
-    TBtnsStatus.bsStoped:
-    begin
-    writeoutln('Stop cmd');
-    GStreamer.PipeLine.ChangeState(GST_STATE_READY);
-    PanelDuration.Visible:=false;
-    end;
-    else writeoutln('Btn press Error');
-  end
-end;
-
-
-procedure TFormVideoWin.ActPosition(NewPos:Int64);
-begin
-if (NewPos>=0) and not NoPos then
-  begin
-  LPosition.Caption:=NanoToSecStr(NewPos);
-  NewPos:=NewPos div GST_100MSEC;
-  NoSeek:=true;
-  PosSlider.Position:=NewPos;
-  NoSeek:=false;
-  end;
-end;
-
-//This is a callback from the stream to say it has a duriation
-Procedure TFormVideoWin.ActDuration(NewDuration:Int64);
-begin
-LDuration.Caption:=NanoToSecStr(NewDuration);
-if NewDuration>0 then
-  begin
-  PosSlider.Max:=NewDuration div GST_100MSEC;
-  PosSlider.Frequency:=PosSlider.Max div 10;
-  PanelDuration.Visible:=true;
-  end;
-end;
-
-
+//this procedure initializes the GStreamer & the form(window)
 procedure TFormVideoWin.FormCreate(Sender: TObject);
 var
 srcStr:string;
@@ -122,7 +73,7 @@ WriteOut:=writeLog; //re-route activity log to the memo instead of console
 //find full path of Ocean.mp4 file and add it to CBSrc (To let user easly choose)
 srcStr:= GetFullPathToParentFile('\Delphi\Ocean.mp4');
 if (srcStr <> '')
-  then CBSrc.Items.Add(srcStr+'\Delphi\Ocean.mp4');
+  then CBSrc.Items.Add(srcStr+'\Delphi\Ocean.mp4');//add Ocean.mp4 to the combx box for easy user selection
 //button play/pause/stop init
 FPlayPauseBtns1.OnBtnPressed:=ActButton; //set callback for action on button click
 FPlayPauseBtns1.Status:=bsPaused;
@@ -151,8 +102,60 @@ if GStreamer.Started then
   end;
 end;
 
+
+//callback function when bottons are pressed
+Procedure TFormVideoWin.ActButton(Btn:TBtnPressed;Status:TBtnsStatus);
+begin
+  case status of
+    TBtnsStatus.bsPlaying:
+    begin
+    writeoutln('Start play cmd');
+    GStreamer.PipeLine.ChangeState(GST_STATE_PLAYING);
+    end;
+    TBtnsStatus.bsPaused:
+    begin
+    writeoutln('Pause cmd');
+    GStreamer.PipeLine.ChangeState(GST_STATE_PAUSED);
+    end;
+    TBtnsStatus.bsStoped:
+    begin
+    writeoutln('Stop cmd');
+    GStreamer.PipeLine.ChangeState(GST_STATE_READY);
+    PanelDuration.Visible:=false;
+    end;
+    else writeoutln('Btn press Error');
+  end
+end;
+
+//This is a callback from the stream to say it has a new position
+procedure TFormVideoWin.ActPosition(NewPos:Int64);
+begin
+if (NewPos>=0) and not NoPos then
+  begin
+  LPosition.Caption:=NanoToSecStr(NewPos);
+  NewPos:=NewPos div GST_100MSEC;
+  NoSeek:=true;
+  PosSlider.Position:=NewPos;
+  NoSeek:=false;
+  end;
+end;
+
+//This is a callback from the stream to say it has a duriation
+Procedure TFormVideoWin.ActDuration(NewDuration:Int64);
+begin
+LDuration.Caption:=NanoToSecStr(NewDuration);
+if NewDuration>0 then
+  begin
+  PosSlider.Max:=NewDuration div GST_100MSEC;
+  PosSlider.Frequency:=PosSlider.Max div 10;
+  PanelDuration.Visible:=true;
+  end;
+end;
+
+
 //--------------------  PosSliderChange &  Timer1Timer ------------------------
 //the PosSliderChange & Timer1Timer are capled -to overcome a bug in vcl
+ { TODO : make a cleaner fix by adding a frame with a trackbar that has a mouse up after change }
 procedure TFormVideoWin.PosSliderChange(Sender: TObject);
 begin
 if not NoSeek then //check if the movment of the slider was done by user
@@ -187,6 +190,7 @@ _G_object_set_pchar(playbin.RealObject,ansistring('uri'),ansistring(srcStr));
 GStreamer.PipeLine.ChangeState(GST_STATE_PAUSED);
 end;
 
+//to load a new video file
 procedure TFormVideoWin.BLoadClick(Sender: TObject);
 begin //load a file as a stream source
 if DialogSrc.Execute then
@@ -194,6 +198,7 @@ if DialogSrc.Execute then
   CBSrcChange(nil);
 end;
 
+//click on the video panel=click on start/pause (like in most video apps)
 procedure TFormVideoWin.PanelVideoClick(Sender: TObject);
 begin  //click on the video is as a click on play/pause button
 FPlayPauseBtns1.sbPlayClick(nil);
