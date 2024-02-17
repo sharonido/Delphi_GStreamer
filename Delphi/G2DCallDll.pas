@@ -168,7 +168,7 @@ function  D_element_link(Pipe:GPipeLine; PlugSrcName,PlugSinkName:string):boolea
 function  D_element_link_many_by_name(Pipe:GPipeLine;PlugNamesStr:string):string; //PlugNamesStr=(plug names comma seperated) ->Ok=(result='') error=(result='name of broken link pads')
 
 function D_query_stream_position(const Plug:TGstElement;var pos:Int64):boolean;
-function D_query_stream_duration(const Plug:TGstElement;var duration:UInt64):boolean;
+function D_query_stream_duration(const Plug:TGstElement;var duration:Int64):boolean;
 function D_query_stream_seek(const Plug:TGstElement;const seek_pos:UInt64):boolean;
 
 implementation
@@ -407,14 +407,15 @@ begin
 Result:=D_element_link(Pipe.GetPlugByName(PlugSrcName),Pipe.GetPlugByName(PlugSinkName));
 end;
 //------------------------------------------
-
+//GPlugin
+//function D_query_stream_position(const Plug:TGstElement;var pos:Int64):boolean;
 function D_query_stream_position(const Plug:TGstElement;var pos:Int64):boolean;
 begin
 result:=_Gst_element_query_position(Plug.RealObject,GST_FORMAT_TIME,@pos) and (pos>=0);
 end;
 //------------------------------------------
 
-function D_query_stream_duration(const Plug:TGstElement;var duration:UInt64):boolean;
+function D_query_stream_duration(const Plug:TGstElement;var duration:Int64):boolean;
 begin
 result:=_Gst_element_query_duration(Plug.RealObject,GST_FORMAT_TIME,@duration)
   and (duration>=0);

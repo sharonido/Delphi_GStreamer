@@ -73,8 +73,10 @@ end;
 GstObject=class(GstMiniObject)
   protected
   function GetReal:PGstObject;
+  function GetName:string;
   public
   property RealObject:PGstObject read GetReal;// write RObject;
+  property Name:string read GetName;
 end;
 
 TGstElement=class(GstObject)
@@ -213,6 +215,11 @@ if isCreated
   else Result:='The object was not created';
 end;
 //------- GstObject -------------------
+
+function GstObject.GetName: string;
+begin
+  Result:=string(RealObject.name);
+end;
 
 function GstObject.GetReal:PGstObject;
 begin
@@ -541,7 +548,7 @@ begin
 CheckMsg; //check for a new message -without waiting (3 times a sec)
 if fDuration=0 then   //this stream changed its duration (so it has duration)
   begin
-  D_query_stream_duration(PipeLine,uint64(fDuration));
+  D_query_stream_duration(PipeLine,fDuration);
   if fDuration=-1
     then fDuration:=0 //keep checking
     else if Assigned(OnDuration)

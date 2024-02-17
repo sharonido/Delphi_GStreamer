@@ -43,7 +43,7 @@ while the video is playing you can do 3 things:
 Var
 GStreamer:GstFrameWork;
 playbin :GPlugin;
-StreamPos, StreamDuration:UInt64;
+StreamPos, StreamDuration:Int64;//can be -1
 key:char;
 begin
 {$IfDef VER360}
