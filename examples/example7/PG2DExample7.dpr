@@ -85,7 +85,8 @@ This program:
   try
   GStreamer:=GstFrameWork.Create(0,nil); //no parameters needed here
     try
-    if GStreamer.BuildPlugInsInPipeLine  //build the plugins in the pipe but do not link them - it is not a simple link (it has branches)
+    if GStreamer.BuildPlugInsInPipeLine  //build the plugins in the pipe but
+                   //do not link them - it is not a simple link (it has branches)
          ('audiotestsrc name=audio_source freq=800.0 ! tee '+
           '! queue name=audio_queue ! audioconvert ! audioresample ! autoaudiosink name=audio_sink '+
           '! queue name=video_queue ! wavescope name=visual shader=0 style=1 ! videoconvert name=video_convert '+
@@ -93,6 +94,7 @@ This program:
           ' ')
       then
       begin
+
       //link the audio src to the tee
       if not D_element_link(GStreamer.PipeLine,'audio_source','tee')
         then writeln('Error in linking audio_source & tee')
