@@ -87,7 +87,7 @@ This program:
     try
     if GStreamer.BuildPlugInsInPipeLine  //build the plugins in the pipe but
                    //do not link them - it is not a simple link (it has branches)
-         ('audiotestsrc name=audio_source freq=800.0 ! tee '+
+         ('audiotestsrc name=audio_source ! tee '+   //freq=800.0
           '! queue name=audio_queue ! audioconvert ! audioresample ! autoaudiosink name=audio_sink '+
           '! queue name=video_queue ! wavescope name=visual shader=0 style=1 ! videoconvert name=video_convert '+
           '! autovideosink name=video_sink'+
