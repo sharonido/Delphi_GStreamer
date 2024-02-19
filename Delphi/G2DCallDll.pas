@@ -161,6 +161,7 @@ function D_element_set_state(const Pipe:GPipeLine;State:GstState):GstStateChange
 function DGst_pipeline_new(name:string):PGstElement;
 
 procedure D_object_set_int(plug:GPlugIn;Param:string;val:integer);
+procedure D_object_set_float(plug:GPlugIn;Param:string;val:single);
 procedure D_object_set_string(plug:GPlugIn;Param,val:string);
 //procedure D_object_set_double(plug:GPlugIn;Param :string; val:double);
 
@@ -382,7 +383,11 @@ procedure D_object_set_int(plug:GPlugIn;Param:string;val:integer);
 begin
 _G_object_set_int(plug.RealObject,ansistring(Param),val);
 end;
-
+//------------------------------------------
+procedure D_object_set_float(plug:GPlugIn;Param:string;val:single);
+begin
+_G_object_set_float(plug.RealObject,ansistring(Param),val);
+end;
 //------------------------------------------
 procedure D_object_set_string(plug:GPlugIn;Param,val:string);
 begin

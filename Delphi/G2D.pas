@@ -309,6 +309,7 @@ var
   I: Integer;
   par: TArray<string>;
   X: Integer;
+  f:single;
 begin
   for I := 1 to Length(ParamList) - 1 do
     if ParamList[i].Trim <> '' then
@@ -319,6 +320,8 @@ begin
       if Par[0].Trim='name' then fName:=ansistring(Par[1].Trim);
       if TryStrToInt(Par[1].Trim, X)
         then D_object_set_int(Self, Par[0].Trim, x)
+        else If TryStrToFloat(Par[1].Trim, f)
+        then D_object_set_float(Self, Par[0].Trim, f)
         else D_object_set_string(Self,Par[0].Trim, Par[1]);
       end;
     end;
