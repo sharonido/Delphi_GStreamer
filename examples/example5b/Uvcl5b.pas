@@ -57,19 +57,12 @@ var
 implementation
 
 {$R *.dfm}
-//writing to log in memo
-procedure writeLog(st:string);
-begin
-if st.EndsWith(sLineBreak) then st:=st.Remove(st.Length-1);//lines.add inserts slineBreak
-FormVideoWin.Mlog.Lines.Add(st);
-end;
 
 //this procedure initializes the GStreamer & the form(window)
 procedure TFormVideoWin.FormCreate(Sender: TObject);
 var
 srcStr:string;
 begin
-WriteOut:=writeLog; //re-route activity log to the memo instead of console
 //find full path of Ocean.mp4 file and add it to CBSrc (To let user easly choose)
 srcStr:= GetFullPathToParentFile('\Delphi\Ocean.mp4');
 if (srcStr <> '')
@@ -82,6 +75,7 @@ FPlayPauseBtns1.sbStop.Enabled:=false;
 PanelDuration.Visible:=false;        //visual stuff
 
 //GStreamer start
+GStreamer.MemoLog:=Mlog;  //re-route activity log to the memo instead of console
 GStreamer:=GstFrameWork.Create(0,nil); //no parameters needed here
 if GStreamer.Started then
   begin

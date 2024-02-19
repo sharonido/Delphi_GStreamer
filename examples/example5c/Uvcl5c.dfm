@@ -194,8 +194,6 @@ object FormVideoWin: TFormVideoWin
         '')
       ScrollBars = ssBoth
       TabOrder = 0
-      ExplicitLeft = 9
-      ExplicitTop = 188
     end
     object Panel5: TPanel
       Left = 2

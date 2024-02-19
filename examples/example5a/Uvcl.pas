@@ -37,12 +37,6 @@ var
 implementation
 
 {$R *.dfm}
-//writing to log in memo
-procedure writeLog(st:string);
-begin
-if st.EndsWith(sLineBreak) then st:=st.Remove(st.Length-1);//lines.add inserts slineBreak
-FormVideoWin.Mlog.Lines.Add(st);
-end;
 
 //callback function when bottons are pressed
 Procedure TFormVideoWin.ActButton(Btn:TBtnPressed;Status:TBtnsStatus);
@@ -72,7 +66,6 @@ var
 playbin:GPlugIn;
 srcStr:string;
 begin
-WriteOut:=writeLog; //re-route activity log to the memo instead of console
 //botton play stop init
 FPlayPauseBtns1.OnBtnPressed:=ActButton; //set callback for action on button click
 FPlayPauseBtns1.Status:=bsPaused;
@@ -80,6 +73,7 @@ FPlayPauseBtns1.sbPlay.Down:=false;
 FPlayPauseBtns1.sbStop.Enabled:=false;
 
 //GStreamer start
+GStreamer.MemoLog:=Mlog;//redirect log - is before start, cause the log change is a static class
 GStreamer:=GstFrameWork.Create(0,nil); //no parameters needed here
 if GStreamer.Started then
   begin
