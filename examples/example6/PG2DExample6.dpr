@@ -165,8 +165,8 @@ program consul output:
     printTemplatePlugCaps('audiotestsrc');
     printTemplatePlugCaps('autoaudiosink');
     //-------
-     if not GStreamer.SimpleBuildLink('audiotestsrc  freq=800.0 ! autoaudiosink')
-      then writeln('error in the prog (link)')
+     if not GStreamer.SimpleBuildLink('audiotestsrc ! autoaudiosink')
+      then writeOutln('error in the prog (link)')
       else
       begin
       WriteOutln('--- In Null State  ---');
@@ -182,7 +182,9 @@ program consul output:
           begin
           sleep(10);
           WriteOutln('State is '+GstStateName(GStreamer.State));
-          print_pad_capabilities(plug,'sink')
+          print_pad_capabilities(plug,'sink');
+          //use next line
+          _G_object_set_float(GStreamer.PipeLine.GetPlugByName('audiotestsrc').RealObject, pchar('freq'),800.0);
           end;
 
         until (GStreamer.G2DTerminate);
