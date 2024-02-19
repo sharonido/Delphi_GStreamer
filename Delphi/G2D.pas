@@ -21,7 +21,7 @@ uses
 //G2DCallDll,  //in implementation anti cyrculer calls
 G2DTypes,
 System.Classes, System.SysUtils, System.Generics.Collections,
-Vcl.Forms, Vcl.ExtCtrls;
+Vcl.Forms, Vcl.ExtCtrls, Vcl.StdCtrls;
 
 // gst objects -----------------------------------------------------------------
 Type
@@ -145,7 +145,9 @@ GstFrameWork=class(TObject)
   class var fState:GstState;
   class var fRunForEver:boolean;
   class var fDuration:int64;
+  Class var fMemoLog:TMemo;
   procedure PrTimer(Sender:TObject);
+  class procedure SetMemoLog(m:TMemo);static;
   public
   class var MsgFilter:integer;
   class var MsgResult:GstMessageType;
@@ -159,6 +161,7 @@ GstFrameWork=class(TObject)
   class Property Bus:GBus read fBus;
   class Property Duration:int64 read fDuration write fDuration;
   class Property Msg:GMsg read fMsg write fMsg;
+  class Property MemoLog:TMemo read fMemoLog write setMemoLog;
   //class Property Running:boolean read frunning;
   class Property State:GstState read fState;
   class Property G2DTerminate:Boolean read fterminate write fterminate;
@@ -179,6 +182,14 @@ end;
 implementation
 uses
 G2DCallDll;
+
+//writing to log in memo
+procedure writeLog(st:string);
+begin
+if st.EndsWith(sLineBreak) then st:=st.Remove(st.Length-1);//lines.add inserts slineBreak
+if Assigned(GstFrameWork.fMemoLog)
+  then GstFrameWork.fMemoLog.Lines.Add(st);
+end;
 //------------------------------------------------------------------------------
 // Gst Delphi objects
 //------------------------------------------------------------------------------
@@ -560,6 +571,17 @@ if (fDuration>0) and (GstFrameWork.State>GstState.GST_STATE_READY) and  Assigned
   D_query_stream_position(PipeLine ,Nano);
   OnPosition(Nano);
   end;
+end;
+
+class procedure GstFrameWork.SetMemoLog(m:TMemo);
+begin
+if assigned(m) and assigned(Application)
+  then
+  begin
+  fMemoLog:=M;
+  WriteOut:=writeLog; //re-route activity log to the memo instead of console
+  end
+  else WriteOut:=stdWriteOut;
 end;
 
 function GstFrameWork.BuildPluginsInPipeLine(params:string):boolean;
