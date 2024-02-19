@@ -173,7 +173,7 @@ program consul output:
       plug:=GStreamer.PipeLine.GetPlugByName('autoaudiosink');
       print_pad_capabilities(plug,'sink');
       if not GStreamer.PipeLine.ChangeState(GST_STATE_PLAYING) //Play
-      then writeln('error in the prog (Play)')
+        then writeln('error in the prog (Play)')
         else
         repeat
         GStreamer.CheckMsgAndRunFor(100*GST_MSECOND);
