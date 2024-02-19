@@ -30,6 +30,8 @@ extern EXPORTDLL void _Gst_message_unref(GstMessage* msg);
 
 extern EXPORTDLL void _G_object_set_int(GstElement* element, const gchar* firstparam, const int val);
 extern EXPORTDLL void _G_object_set_pchar(GstElement* element, const gchar* firstparam, const gchar* val);
+extern EXPORTDLL void _G_object_set_float(GstElement* element, const gchar* firstparam, const float val);
+
 extern EXPORTDLL gchar* _Gst_object_get_name(GstObject* object);
 
 extern EXPORTDLL GstPad* _Gst_element_get_request_pad(GstElement* element, const gchar* name);

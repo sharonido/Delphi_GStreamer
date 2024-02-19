@@ -55,6 +55,9 @@ void _Gst_message_unref(GstMessage* msg) {
 void _G_object_set_int(GstElement* element, const gchar* firstparam, const int val) {
     g_object_set(element, firstparam, val, NULL);
 }
+void _G_object_set_float(GstElement* element, const gchar* firstparam, const float val) {
+    g_object_set(element, firstparam, val, NULL);
+}
 void _G_object_set_pchar(GstElement* element, const gchar* firstparam, const gchar* val) {
     g_object_set(element, firstparam, val, NULL);
 }

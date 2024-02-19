@@ -55,7 +55,7 @@ Tgst_structure_get_name =function(const structure:pointer):PAnsiChar; cdecl;
 //These are from GObject that is underlying framework of GStreamer  (called g_object...)
 Tg_object_set_int =procedure (const plug:pointer; const param:ansistring; const val:integer); cdecl;
 Tg_object_set_pchar =procedure (const plug:pointer; const param,val:ansistring); cdecl;
-Tg_object_set_double =procedure (const plug:pointer; const param:ansistring; const val:double); cdecl;
+Tg_object_set_float =procedure (const plug:pointer; const param:ansistring; const val:single); cdecl;
 Tg_object_get =procedure (const Gobject: pointer; const pKey,pVal: pointer ); cdecl;
 Tgst_object_get_name =function (Const pad:pointer):Pansichar;  cdecl ;
 
@@ -122,6 +122,7 @@ _Gst_element_factory_get_num_pad_templates
 
 //These are from GObject that is underlying framework of GStreamer  (called _G_object...)
 _G_object_set_int             :Tg_object_set_int;
+_G_object_set_float           :Tg_object_set_float;
 _G_object_set_pchar           :Tg_object_set_pchar;
 _G_object_get                 :Tg_object_get;
 //never used _G_object_set_double          :Tg_object_set_double;
@@ -320,6 +321,7 @@ if G2dDllHnd=0 then
 
      // set Gobject functions
      setProcFromDll(@_G_object_set_int,'_G_object_set_int') or
+     setProcFromDll(@_G_object_set_float,'_G_object_set_float') or
      setProcFromDll(@_G_object_set_pchar,'_G_object_set_pchar') or
      setProcFromDll(@_G_object_get,'_G_object_get') or
 
