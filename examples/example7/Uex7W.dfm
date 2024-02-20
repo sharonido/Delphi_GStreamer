@@ -2,8 +2,8 @@ object Form1: TForm1
   Left = 0
   Top = 0
   Caption = 'G2D Example 7W (audio in speakers and on scope)'
-  ClientHeight = 441
-  ClientWidth = 923
+  ClientHeight = 457
+  ClientWidth = 951
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -16,18 +16,20 @@ object Form1: TForm1
     Left = 312
     Top = 0
     Width = 7
-    Height = 441
+    Height = 457
     ExplicitLeft = 298
+    ExplicitHeight = 441
   end
   object Panel1: TPanel
     Left = 0
     Top = 0
     Width = 312
-    Height = 441
+    Height = 457
     Align = alLeft
     Caption = 'Panel1'
     ShowCaption = False
     TabOrder = 0
+    ExplicitHeight = 441
     object Label1: TLabel
       Left = 1
       Top = 1
@@ -41,7 +43,7 @@ object Form1: TForm1
       Left = 1
       Top = 16
       Width = 310
-      Height = 424
+      Height = 440
       Align = alClient
       Lines.Strings = (
         'This is example7W.'
@@ -70,26 +72,31 @@ object Form1: TForm1
         '----------------------------------------')
       ScrollBars = ssBoth
       TabOrder = 0
+      ExplicitHeight = 424
     end
   end
   object Panel2: TPanel
     Left = 319
     Top = 0
-    Width = 604
-    Height = 441
+    Width = 632
+    Height = 457
     Align = alClient
     Caption = 'Panel1'
     ShowCaption = False
     TabOrder = 1
+    ExplicitWidth = 604
+    ExplicitHeight = 441
     object Panel3: TPanel
       Left = 1
-      Top = 384
-      Width = 602
+      Top = 400
+      Width = 630
       Height = 56
       Align = alBottom
       Caption = 'Panel1'
       ShowCaption = False
       TabOrder = 0
+      ExplicitTop = 384
+      ExplicitWidth = 602
       object Label2: TLabel
         Left = 1
         Top = 1
@@ -105,16 +112,16 @@ object Form1: TForm1
       object Panel4: TPanel
         Left = 117
         Top = 1
-        Width = 484
+        Width = 512
         Height = 54
         Align = alClient
         Caption = 'Panel4'
         ShowCaption = False
         TabOrder = 0
-        ExplicitLeft = 200
-        ExplicitTop = 14
-        ExplicitWidth = 273
-        ExplicitHeight = 41
+        ExplicitWidth = 484
+        DesignSize = (
+          512
+          54)
         object Label3: TLabel
           Left = 1
           Top = 3
@@ -123,16 +130,18 @@ object Form1: TForm1
           Caption = '200Hz'
         end
         object Label4: TLabel
-          Left = 455
+          Left = 483
           Top = 3
           Width = 27
           Height = 15
+          Anchors = [akTop, akRight]
           Caption = '2KHz'
+          ExplicitLeft = 494
         end
         object TrackBar1: TTrackBar
           Left = 1
           Top = 24
-          Width = 482
+          Width = 510
           Height = 29
           Align = alBottom
           Max = 2000
@@ -141,19 +150,22 @@ object Form1: TForm1
           Position = 200
           TabOrder = 0
           OnChange = TrackBar1Change
+          ExplicitWidth = 482
         end
       end
     end
     object PanelVideo: TPanel
       Left = 1
       Top = 1
-      Width = 602
-      Height = 383
+      Width = 630
+      Height = 399
       Align = alClient
       Caption = 'PanelVideo'
       TabOrder = 1
       ExplicitLeft = -1
       ExplicitTop = -1
+      ExplicitWidth = 641
+      ExplicitHeight = 515
     end
   end
 end

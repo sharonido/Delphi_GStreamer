@@ -103,7 +103,7 @@ if GStreamer.BuildPlugInsInPipeLine  //build the plugins in the pipe but
           if Res<>'' then WriteOutLn(Res) //err
             else
             begin
-            TrackBar1.Position:=800;
+            TrackBar1.Position:=422;  //gives like a standing sinus in the video scope
             Plug:=GStreamer.PipeLine.GetPlugByName('video_sink'); //SinkPlugin
             _Gst_video_overlay_set_window_handle(Plug.RealObject,self.PanelVideo.Handle);
             if not GStreamer.PipeLine.ChangeState(GST_STATE_PLAYING)  //change pipe state to play
