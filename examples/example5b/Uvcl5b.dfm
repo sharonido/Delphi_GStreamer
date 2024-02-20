@@ -215,24 +215,6 @@ object FormVideoWin: TFormVideoWin
       Caption = 'Panel3'
       ShowCaption = False
       TabOrder = 1
-      inline FPlayPauseBtns1: TFPlayPauseBtns
-        Left = 1
-        Top = 1
-        Width = 68
-        Height = 35
-        Align = alLeft
-        TabOrder = 0
-        ExplicitLeft = 1
-        ExplicitTop = 1
-        ExplicitWidth = 68
-        ExplicitHeight = 35
-        inherited ToolBar1: TToolBar
-          Width = 62
-          Height = 35
-          ExplicitWidth = 62
-          ExplicitHeight = 35
-        end
-      end
       object PanelDuration: TPanel
         Left = 69
         Top = 1
@@ -241,7 +223,9 @@ object FormVideoWin: TFormVideoWin
         Align = alClient
         Caption = 'PanelDuration'
         ShowCaption = False
-        TabOrder = 1
+        TabOrder = 0
+        ExplicitLeft = 96
+        ExplicitWidth = 585
         object Label3: TLabel
           Left = 6
           Top = 11
@@ -280,6 +264,22 @@ object FormVideoWin: TFormVideoWin
           Frequency = 2
           TabOrder = 0
           OnChange = PosSliderChange
+        end
+      end
+      inline FPlayPauseBtns1: TFPlayPauseBtns
+        Left = 1
+        Top = 1
+        Width = 68
+        Height = 35
+        Align = alLeft
+        TabOrder = 1
+        ExplicitLeft = 5
+        ExplicitTop = 6
+        ExplicitWidth = 68
+        ExplicitHeight = 31
+        inherited ToolBar1: TToolBar
+          Width = 62
+          Height = 35
         end
       end
     end
