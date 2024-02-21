@@ -53,7 +53,7 @@ GstMessage* _Gst_bus_timed_pop_filtered(GstBus* bus, GstClockTime timeout, GstMe
 void _Gst_message_unref(GstMessage* msg) {
     gst_message_unref(msg);
 }
-void _G_object_set_int(GstElement* element, const gchar* firstparam, const int val) {
+void _G_object_set_int(GstElement* element, const gchar* firstparam, const gint64 val) {
     g_object_set(element, firstparam, val, NULL);
 }
 void _G_object_set_float(GstElement* element, const gchar* firstparam, const float val) {

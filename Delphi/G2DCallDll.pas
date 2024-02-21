@@ -53,7 +53,7 @@ Tgst_caps_get_structure =function(const caps :pointer; const index :integer):PGs
 Tgst_structure_get_name =function(const structure:pointer):PAnsiChar; cdecl;
 
 //These are from GObject that is underlying framework of GStreamer  (called g_object...)
-Tg_object_set_int =procedure (const plug:pointer; const param:ansistring; const val:integer); cdecl;
+Tg_object_set_int =procedure (const plug:pointer; const param:ansistring; const val:int64); cdecl;
 Tg_object_set_pchar =procedure (const plug:pointer; const param,val:ansistring); cdecl;
 Tg_object_set_float =procedure (const plug:pointer; const param:ansistring; const val:single); cdecl;
 Tg_object_get =procedure (const Gobject: pointer; const pKey,pVal: pointer ); cdecl;
@@ -86,6 +86,8 @@ Tgst_video_overlay_set_window_handle = procedure (plugbin : pointer {PGstElement
 Tg_signal_emit_by_name = procedure (instance:pointer; detailed_signal:PAnsichar;index:integer;pval:pointer);cdecl;
 TGst_tag_list_get_string = function (const list :PGstMiniObject; const tag:pansichar; value:PPAnsiChar):boolean;cdecl;
 TGst_tag_list_get_uint = function (const list :PGstMiniObject; const tag:pansichar; value:PUInt):boolean;cdecl;
+TGst_audio_info_set_format = procedure (info: PGstAudioInfo; format: GstAudioFormat; rate,channels:integer; const position :PGstAudioChannelPosition);cdecl;
+TGst_audio_info_to_caps = function (const info:PGstAudioInfo): PGstCaps;cdecl;
 // ---End of types of functions/procedures to find in G2D.dll ---
 
 
@@ -144,6 +146,8 @@ _Gst_bus_add_signal_watch     :Tgst_bus_add_signal_watch;
 _Gst_video_overlay_set_window_handle  :Tgst_video_overlay_set_window_handle;
 _Gst_tag_list_get_string      :TGst_tag_list_get_string;
 _Gst_tag_list_get_uint        :TGst_tag_list_get_uint;
+_Gst_audio_info_set_format    :TGst_audio_info_set_format;
+_Gst_audio_info_to_caps       :TGst_audio_info_to_caps;
 //End of The GST functions that point to nil but will get the right address in G2D.dll by setProcFromDll in G2dDllLoad
 
 DiTmp1,DiTmp2:Ppointer; //for debuging only
@@ -345,7 +349,10 @@ if G2dDllHnd=0 then
      setProcFromDll(@_Gst_video_overlay_set_window_handle,'_Gst_video_overlay_set_window_handle')or
      setProcFromDll(@_G_signal_emit_by_name,'_G_signal_emit_by_name')or
      setProcFromDll(@_Gst_tag_list_get_string,'_Gst_tag_list_get_string')or
-     setProcFromDll(@_Gst_tag_list_get_uint,'_Gst_tag_list_get_uint')
+     setProcFromDll(@_Gst_tag_list_get_uint,'_Gst_tag_list_get_uint')or
+     setProcFromDll(@_Gst_audio_info_set_format,'_Gst_audio_info_set_format')or
+     setProcFromDll(@_Gst_audio_info_to_caps,'_Gst_audio_info_to_caps')
+
 
      //never used or setProcFromDll(@_G_object_set_double,'_G_object_set_double')
        then exit;

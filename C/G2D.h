@@ -28,7 +28,7 @@ extern EXPORTDLL void _Gst_message_parse_state_changed(GstMessage* message, GstS
 extern EXPORTDLL void _Gst_message_parse_error(GstMessage* message, GError** gerror, gchar** debug);
 extern EXPORTDLL void _Gst_message_unref(GstMessage* msg);
 
-extern EXPORTDLL void _G_object_set_int(GstElement* element, const gchar* firstparam, const int val);
+extern EXPORTDLL void _G_object_set_int(GstElement* element, const gchar* firstparam, const gint64 val);
 extern EXPORTDLL void _G_object_set_pchar(GstElement* element, const gchar* firstparam, const gchar* val);
 extern EXPORTDLL void _G_object_set_float(GstElement* element, const gchar* firstparam, const float val);
 
