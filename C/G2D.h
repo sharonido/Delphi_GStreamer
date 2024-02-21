@@ -67,4 +67,5 @@ extern EXPORTDLL void _G_object_get(const gpointer object, const gpointer pkey, 
 extern EXPORTDLL void _G_signal_emit_by_name(gpointer instance, const gchar* detailed_signal, gint index, gpointer pval);
 extern EXPORTDLL gboolean _Gst_tag_list_get_string(const GstTagList* list, const gchar* tag, gchar** value);
 extern EXPORTDLL gboolean _Gst_tag_list_get_uint(const GstTagList* list, const gchar* tag, guint* value);
-	
+extern EXPORTDLL void _Gst_audio_info_set_format(GstAudioInfo* info, GstAudioFormat format, gint rate, gint channels, const GstAudioChannelPosition* position);
+extern EXPORTDLL GstCaps* _Gst_audio_info_to_caps(const GstAudioInfo* info);

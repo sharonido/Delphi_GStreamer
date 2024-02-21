@@ -4,6 +4,7 @@
 //#include <gtk/gtk.h>
 #include <gst/gst.h>
 #include <gst/video/videooverlay.h>
+#include <gst/audio/audio.h>
 #include "G2D.h"
 
 GstElement* iTmp1 = NULL;//debuging
@@ -186,4 +187,12 @@ gboolean _Gst_tag_list_get_string(const GstTagList* list, const gchar* tag, gcha
 
 gboolean _Gst_tag_list_get_uint(const GstTagList* list, const gchar* tag, guint* value) {
     return gst_tag_list_get_uint(list, tag, value);
+}
+
+void _Gst_audio_info_set_format(GstAudioInfo* info, GstAudioFormat format, gint rate, gint channels, const GstAudioChannelPosition* position) {
+    gst_audio_info_set_format(info, format, rate, channels, position);
+}
+
+GstCaps* _Gst_audio_info_to_caps(const GstAudioInfo* info) {
+    return gst_audio_info_to_caps(info);
 }
