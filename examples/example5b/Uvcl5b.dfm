@@ -224,8 +224,6 @@ object FormVideoWin: TFormVideoWin
         Caption = 'PanelDuration'
         ShowCaption = False
         TabOrder = 0
-        ExplicitLeft = 96
-        ExplicitWidth = 585
         object Label3: TLabel
           Left = 6
           Top = 11
@@ -273,13 +271,15 @@ object FormVideoWin: TFormVideoWin
         Height = 35
         Align = alLeft
         TabOrder = 1
-        ExplicitLeft = 5
-        ExplicitTop = 6
+        ExplicitLeft = 1
+        ExplicitTop = 1
         ExplicitWidth = 68
-        ExplicitHeight = 31
+        ExplicitHeight = 35
         inherited ToolBar1: TToolBar
           Width = 62
           Height = 35
+          ExplicitWidth = 62
+          ExplicitHeight = 35
         end
       end
     end

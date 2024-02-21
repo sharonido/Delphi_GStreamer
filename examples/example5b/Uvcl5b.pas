@@ -65,9 +65,9 @@ var
 srcStr:string;
 begin
 //find full path of Ocean.mp4 file and add it to CBSrc (To let user easly choose)
-srcStr:= GetFullPathToParentFile('\Delphi\Ocean.mp4');
+srcStr:= GetFullPathToParentFile('\MediaFiles\Ocean.mp4');
 if (srcStr <> '')
-  then CBSrc.Items.Add(srcStr+'\Delphi\Ocean.mp4');//add Ocean.mp4 to the combx box for easy user selection
+  then CBSrc.Items.Add(srcStr+'\MediaFiles\Ocean.mp4');//add Ocean.mp4 to the combx box for easy user selection
 //button play/pause/stop init
 FPlayPauseBtns1.OnBtnPressed:=ActButton; //set callback for action on button click
 FPlayPauseBtns1.Status:=bsPaused;
