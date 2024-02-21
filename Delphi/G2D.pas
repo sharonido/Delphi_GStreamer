@@ -40,12 +40,12 @@ GObject=class(GNoUnrefObject)
   function GetReal:PGObject;
   public
   Destructor Destroy; override;
-  function GetName:string;
-  Property Name:string read GetName;
+  procedure SetAParam(ParName,ParValue:String);//parValue must be a string but
+                // can hold a int value-like '50' or a float value-like '50.0'
   property RealObject:PGObject read GetReal;// write RObject;
 end;
 
-GstMiniObject=class(GNoUnrefObject)
+GstMiniObject=class(GObject)
   protected
   function GetReal:PGstMiniObject;
   public
@@ -72,8 +72,12 @@ end;
 
 GstObject=class(GstMiniObject)
   protected
+  fname:ansistring;
   function GetReal:PGstObject;
   function GetName:string;
+  procedure SetAParam(ParName,ParValue:String);//parValue must be a string but
+                // can hold a int value-like '50' or a float value-like '50.0'
+                //we added for 'name=kkk'
   public
   property RealObject:PGstObject read GetReal;// write RObject;
   property Name:string read GetName;
@@ -81,8 +85,10 @@ end;
 
 TGstElement=class(GstObject)
   protected
+  Ffactory_name:ansistring;
   function GetReal:PGstElement;
   public
+  function Name:string; inline;
   property RealObject:PGstElement read GetReal;// write RObject;
 end;
 
@@ -93,11 +99,9 @@ GPlugin=Class(TGstElement)
   private
   procedure SetParams;
   protected
-  Ffactory_name,
-  fname:ansistring;
+
   ParamList:TArray<String>;
   public
-  function Name:string; inline;
   property factory_name:AnsiString read Ffactory_name;
   constructor Create(const Params:string; Aname:string = '');
 end;
@@ -117,11 +121,9 @@ end;
 
 GPipeLine=Class(TGstElement)
   protected
-  fname:ansistring;
   fPlugIns:TObjectList<GPlugIn>;
   public
   property PlugIns:TObjectList<GPlugIn> read fPlugIns;
-  function Name:string; inline;
   function AddPlugIn(Plug:GPlugIn):boolean;
   function GetPlugByName(PlugName:String):GPlugIn;
   function SimpleLinkAll:Boolean; //if Ok PlugIn=nil else first PlugIn that did not link
@@ -219,17 +221,26 @@ begin
   Result:=PGObject(RObject);
 end;
 
-function GObject.GetName: string;
+procedure GObject.SetAParam(ParName, ParValue: String);
+var
+x:integer;
+f:single;
 begin
-if isCreated
-  then Result:=String(_Gst_object_get_name(RealObject))
-  else Result:='The object was not created';
+//if ParName.Trim='name' then fName:=ansistring(Par[1].Trim);
+if TryStrToInt(ParValue.Trim, X)
+  then D_object_set_int(Self, ParName.Trim, x)
+  else If TryStrToFloat(ParValue.Trim, f)
+  then D_object_set_float(Self, ParName.Trim, f)
+  else D_object_set_string(Self,ParName.Trim, ParValue.Trim);
 end;
 //------- GstObject -------------------
 
 function GstObject.GetName: string;
 begin
-  Result:=string(RealObject.name);
+//Result:=string(RealObject.name);
+if isCreated
+  then Result:=String(_Gst_object_get_name(RealObject))
+  else Result:='The object was not created';
 end;
 
 function GstObject.GetReal:PGstObject;
@@ -237,10 +248,23 @@ begin
   Result:=PGstObject(RObject);
 end;
 
+procedure GstObject.SetAParam(ParName, ParValue: String);
+begin
+if ParName.Trim='name' then fName:=ansistring(ParValue.Trim);
+inherited SetAParam(ParName, ParValue);
+end;
+
 //------- GstElement=class(GstObject) ----
 function TGstElement.GetReal:PGstElement;
 begin
   Result:=PGstElement(RObject);
+end;
+
+function TGstElement.Name: string;
+begin
+if fname=''
+  then Result:=string(Ffactory_name)
+  else Result:=string(fname);
 end;
 //-----  GPad=class(GObject)-------
 constructor GPad.CreateReqested(plug:GPlugIn;name:string);
@@ -297,19 +321,11 @@ if RObject=nil
 SetParams;
 End;
 
-function GPlugIn.Name:string;
-begin
-if fname=''
-  then Result:=string(Ffactory_name)
-  else Result:=string(fname);
-end;
-
 procedure GPlugIn.SetParams;
 var
   I: Integer;
   par: TArray<string>;
-  X: Integer;
-  f:single;
+  ParName,ParValue:string;
 begin
   for I := 1 to Length(ParamList) - 1 do
     if ParamList[i].Trim <> '' then
@@ -317,12 +333,9 @@ begin
       par := ParamList[i].Split(['=']);
       if length(Par) = 2 then
       begin
-      if Par[0].Trim='name' then fName:=ansistring(Par[1].Trim);
-      if TryStrToInt(Par[1].Trim, X)
-        then D_object_set_int(Self, Par[0].Trim, x)
-        else If TryStrToFloat(Par[1].Trim, f)
-        then D_object_set_float(Self, Par[0].Trim, f)
-        else D_object_set_string(Self,Par[0].Trim, Par[1]);
+      ParName:=Par[0];
+      ParValue:=Par[1];
+      SetAParam(ParName,ParValue); 
       end;
     end;
 end;
@@ -336,11 +349,6 @@ fPlugIns:=TObjectList<GPlugIn>.Create(true);
 //not their RObject that is freed by the underlyng C Gsreamer framework
 fName:=ansistring(Aname);
 RObject:=DGst_pipeline_new(name);
-end;
-
-function GPipeLine.Name:string;
-begin
-Result:=string(fname);
 end;
 
 Destructor GPipeLine.Destroy;
