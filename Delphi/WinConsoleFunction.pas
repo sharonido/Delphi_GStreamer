@@ -64,7 +64,7 @@ end;
 function GetFullPathToParentFile(filename:string):string;
 begin
 Result:=GetCurrentDir;
-while (Result <> '') and not fileExists(Result+'\Delphi\Ocean.mp4') do
+while (Result <> '') and not fileExists(Result+filename) do
   begin   // Move to the parent directory
   Result := ExcludeTrailingPathDelimiter(Result);
   Result := ExtractFilePath(Result);
