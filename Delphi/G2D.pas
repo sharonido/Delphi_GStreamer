@@ -223,11 +223,11 @@ end;
 
 procedure GObject.SetAParam(ParName, ParValue: String);
 var
-x:integer;
+x:int64;
 f:single;
 begin
 //if ParName.Trim='name' then fName:=ansistring(Par[1].Trim);
-if TryStrToInt(ParValue.Trim, X)
+if TryStrToInt64(ParValue.Trim, X)
   then D_object_set_int(Self, ParName.Trim, x)
   else If TryStrToFloat(ParValue.Trim, f)
   then D_object_set_float(Self, ParName.Trim, f)
