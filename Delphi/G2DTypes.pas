@@ -22,6 +22,9 @@ Winapi.Windows,
 {$ENDIF }
 System.SysUtils;
 // Types  & Const -------------------------------------------------------------
+
+const
+GST_PADDING	= 4;
 Type
 
 PCharArr=Array of ansistring;
@@ -35,6 +38,129 @@ PArrPChar=^PCharArr;        //for C:->  char *argv[];
 {$Z4}
 {$Endif}
 gsize =UInt64;
+
+PGstAudioFormat = ^GstAudioFormat;
+GstAudioFormat = (
+  GST_AUDIO_FORMAT_UNKNOWN,
+  GST_AUDIO_FORMAT_ENCODED,
+  //* 8 bit */
+  GST_AUDIO_FORMAT_S8,
+  GST_AUDIO_FORMAT_U8,
+  //* 16 bit */
+  GST_AUDIO_FORMAT_S16,  //LE ->Little Endian
+  GST_AUDIO_FORMAT_S16BE,
+  GST_AUDIO_FORMAT_U16,  //LE ->Little Endian
+  GST_AUDIO_FORMAT_U16BE,
+  //* 24 bit in low 3 bytes of 32 bits*/
+  GST_AUDIO_FORMAT_S24_32, //LE ->Little Endian
+  GST_AUDIO_FORMAT_S24_32BE,
+  GST_AUDIO_FORMAT_U24_32, //LE ->Little Endian
+  GST_AUDIO_FORMAT_U24_32BE,
+  //* 32 bit */
+  GST_AUDIO_FORMAT_S32, //LE ->Little Endian
+  GST_AUDIO_FORMAT_S32BE,
+  GST_AUDIO_FORMAT_U32, //LE ->Little Endian
+  GST_AUDIO_FORMAT_U32BE,
+  //* 24 bit in 3 bytes*/
+  GST_AUDIO_FORMAT_S24, //LE ->Little Endian
+  GST_AUDIO_FORMAT_S24BE,
+  GST_AUDIO_FORMAT_U24, //LE ->Little Endian
+  GST_AUDIO_FORMAT_U24BE,
+  //* 20 bit in 3 bytes*/
+  GST_AUDIO_FORMAT_S20, //LE ->Little Endian
+  GST_AUDIO_FORMAT_S20BE,
+  GST_AUDIO_FORMAT_U20, //LE ->Little Endian
+  GST_AUDIO_FORMAT_U20BE,
+  //* 18 bit in 3 bytes*/
+  GST_AUDIO_FORMAT_S18, //LE ->Little Endian
+  GST_AUDIO_FORMAT_S18BE,
+  GST_AUDIO_FORMAT_U18, //LE ->Little Endian
+  GST_AUDIO_FORMAT_U18BE,
+  //* float */
+  GST_AUDIO_FORMAT_F32, //LE ->Little Endian
+  GST_AUDIO_FORMAT_F32BE,
+  GST_AUDIO_FORMAT_F64, //LE ->Little Endian
+  GST_AUDIO_FORMAT_F64BE);
+  //* native endianness equivalents */
+  {window is little endianness
+  GST_AUDIO_FORMAT_S16 = _GST_AUDIO_FORMAT_NE(S16),
+  GST_AUDIO_FORMAT_U16 = _GST_AUDIO_FORMAT_NE(U16),
+  GST_AUDIO_FORMAT_S24_32 = _GST_AUDIO_FORMAT_NE(S24_32),
+  GST_AUDIO_FORMAT_U24_32 = _GST_AUDIO_FORMAT_NE(U24_32),
+  GST_AUDIO_FORMAT_S32 = _GST_AUDIO_FORMAT_NE(S32),
+  GST_AUDIO_FORMAT_U32 = _GST_AUDIO_FORMAT_NE(U32),
+  GST_AUDIO_FORMAT_S24 = _GST_AUDIO_FORMAT_NE(S24),
+  GST_AUDIO_FORMAT_U24 = _GST_AUDIO_FORMAT_NE(U24),
+  GST_AUDIO_FORMAT_S20 = _GST_AUDIO_FORMAT_NE(S20),
+  GST_AUDIO_FORMAT_U20 = _GST_AUDIO_FORMAT_NE(U20),
+  GST_AUDIO_FORMAT_S18 = _GST_AUDIO_FORMAT_NE(S18),
+  GST_AUDIO_FORMAT_U18 = _GST_AUDIO_FORMAT_NE(U18),
+  GST_AUDIO_FORMAT_F32 = _GST_AUDIO_FORMAT_NE(F32),
+  GST_AUDIO_FORMAT_F64 = _GST_AUDIO_FORMAT_NE(F64)
+  }
+
+PGstAudioChannelPosition = ^GstAudioChannelPosition;
+GstAudioChannelPosition=( {
+  /* These get negative indices to allow to use
+   * the enum values of the normal cases for the
+   * bit-mask position */  }
+  GST_AUDIO_CHANNEL_POSITION_NONE = -3,
+  GST_AUDIO_CHANNEL_POSITION_MONO = -2,
+  GST_AUDIO_CHANNEL_POSITION_INVALID = -1,
+
+  //* Normal cases */
+  GST_AUDIO_CHANNEL_POSITION_FRONT_LEFT = 0,
+  GST_AUDIO_CHANNEL_POSITION_FRONT_RIGHT,
+  GST_AUDIO_CHANNEL_POSITION_FRONT_CENTER,
+  GST_AUDIO_CHANNEL_POSITION_LFE1,
+  GST_AUDIO_CHANNEL_POSITION_REAR_LEFT,
+  GST_AUDIO_CHANNEL_POSITION_REAR_RIGHT,
+  GST_AUDIO_CHANNEL_POSITION_FRONT_LEFT_OF_CENTER,
+  GST_AUDIO_CHANNEL_POSITION_FRONT_RIGHT_OF_CENTER,
+  GST_AUDIO_CHANNEL_POSITION_REAR_CENTER,
+  GST_AUDIO_CHANNEL_POSITION_LFE2,
+  GST_AUDIO_CHANNEL_POSITION_SIDE_LEFT,
+  GST_AUDIO_CHANNEL_POSITION_SIDE_RIGHT,
+  GST_AUDIO_CHANNEL_POSITION_TOP_FRONT_LEFT,
+  GST_AUDIO_CHANNEL_POSITION_TOP_FRONT_RIGHT,
+  GST_AUDIO_CHANNEL_POSITION_TOP_FRONT_CENTER,
+  GST_AUDIO_CHANNEL_POSITION_TOP_CENTER,
+  GST_AUDIO_CHANNEL_POSITION_TOP_REAR_LEFT,
+  GST_AUDIO_CHANNEL_POSITION_TOP_REAR_RIGHT,
+  GST_AUDIO_CHANNEL_POSITION_TOP_SIDE_LEFT,
+  GST_AUDIO_CHANNEL_POSITION_TOP_SIDE_RIGHT,
+  GST_AUDIO_CHANNEL_POSITION_TOP_REAR_CENTER,
+  GST_AUDIO_CHANNEL_POSITION_BOTTOM_FRONT_CENTER,
+  GST_AUDIO_CHANNEL_POSITION_BOTTOM_FRONT_LEFT,
+  GST_AUDIO_CHANNEL_POSITION_BOTTOM_FRONT_RIGHT,
+  GST_AUDIO_CHANNEL_POSITION_WIDE_LEFT,
+  GST_AUDIO_CHANNEL_POSITION_WIDE_RIGHT,
+  GST_AUDIO_CHANNEL_POSITION_SURROUND_LEFT,
+  GST_AUDIO_CHANNEL_POSITION_SURROUND_RIGHT
+);
+
+GstAudioFormatFlags = (
+  GST_AUDIO_FORMAT_FLAG_INTEGER  = (1 shl 0),
+  GST_AUDIO_FORMAT_FLAG_FLOAT    = (1 shl 1),
+  GST_AUDIO_FORMAT_FLAG_SIGNED   = (1 shl 2),
+  GST_AUDIO_FORMAT_FLAG_COMPLEX  = (1 shl 4),
+  GST_AUDIO_FORMAT_FLAG_UNPACK   = (1 shl 5)
+);
+
+GstAudioPackFlags =(
+  GST_AUDIO_PACK_FLAG_NONE             = 0,
+  GST_AUDIO_PACK_FLAG_TRUNCATE_RANGE   = (1 shl 0)
+);
+
+GstAudioFlags =(
+  GST_AUDIO_FLAG_NONE              = 0,
+  GST_AUDIO_FLAG_UNPOSITIONED      = (1 shl 0)
+);
+
+GstAudioLayout =(
+  GST_AUDIO_LAYOUT_INTERLEAVED = 0,
+  GST_AUDIO_LAYOUT_NON_INTERLEAVED
+);
 
 GstFormat = (
   GST_FORMAT_UNDEFINED  =  0,
@@ -148,6 +274,43 @@ GstPadPresence  =(
   GST_PAD_REQUEST);
 
 //not packed records, cause will be difrent in 64/32 os and on android/ios
+//void (*GstAudioFormatUnpack) (const GstAudioFormatInfo *info, GstAudioPackFlags flags, gpointer dest, gconstpointer data, gint length);
+PGstAudioFormatInfo = ^_GstAudioFormatInfo;
+GstAudioFormatUnpack = procedure (const info:PGstAudioFormatInfo; flags:GstAudioPackFlags; dest, data:pointer; length:integer);cdecl;
+//void (*GstAudioFormatPack) (const GstAudioFormatInfo *info, GstAudioPackFlags flags, gconstpointer src,  gpointer data, gint length);
+GstAudioFormatPack = procedure (const info:PGstAudioFormatInfo; flags: GstAudioPackFlags; src, data:pointer; length:integer);cdecl;
+_GstAudioFormatInfo = record
+  //*< public >*/
+  format :GstAudioFormat;   //GstAudioFormat format;
+  name,                     //const gchar *name;
+  description  :PansiChar;  //const gchar *description;
+  flags :GstAudioFormatFlags;    //GstAudioFormatFlags flags;
+  endianness,
+  width,
+  depth   :integer;
+  silence :array[0..7] of int8; //[8];
+
+  unpack_format :GstAudioFormat;
+  unpack_func   :GstAudioFormatUnpack;
+  pack_func     :GstAudioFormatPack;
+
+  //*< private >*/
+  _gst_reserved :array[0..GST_PADDING-1] of pointer
+end;
+
+PGstAudioInfo =^_GstAudioInfo;
+_GstAudioInfo =record
+  finfo     :PGstAudioFormatInfo;   //const GstAudioFormatInfo *finfo;
+  flags     :GstAudioFlags;
+  layout    :GstAudioLayout;
+  rate,
+  channels,
+  bpf       :integer;
+  position  :array [0..63] of GstAudioChannelPosition; //   position[64];
+
+  //*< private >*/
+  _gst_reserved :array [0..GST_PADDING-1] of pointer;
+end;
 
 
 GQuark=UInt32;
@@ -240,8 +403,6 @@ _GCond =record  //same as _GRecMutex
   i:array[0..1] of uint;
   end;
 
-const
-GST_PADDING	= 4;
 Type
 _GstBus  =record
   _object :_GstObject;
