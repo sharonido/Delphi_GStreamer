@@ -135,12 +135,13 @@
         <DelphiCompile Include="$(MainSource)">
             <MainSource>MainSource</MainSource>
         </DelphiCompile>
-        <DCCReference Include="Uex7Wmp3.pas">
-            <Form>Form1</Form>
-        </DCCReference>
         <DCCReference Include="..\..\Delphi\G2D.pas"/>
         <DCCReference Include="..\..\Delphi\G2DCallDll.pas"/>
         <DCCReference Include="..\..\Delphi\G2DTypes.pas"/>
+        <DCCReference Include="Uex7Wmp3.pas">
+            <Form>Form1</Form>
+            <FormType>dfm</FormType>
+        </DCCReference>
         <DCCReference Include="..\..\Delphi\WinConsoleFunction.pas"/>
         <BuildConfiguration Include="Base">
             <Key>Base</Key>

@@ -42,7 +42,7 @@
         <Projects Include="example7\PG2Dexample7W.dproj">
             <Dependencies/>
         </Projects>
-        <Projects Include="test\PG2Dexample7Wmp3.dproj">
+        <Projects Include="example7\PG2Dexample7Wmp3.dproj">
             <Dependencies/>
         </Projects>
         <Projects Include="test\PG2Dtest1.dproj">
@@ -174,13 +174,13 @@
         <MSBuild Projects="example7\PG2Dexample7W.dproj" Targets="Make"/>
     </Target>
     <Target Name="PG2Dexample7Wmp3">
-        <MSBuild Projects="test\PG2Dexample7Wmp3.dproj"/>
+        <MSBuild Projects="example7\PG2Dexample7Wmp3.dproj"/>
     </Target>
     <Target Name="PG2Dexample7Wmp3:Clean">
-        <MSBuild Projects="test\PG2Dexample7Wmp3.dproj" Targets="Clean"/>
+        <MSBuild Projects="example7\PG2Dexample7Wmp3.dproj" Targets="Clean"/>
     </Target>
     <Target Name="PG2Dexample7Wmp3:Make">
-        <MSBuild Projects="test\PG2Dexample7Wmp3.dproj" Targets="Make"/>
+        <MSBuild Projects="example7\PG2Dexample7Wmp3.dproj" Targets="Make"/>
     </Target>
     <Target Name="PG2Dtest1">
         <MSBuild Projects="test\PG2Dtest1.dproj"/>

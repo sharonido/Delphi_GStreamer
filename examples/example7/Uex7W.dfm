@@ -29,7 +29,6 @@ object Form1: TForm1
     Caption = 'Panel1'
     ShowCaption = False
     TabOrder = 0
-    ExplicitHeight = 441
     object Label1: TLabel
       Left = 1
       Top = 1
@@ -72,7 +71,6 @@ object Form1: TForm1
         '----------------------------------------')
       ScrollBars = ssBoth
       TabOrder = 0
-      ExplicitHeight = 424
     end
   end
   object Panel2: TPanel
@@ -84,8 +82,6 @@ object Form1: TForm1
     Caption = 'Panel1'
     ShowCaption = False
     TabOrder = 1
-    ExplicitWidth = 604
-    ExplicitHeight = 441
     object Panel3: TPanel
       Left = 1
       Top = 400
@@ -95,8 +91,6 @@ object Form1: TForm1
       Caption = 'Panel1'
       ShowCaption = False
       TabOrder = 0
-      ExplicitTop = 384
-      ExplicitWidth = 602
       object Label2: TLabel
         Left = 1
         Top = 1
@@ -118,7 +112,6 @@ object Form1: TForm1
         Caption = 'Panel4'
         ShowCaption = False
         TabOrder = 0
-        ExplicitWidth = 484
         DesignSize = (
           512
           54)
@@ -150,7 +143,6 @@ object Form1: TForm1
           Position = 200
           TabOrder = 0
           OnChange = TrackBar1Change
-          ExplicitWidth = 482
         end
       end
     end
@@ -162,10 +154,6 @@ object Form1: TForm1
       Align = alClient
       Caption = 'PanelVideo'
       TabOrder = 1
-      ExplicitLeft = -1
-      ExplicitTop = -1
-      ExplicitWidth = 641
-      ExplicitHeight = 515
     end
   end
 end
