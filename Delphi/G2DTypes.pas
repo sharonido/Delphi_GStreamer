@@ -698,7 +698,8 @@ end;
 
 procedure WriteOutln(st:string);
 begin
-  WriteOut(st+sLineBreak)
+If Assigned(WriteOut)
+  then WriteOut(st+sLineBreak)
 end;
 //------------------------------------------------------------------------------
 function DateToIso(DT:TDateTime):string;
