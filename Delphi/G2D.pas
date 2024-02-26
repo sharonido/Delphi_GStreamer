@@ -593,6 +593,8 @@ if assigned(m) and assigned(Application)
   fMemoLog:=M;
   WriteOut:=writeLog; //re-route activity log to the memo instead of console
   end
+  else if assigned(Application)
+  then WriteOut:=nil
   else WriteOut:=stdWriteOut;
 end;
 
