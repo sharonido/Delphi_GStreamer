@@ -45,7 +45,7 @@
         <Projects Include="example7\PG2Dexample7Wmp3.dproj">
             <Dependencies/>
         </Projects>
-        <Projects Include="test\PG2Dexample8Wa.dproj">
+        <Projects Include="example8\PG2Dexample8Wa.dproj">
             <Dependencies/>
         </Projects>
     </ItemGroup>
@@ -183,13 +183,13 @@
         <MSBuild Projects="example7\PG2Dexample7Wmp3.dproj" Targets="Make"/>
     </Target>
     <Target Name="PG2Dexample8Wa">
-        <MSBuild Projects="test\PG2Dexample8Wa.dproj"/>
+        <MSBuild Projects="example8\PG2Dexample8Wa.dproj"/>
     </Target>
     <Target Name="PG2Dexample8Wa:Clean">
-        <MSBuild Projects="test\PG2Dexample8Wa.dproj" Targets="Clean"/>
+        <MSBuild Projects="example8\PG2Dexample8Wa.dproj" Targets="Clean"/>
     </Target>
     <Target Name="PG2Dexample8Wa:Make">
-        <MSBuild Projects="test\PG2Dexample8Wa.dproj" Targets="Make"/>
+        <MSBuild Projects="example8\PG2Dexample8Wa.dproj" Targets="Make"/>
     </Target>
     <Target Name="Build">
         <CallTarget Targets="PG2DExample1;PG2DExample2;PG2DExample2A;PG2DExample3;PG2DExample3A;PG2DExample4;PExample5a;PExample5b;PExample5c;PG2DExample6;PG2Dexample6W;PG2DExample7;PG2Dexample7W;PG2Dexample7Wmp3;PG2Dexample8Wa"/>
