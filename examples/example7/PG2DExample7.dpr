@@ -37,29 +37,7 @@ This program:
 //main -------------------------------------------------------------------------
 Var
   GStreamer:GstFrameWork;
-  res:string;
-function setTeeChain(TeeName, ChainName:string):string;
-var
-Plug:GPlugIn;
-PadSrc,PadSink:GPad;
-begin
-Result:='';
-plug:=GStreamer.PipeLine.GetPlugByName(TeeName); //the tee plugin
-PadSrc:=GPad.CreateReqested(Plug, 'src_%u');     //'src_%u' is the generic name for "tee" src pads
-writeln('The '+plug.Name+' requested src pad obtained as '+PadSrc.Name);
-  //Get queue PadSink by static
-plug:=GStreamer.PipeLine.GetPlugByName(ChainName); //the audio_queue plugin
-PadSink:=GPad.CreateStatic(Plug, 'sink');
-writeln('The '+Plug.Name+' requested sink pad obtained as '+PadSink.Name);
-  // link tee_audio_PadSrc to queue_audio_PadSink
-if GST_PAD_LINK_OK<>PadSrc.LinkToSink(PadSink)
-  then Result:='Error in link '+PadSrc.Name+' to '+PadSink.Name
-  else
-  begin
-  writeln('Pads were linked');
-  PadSink.Free;// Release extra sink pad
-  end;
-end;
+  SrcChain, AudioChain, VideoChain: string;
 
 begin
 //this (VER360)compiler directive is to enable the description below to be written
@@ -85,49 +63,26 @@ This program:
   try
   GStreamer:=GstFrameWork.Create(0,nil); //no parameters needed here
     try
-    if GStreamer.BuildPlugInsInPipeLine  //build the plugins in the pipe but
-                   //do not link them - it is not a simple link (it has branches)
-         ('audiotestsrc name=audio_source ! tee '+   //freq=800.0
-          '! queue name=audio_queue ! audioconvert ! audioresample ! autoaudiosink name=audio_sink '+
-          '! queue name=video_queue ! wavescope name=visual shader=0 style=1 ! videoconvert name=video_convert '+
-          '! autovideosink name=video_sink'+
-          ' ')
+    SrcChain:='audiotestsrc name=audio_source ! tee ';
+    AudioChain:= 'queue name=audio_queue ! audioconvert ! audioresample ! autoaudiosink name=audio_sink';
+    VideoChain:= 'queue name=video_queue ! wavescope name=visual shader=0 style=1 !'+
+                 ' videoconvert name=video_convert ! d3d11videosink name=video_sink';
+
+    if not GStreamer.BuildPlugInsInPipeLine (SrcChain+'!'+AudioChain+'!'+VideoChain)
+    //build the plugins in the pipe but
+    //do not link them - it is not a simple link (it has branches)
+      then exit;
+
+    If GStreamer.link(SrcChain) and
+      GStreamer.link(AudioChain) and
+      GStreamer.link(VideoChain) and
+      GStreamer.setTeeChain('tee','audio_queue') and
+      GStreamer.setTeeChain('tee','video_queue')
       then
       begin
-
-      //link the audio src to the tee
-      if not D_element_link(GStreamer.PipeLine,'audio_source','tee')
-        then writeln('Error in linking audio_source & tee')
-        else  //link Ok
-        begin
-        //link the audio branch (from the audio queue to audio sink
-        Res:=D_element_link_many_by_name(GStreamer.PipeLine,'audio_queue, audioconvert, audioresample, audio_sink');
-        if Res<>'' then writeln(Res)
-          else //link Ok
-          begin
-          //Link the video branch from the video queue to the video sink
-          Res:=D_element_link_many_by_name(GStreamer.PipeLine,'video_queue, visual, video_convert, video_sink');
-          if Res<>'' then writeln(Res)
-            else //link Ok
-            begin
-            // create the pads for the audio branch (tee src0 as src and audio_queue as sink) and link them
-            res:=setTeeChain('tee','audio_queue');
-            if Res<>'' then writeln(Res) //err
-              else
-              begin
-              res:=setTeeChain('tee','video_queue');
-              // create the pads for the audio branch (tee src1 as src and video_queue as sink) and link them
-              if Res<>'' then writeln(Res) //err
-                else
-                begin
-                if GStreamer.PipeLine.ChangeState(GST_STATE_PLAYING)  //change pipe state to play
-                  then GStreamer.CheckMsgAndRunFor(DoForEver) //now the stream is running (for ever)
-                  else writeln ('error in change pipeline state');
-                end;
-              end;
-            end;
-          end;
-        end
+      if GStreamer.PipeLine.ChangeState(GST_STATE_PLAYING)  //change pipe state to play
+        then GStreamer.CheckMsgAndRunFor(DoForEver) //now the stream is running (for ever)
+        else WriteOutLn ('error in change pipeline state');
       end;
     finally
      GStreamer.Free;
