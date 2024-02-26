@@ -73,8 +73,6 @@ if GStreamer.Started then
         sleep(10);
         Memo2.Lines.Add('---- State is '+GstStateName(GStreamer.State));
         print_pad_capabilities(plug,'sink');
-        //use next line to change frequency from 800 to whatever
-        //_G_object_set_float(GStreamer.PipeLine.GetPlugByName('audiotestsrc').RealObject, pchar('freq'),800.0);
         end;
 
       until (GStreamer.State=GstState.GST_STATE_PLAYING);

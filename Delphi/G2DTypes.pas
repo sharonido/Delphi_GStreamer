@@ -273,6 +273,37 @@ GstPadPresence  =(
   GST_PAD_SOMETIMES,
   GST_PAD_REQUEST);
 
+
+GstMapFlags =(
+  GST_MAP_READ      = 1, //GST_LOCK_FLAG_READ, =1 in windows
+  GST_MAP_WRITE     = 2, //GST_LOCK_FLAG_WRITE,=2 in windows
+
+  GST_MAP_FLAG_LAST = (1 shl 16)
+  ); //} GstMapFlags;
+
+GstFlowReturn=(
+  //* custom success starts here */
+  GST_FLOW_CUSTOM_SUCCESS_2 = 102,
+  GST_FLOW_CUSTOM_SUCCESS_1 = 101,
+  GST_FLOW_CUSTOM_SUCCESS = 100,
+
+  //* core predefined */
+  GST_FLOW_OK		  =  0,
+  //* expected failures */
+  GST_FLOW_NOT_LINKED     = -1,
+  GST_FLOW_FLUSHING       = -2,
+  //* error cases */
+  GST_FLOW_EOS            = -3,
+  GST_FLOW_NOT_NEGOTIATED = -4,
+  GST_FLOW_ERROR	  = -5,
+  GST_FLOW_NOT_SUPPORTED  = -6,
+
+  //* custom error starts here */
+  GST_FLOW_CUSTOM_ERROR   = -100,
+  GST_FLOW_CUSTOM_ERROR_1 = -101,
+  GST_FLOW_CUSTOM_ERROR_2 = -102
+  ); //} GstFlowReturn;
+
 //not packed records, cause will be difrent in 64/32 os and on android/ios
 //void (*GstAudioFormatUnpack) (const GstAudioFormatInfo *info, GstAudioPackFlags flags, gpointer dest, gconstpointer data, gint length);
 PGstAudioFormatInfo = ^_GstAudioFormatInfo;
@@ -340,6 +371,45 @@ PGstMiniObject=^_GstMiniObject;
 
 PGstCaps = ^GstCaps;
 GstCaps = _GstMiniObject;
+
+GstClockTime =int64;
+PGstBuffer =^_GstBuffer;
+_GstBuffer =record
+  mini_object   :_GstMiniObject;
+  //*< public >*/ /* with COW */
+  pool          :pointer;   //GstBufferPool         *pool;
+  //* timestamp */
+  pts,
+  dts,
+  duration     :GstClockTime;
+  //* media specific offset */
+  offset,
+  offset_end    :uint64;
+end;
+
+_GstMemory =record
+  mini_object :_GstMiniObject;
+  allocator   :pointer;  //  GstAllocator   *allocator;
+  parent      :pointer;  //  GstMemory      *parent;
+  maxsize,
+  align,  //gsize           align;
+  offset, //gsize           offset;
+  size       :uint64     // gsize           size
+end;
+
+PGstMapInfo=^GstMapInfo;
+GstMapInfo = record
+  memory  :^_GstMemory;
+  flags   :GstMapFlags; //flags;
+  data    :PByte;  //guint8 *data;
+  size,           //gsize size;
+  maxsize:uint64;  //gsize maxsize;
+  //*< protected >*/
+  user_data :array[0..3] of pointer;//gpointer user_data[4];
+
+  //*< private >*/
+  _gst_reserved :array[0..GST_PADDING-1] of pointer;//gpointer _gst_reserved[GST_PADDING];
+end; //} GstMapInfo;
 
 GstStaticCaps = record
 
