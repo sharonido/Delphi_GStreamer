@@ -177,8 +177,11 @@ void _G_object_get(const gpointer object, const gpointer pkey, const gpointer pv
     g_object_get(object, pkey, pval, NULL);
 }
 
-void _G_signal_emit_by_name(gpointer instance, const gchar* detailed_signal, gint index, gpointer pval) {
+void _G_signal_emit_by_name_int(gpointer instance, const gchar* detailed_signal, gint index, gpointer pval) {
     g_signal_emit_by_name(instance, detailed_signal, index, pval);
+}
+void _G_signal_emit_by_name_pointer(gpointer instance, const gchar* detailed_signal, gpointer p, gpointer pval) {
+    g_signal_emit_by_name(instance, detailed_signal, p, pval);
 }
 
 gboolean _Gst_tag_list_get_string(const GstTagList* list, const gchar* tag, gchar** value) {
@@ -196,3 +199,21 @@ void _Gst_audio_info_set_format(GstAudioInfo* info, GstAudioFormat format, gint 
 GstCaps* _Gst_audio_info_to_caps(const GstAudioInfo* info) {
     return gst_audio_info_to_caps(info);
 }
+
+//should not be used in windows GUI
+guint _G_idle_add(GSourceFunc  function, gpointer data) {
+    return g_idle_add(function, data);
+}
+
+GstBuffer* _Gst_buffer_new_and_alloc(int size) {
+    return gst_buffer_new_and_alloc(size);
+}
+
+gboolean _Gst_buffer_map(GstBuffer* buffer, GstMapInfo* info, GstMapFlags flags) {
+    return gst_buffer_map(buffer, info, flags);
+}
+
+void _Gst_buffer_unmap(GstBuffer* buffer, GstMapInfo* info) {
+    gst_buffer_unmap(buffer, info);
+}
+

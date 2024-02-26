@@ -64,8 +64,14 @@ extern EXPORTDLL GstCaps* _Gst_static_caps_get (GstStaticCaps *static_caps);
 extern EXPORTDLL void _Gst_bus_add_signal_watch (GstBus* bus);
 extern EXPORTDLL void _Gst_video_overlay_set_window_handle(GstElement* plugbin, guintptr handle);
 extern EXPORTDLL void _G_object_get(const gpointer object, const gpointer pkey, const gpointer pval);
-extern EXPORTDLL void _G_signal_emit_by_name(gpointer instance, const gchar* detailed_signal, gint index, gpointer pval);
+extern EXPORTDLL void _G_signal_emit_by_name_int(gpointer instance, const gchar* detailed_signal, gint index, gpointer pval);
+extern EXPORTDLL void _G_signal_emit_by_name_pointer(gpointer instance, const gchar* detailed_signal, gpointer p, gpointer pval);
+
 extern EXPORTDLL gboolean _Gst_tag_list_get_string(const GstTagList* list, const gchar* tag, gchar** value);
 extern EXPORTDLL gboolean _Gst_tag_list_get_uint(const GstTagList* list, const gchar* tag, guint* value);
 extern EXPORTDLL void _Gst_audio_info_set_format(GstAudioInfo* info, GstAudioFormat format, gint rate, gint channels, const GstAudioChannelPosition* position);
 extern EXPORTDLL GstCaps* _Gst_audio_info_to_caps(const GstAudioInfo* info);
+extern EXPORTDLL guint _G_idle_add(GSourceFunc  function, gpointer data);//should not be used in windows GUI
+extern EXPORTDLL GstBuffer* _Gst_buffer_new_and_alloc(int size);
+extern EXPORTDLL gboolean _Gst_buffer_map(GstBuffer* buffer, GstMapInfo* info, GstMapFlags flags);
+extern EXPORTDLL void _Gst_buffer_unmap(GstBuffer* buffer, GstMapInfo* info);
