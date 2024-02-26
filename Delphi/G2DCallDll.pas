@@ -83,11 +83,15 @@ Tg_quark_to_string =function(quark:GQuark):PAnsiChar;cdecl;
 Tgst_static_caps_get =function(static_caps: pointer):PGstCaps;cdecl;
 Tgst_bus_add_signal_watch =procedure(bus: pointer)cdecl;
 Tgst_video_overlay_set_window_handle = procedure (plugbin : pointer {PGstElement};handle:UInt64 {guintptr});cdecl;
-Tg_signal_emit_by_name = procedure (instance:pointer; detailed_signal:PAnsichar;index:integer;pval:pointer);cdecl;
+Tg_signal_emit_by_name_int = procedure (instance:pointer; detailed_signal:PAnsichar;index:integer;pval:pointer);cdecl;
+Tg_signal_emit_by_name_pointer = procedure (instance:pointer; detailed_signal:PAnsichar;p:pointer;pval:pointer);cdecl;
 TGst_tag_list_get_string = function (const list :PGstMiniObject; const tag:pansichar; value:PPAnsiChar):boolean;cdecl;
 TGst_tag_list_get_uint = function (const list :PGstMiniObject; const tag:pansichar; value:PUInt):boolean;cdecl;
 TGst_audio_info_set_format = procedure (info: PGstAudioInfo; format: GstAudioFormat; rate,channels:integer; const position :PGstAudioChannelPosition);cdecl;
 TGst_audio_info_to_caps = function (const info:PGstAudioInfo): PGstCaps;cdecl;
+TGst_buffer_new_and_alloc = function(size:integer):PGstBuffer;cdecl;
+TGst_buffer_map = function (buffer:PGstBuffer;info :PGstMapInfo; flags: GstMapFlags ):boolean;cdecl;
+TGst_buffer_unmap = procedure (buffer:PGstBuffer;info :PGstMapInfo);cdecl;
 // ---End of types of functions/procedures to find in G2D.dll ---
 
 
@@ -130,7 +134,8 @@ _G_object_get                 :Tg_object_get;
 //never used _G_object_set_double          :Tg_object_set_double;
 _Gst_object_get_name          :Tgst_object_get_name;
 _G_signal_connect             :Tg_signal_connect;
-_G_signal_emit_by_name        :Tg_signal_emit_by_name;
+_G_signal_emit_by_name_int    :Tg_signal_emit_by_name_int;
+_G_signal_emit_by_name_pointer:Tg_signal_emit_by_name_pointer;
 _Gst_element_query_position   :Tgst_element_query_position;
 _Gst_element_query_duration   :Tgst_element_query_duration;
 _Gst_element_seek_simple      :Tgst_element_seek_simple;
@@ -148,6 +153,9 @@ _Gst_tag_list_get_string      :TGst_tag_list_get_string;
 _Gst_tag_list_get_uint        :TGst_tag_list_get_uint;
 _Gst_audio_info_set_format    :TGst_audio_info_set_format;
 _Gst_audio_info_to_caps       :TGst_audio_info_to_caps;
+_Gst_buffer_new_and_alloc     :TGst_buffer_new_and_alloc;
+_Gst_buffer_map               :TGst_buffer_map;
+_Gst_buffer_unmap             :TGst_buffer_unmap;
 //End of The GST functions that point to nil but will get the right address in G2D.dll by setProcFromDll in G2dDllLoad
 
 DiTmp1,DiTmp2:Ppointer; //for debuging only
@@ -171,7 +179,7 @@ procedure D_object_set_string(obj:GObject;Param,val:string);
 
 function  D_element_link(PlugSrc,PlugSink:GPlugIn):boolean; overload;
 function  D_element_link(Pipe:GPipeLine; PlugSrcName,PlugSinkName:string):boolean; overload;
-function  D_element_link_many_by_name(Pipe:GPipeLine;PlugNamesStr:string):string; //PlugNamesStr=(plug names comma seperated) ->Ok=(result='') error=(result='name of broken link pads')
+function  D_element_link_many_by_name(Pipe:GPipeLine;PlugNamesStr:string):boolean; //PlugNamesStr=(plug names comma seperated) ->Ok=(result='') error=(result='name of broken link pads')
 
 function D_query_stream_position(const Plug:TGstElement;var pos:Int64):boolean;
 function D_query_stream_duration(const Plug:TGstElement;var duration:Int64):boolean;
@@ -187,6 +195,7 @@ _Gst_pipeline_new                   :Tgst_pipeline_new;
 
 var
 G2dDllHnd:HMODULE=0;
+
 
 function findG2Ddll:string;
 var cur:string;
@@ -347,11 +356,15 @@ if G2dDllHnd=0 then
      setProcFromDll(@_Gst_static_caps_get,'_Gst_static_caps_get') or
      setProcFromDll(@_Gst_bus_add_signal_watch,'_Gst_bus_add_signal_watch')or
      setProcFromDll(@_Gst_video_overlay_set_window_handle,'_Gst_video_overlay_set_window_handle')or
-     setProcFromDll(@_G_signal_emit_by_name,'_G_signal_emit_by_name')or
+     setProcFromDll(@_G_signal_emit_by_name_int,'_G_signal_emit_by_name_int')or
+     setProcFromDll(@_G_signal_emit_by_name_pointer,'_G_signal_emit_by_name_pointer')or
      setProcFromDll(@_Gst_tag_list_get_string,'_Gst_tag_list_get_string')or
      setProcFromDll(@_Gst_tag_list_get_uint,'_Gst_tag_list_get_uint')or
      setProcFromDll(@_Gst_audio_info_set_format,'_Gst_audio_info_set_format')or
-     setProcFromDll(@_Gst_audio_info_to_caps,'_Gst_audio_info_to_caps')
+     setProcFromDll(@_Gst_audio_info_to_caps,'_Gst_audio_info_to_caps')or
+     setProcFromDll(@_Gst_buffer_new_and_alloc,'_Gst_buffer_new_and_alloc')or
+     setProcFromDll(@_Gst_buffer_map,'_Gst_buffer_map')or
+     setProcFromDll(@_Gst_buffer_unmap,'_Gst_buffer_unmap')
 
 
      //never used or setProcFromDll(@_G_object_set_double,'_G_object_set_double')
@@ -360,7 +373,24 @@ if G2dDllHnd=0 then
 Result:=true;
 end;
 
+function GetNameInChain(Chain:string):string;
+Var
+  I:Integer;
+  ParArr:TArray<string>;
+begin
+Result:='';
+ParArr:=Trim(Chain).Split([' ','=']);
+for I := 0 to Length(ParArr)-2 do
+  if Trim(ParArr[I])='name'
+    then
+    begin
+    Result:=Trim(ParArr[I+1]);
+    exit;
+    end;
+Result:=Trim(ParArr[0])
 
+//Result:=Trim(Chain)
+end;
 
 //------------------------------------------
 //function to translate Gstreamer c to delphi
@@ -444,24 +474,35 @@ result:=_Gst_element_seek_simple(Plug.RealObject,GST_FORMAT_TIME,
 end;
 //------------------------------------------
 
-function  D_element_link_many_by_name(Pipe:GPipeLine;PlugNamesStr:string):string; //PlugNamesStr=(plug names comma seperated) ->Ok=(result='') error=(result='name of broken link pads')
+function D_element_link_many_by_name(Pipe:GPipeLine;PlugNamesStr:string):boolean; //PlugNamesStr=(plug names comma seperated) ->Ok=(result='') error=(result='name of broken link pads')
 Var
   I:Integer;
   NameArr:TArray<string>;
+  SrcName, SinkName,
+  linkStr:string;
 begin
-Result:='';
-NameArr:=PlugNamesStr.Split([',']);
+Result:=false;
+linkStr:='';
+NameArr:=PlugNamesStr.Split([',','!']);
 if Length(NameArr)<2 then
   begin
-  Result:='Error Less then 2 plugins can not be linked!?';
+  WriteOutLn('Error Less then 2 plugins can not be linked!? ');
   exit;
   end;
 for I := 0 to Length(NameArr)-2 do
-  if not D_element_link(Pipe,Trim(NameArr[I]), Trim(NameArr[I+1])) then
+  begin
+  SrcName:=GetNameInChain(NameArr[I]);
+  SinkName:=GetNameInChain(NameArr[I+1]);
+  if D_element_link(Pipe,SrcName, SinkName)
+    then linkStr:=linkStr+SrcName+', '
+    else
     begin
-    Result:='Error '+Trim(NameArr[I])+' & '+Trim(NameArr[I+1])+' not linked';
+    WriteOutLn('Error '+Trim(NameArr[I])+' & '+Trim(NameArr[I+1])+' not linked ');
     exit;
     end;
+  end;
+writeoutln(linkStr+Trim(NameArr[Length(NameArr)-1])+ ' were linked successfully');
+Result:=true;
 end;
 //------------------------------------------------------------------------------
 //--------------                initialization  --------------------------------
