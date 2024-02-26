@@ -79,11 +79,10 @@ object Form1: TForm1
     object Label2: TLabel
       Left = 1
       Top = 1
-      Width = 317
+      Width = 154
       Height = 15
       Align = alTop
       Caption = 'The Pad Capability(cap) data:'
-      ExplicitWidth = 154
     end
     object Memo2: TMemo
       Left = 1

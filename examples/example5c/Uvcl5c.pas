@@ -110,7 +110,7 @@ if GStreamer.Started then
   //get the playbin plugin
   playbin:=GStreamer.PipeLine.GetPlugByName('playbin');
   //set the window handle that playbin will render the video on
-  _Gst_video_overlay_set_window_handle(playbin.RealObject ,self.PanelVideo.Handle);
+  GStreamer.SetVisualWindow('playbin',PanelVideo);
   //Set callback for tags
   _G_signal_connect (playbin.RealObject,pansichar('video-tags-changed'),@tags_cb, nil);
   _G_signal_connect (playbin.RealObject,pansichar('audio-tags-changed'),@tags_cb, nil);
@@ -198,7 +198,7 @@ for I := 0 to n_video-1 do
   begin
   pcstr:=nil;
   tags:=nil;
-  _G_signal_emit_by_name(playbin.RealObject,pansichar('get-video-tags'),I,@tags);
+  _G_signal_emit_by_name_int(playbin.RealObject,pansichar('get-video-tags'),I,@tags);
   if Assigned(tags) then
     begin
     if _Gst_tag_list_get_string(tags,pansichar('video-codec'),@pcstr) and Assigned(pcstr)
@@ -225,7 +225,7 @@ for I := 0 to n_audio-1 do
   begin
   pcstr:=nil;
   tags:=nil;
-  _G_signal_emit_by_name(playbin.RealObject,pansichar('get-audio-tags'),I,@tags);
+  _G_signal_emit_by_name_int(playbin.RealObject,pansichar('get-audio-tags'),I,@tags);
   if Assigned(tags) then
     begin
     if _Gst_tag_list_get_string(tags,pansichar('audio-codec'),@pcstr) and Assigned(pcstr)
@@ -255,7 +255,7 @@ for I := 0 to n_text-1 do
   begin
   pcstr:=nil;
   tags:=nil;
-  _G_signal_emit_by_name(playbin.RealObject,pansichar('get-text-tags'),I,@tags);
+  _G_signal_emit_by_name_int(playbin.RealObject,pansichar('get-text-tags'),I,@tags);
   if Assigned(tags) then
     begin
     if _Gst_tag_list_get_string(tags,pansichar('language-code'),@pcstr) and Assigned(pcstr)
@@ -319,7 +319,7 @@ ActButton(TBtnPressed.bpStop,TBtnsStatus.bsStoped);
 //get & set user src
 srcStr:=CBSrc.Text;
 if not srcStr.StartsWith('https:') then srcStr:='file:///'+srcStr;
-_G_object_set_pchar(playbin.RealObject,ansistring('uri'),ansistring(srcStr));
+PlayBin.SetAParam('uri',srcStr);
 //go to pause state (ready for streaming)
 GStreamer.PipeLine.ChangeState(GST_STATE_PAUSED);
 end;
@@ -341,7 +341,8 @@ end;
 //https://gstreamer.freedesktop.org/documentation/tutorials/playback/playbin-usage.html?gi-language=c
 procedure TFormVideoWin.CBAudioSelect(Sender: TObject);
 begin
-_G_object_set_int (playbin.RealObject,pansichar('current-audio'), CBAudio.ItemIndex);
+playbin.setAParam('current-audio',CBAudio.ItemIndex.ToString );
+//_G_object_set_int (playbin.RealObject,pansichar('current-audio'), CBAudio.ItemIndex);
 end;
 
 end.

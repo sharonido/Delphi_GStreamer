@@ -23,7 +23,6 @@ type
     Label1: TLabel;
     Mlog: TMemo;
     Label2: TLabel;
-    //FPlayPauseBtns1: TFPlayPauseBtns;
     PanelDuration: TPanel;
     PosSlider: TTrackBar;
     Label3: TLabel;
@@ -87,10 +86,9 @@ if GStreamer.Started then
   //Build the pipe line with "playbin" plugin
   if not GStreamer.SimpleBuildLink('playbin uri='+srcStr)
       then writeOutln('Error in Build & Link Pipeline');
-  //get the playbin plugin
-  playbin:=GStreamer.PipeLine.GetPlugByName('playbin');
-  //set the window handle that playbin will render the video on
-  _Gst_video_overlay_set_window_handle(playbin.RealObject ,self.PanelVideo.Handle);
+  PlayBin:=GStreamer.PipeLine.GetPlugByName('playbin');
+  //render the PanelVideo for the video display
+  GStreamer.SetVisualWindow('playbin',PanelVideo);
   //get ready to play, and move to the pause state
   PanelVideo.Caption:='Wait for video';
   GStreamer.PipeLine.ChangeState(GST_STATE_PAUSED);
@@ -180,7 +178,7 @@ ActButton(TBtnPressed.bpStop,TBtnsStatus.bsStoped);
 //get & set user src
 srcStr:=CBSrc.Text;
 if not srcStr.StartsWith('https:') then srcStr:='file:///'+srcStr;
-_G_object_set_pchar(playbin.RealObject,ansistring('uri'),ansistring(srcStr));
+PlayBin.SetAParam('uri',srcStr);
 //go to pause state (ready for streaming)
 GStreamer.PipeLine.ChangeState(GST_STATE_PAUSED);
 end;

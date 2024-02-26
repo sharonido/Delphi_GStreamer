@@ -63,7 +63,6 @@ end;
 
 procedure TFormVideoWin.FormCreate(Sender: TObject);
 var
-playbin:GPlugIn;
 srcStr:string;
 begin
 //botton play stop init
@@ -85,9 +84,8 @@ if GStreamer.Started then
      //('playbin uri=file:///C:\temp\demo5.mp4')
      // DoForEver)
       then writeOutln('error in the prog');
-  playbin:=GStreamer.PipeLine.GetPlugByName('playbin');
 
-  _Gst_video_overlay_set_window_handle(playbin.RealObject,self.PanelVideo.Handle);
+  GStreamer.SetVisualWindow('playbin',PanelVideo);
   PanelVideo.Caption:='Wait for video';
   GStreamer.PipeLine.ChangeState(GST_STATE_PAUSED);
   end;

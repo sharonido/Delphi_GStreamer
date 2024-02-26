@@ -13,7 +13,7 @@ object Form1: TForm1
   OnCreate = FormCreate
   TextHeight = 15
   object Splitter1: TSplitter
-    Left = 312
+    Left = 609
     Top = 0
     Width = 7
     Height = 457
@@ -23,7 +23,7 @@ object Form1: TForm1
   object Panel1: TPanel
     Left = 0
     Top = 0
-    Width = 312
+    Width = 609
     Height = 457
     Align = alLeft
     Caption = 'Panel1'
@@ -32,7 +32,7 @@ object Form1: TForm1
     object Label1: TLabel
       Left = 1
       Top = 1
-      Width = 310
+      Width = 607
       Height = 15
       Align = alTop
       Caption = 'The console:'
@@ -41,7 +41,7 @@ object Form1: TForm1
     object Memo1: TMemo
       Left = 1
       Top = 16
-      Width = 310
+      Width = 607
       Height = 440
       Align = alClient
       Lines.Strings = (
@@ -71,26 +71,30 @@ object Form1: TForm1
         '----------------------------------------')
       ScrollBars = ssBoth
       TabOrder = 0
+      ExplicitWidth = 312
     end
   end
   object Panel2: TPanel
-    Left = 319
+    Left = 616
     Top = 0
-    Width = 632
+    Width = 335
     Height = 457
     Align = alClient
     Caption = 'Panel1'
     ShowCaption = False
     TabOrder = 1
+    ExplicitLeft = 319
+    ExplicitWidth = 632
     object Panel3: TPanel
       Left = 1
       Top = 400
-      Width = 630
+      Width = 333
       Height = 56
       Align = alBottom
       Caption = 'Panel1'
       ShowCaption = False
       TabOrder = 0
+      ExplicitWidth = 630
       object Label2: TLabel
         Left = 1
         Top = 1
@@ -106,14 +110,15 @@ object Form1: TForm1
       object Panel4: TPanel
         Left = 117
         Top = 1
-        Width = 512
+        Width = 215
         Height = 54
         Align = alClient
         Caption = 'Panel4'
         ShowCaption = False
         TabOrder = 0
+        ExplicitWidth = 512
         DesignSize = (
-          512
+          215
           54)
         object Label3: TLabel
           Left = 1
@@ -123,7 +128,7 @@ object Form1: TForm1
           Caption = '200Hz'
         end
         object Label4: TLabel
-          Left = 483
+          Left = 186
           Top = 3
           Width = 27
           Height = 15
@@ -134,7 +139,7 @@ object Form1: TForm1
         object TrackBar1: TTrackBar
           Left = 1
           Top = 24
-          Width = 510
+          Width = 213
           Height = 29
           Align = alBottom
           Max = 2000
@@ -143,17 +148,19 @@ object Form1: TForm1
           Position = 200
           TabOrder = 0
           OnChange = TrackBar1Change
+          ExplicitWidth = 510
         end
       end
     end
     object PanelVideo: TPanel
       Left = 1
       Top = 1
-      Width = 630
+      Width = 333
       Height = 399
       Align = alClient
       Caption = 'PanelVideo'
       TabOrder = 1
+      ExplicitWidth = 630
     end
   end
 end

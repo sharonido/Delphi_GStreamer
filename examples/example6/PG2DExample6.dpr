@@ -183,8 +183,6 @@ program consul output:
           sleep(10);
           WriteOutln('State is '+GstStateName(GStreamer.State));
           print_pad_capabilities(plug,'sink');
-          //use next line to change frequency from 800 to whatever
-          //_G_object_set_float(GStreamer.PipeLine.GetPlugByName('audiotestsrc').RealObject, pchar('freq'),800.0);
           end;
 
         until (GStreamer.G2DTerminate);
