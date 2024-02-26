@@ -21,7 +21,7 @@ uses
 //G2DCallDll,  //in implementation anti cyrculer calls
 G2DTypes,
 System.Classes, System.SysUtils, System.Generics.Collections,
-Vcl.Forms, Vcl.ExtCtrls, Vcl.StdCtrls;
+Vcl.Forms, Vcl.ExtCtrls, Vcl.StdCtrls,Vcl.Controls;
 
 // gst objects -----------------------------------------------------------------
 Type
@@ -97,11 +97,11 @@ end;
 
 GPlugin=Class(TGstElement)
   private
-  procedure SetParams;
   protected
 
   ParamList:TArray<String>;
   public
+  procedure SetParams;
   property factory_name:AnsiString read Ffactory_name;
   constructor Create(const Params:string; Aname:string = '');
 end;
@@ -171,10 +171,11 @@ GstFrameWork=class(TObject)
   function WaitForPlay(Sec:Integer):boolean; //wait sec seconds for play; if sec=-1 wait forever
   procedure CheckMsgAndRunFor(TimeInNanoSec:Int64);
   procedure CheckMsg;
+  function setTeeChain(TeeName, ChainName: string): boolean;
   function BuildPlugInsinPipeLine(params:string):boolean;
-
+  procedure SetVisualWindow(SinkPlugName:string;WinCon:TWinControl);
+  function Link(params: string): boolean;
   function SimpleBuildLink(params:string):boolean;
-
   function SimpleBuildLinkPlay(params:string;NanoSecWaitMsg:Int64):boolean;
   constructor Create(const ParamCn:integer; Params:PArrPChar);
   Destructor Destroy; override;
@@ -335,7 +336,7 @@ begin
       begin
       ParName:=Par[0];
       ParValue:=Par[1];
-      SetAParam(ParName,ParValue); 
+      SetAParam(ParName,ParValue);
       end;
     end;
 end;
@@ -595,6 +596,30 @@ if assigned(m) and assigned(Application)
   else WriteOut:=stdWriteOut;
 end;
 
+function GstFrameWork.setTeeChain(TeeName, ChainName:string):boolean;
+var
+Plug:GPlugIn;
+PadSrc,PadSink:GPad;
+begin
+Result:=false;
+plug:=PipeLine.GetPlugByName(TeeName); //the tee plugin
+PadSrc:=GPad.CreateReqested(Plug, 'src_%u');     //'src_%u' is the generic name for "tee" src pads
+WriteOutLn('The '+plug.Name+' requested src pad obtained as '+PadSrc.Name);
+  //Get queue PadSink by static
+plug:=PipeLine.GetPlugByName(ChainName); //the audio_queue plugin
+PadSink:=GPad.CreateStatic(Plug, 'sink');
+WriteOutLn('The '+Plug.Name+' requested sink pad obtained as '+PadSink.Name);
+  // link tee_audio_PadSrc to queue_audio_PadSink
+if GST_PAD_LINK_OK<>PadSrc.LinkToSink(PadSink)
+  then WriteOutLn('Error in link '+PadSrc.Name+' to '+PadSink.Name)
+  else
+  begin
+  WriteOutLn('Pads were linked');
+  PadSink.Free;// Release extra sink pad
+  Result:=true;
+  end;
+end;
+
 function GstFrameWork.BuildPluginsInPipeLine(params:string):boolean;
 var
   PlugStrs:TArray<string>;
@@ -703,11 +728,25 @@ if State=GST_STATE_PLAYING
   end;
 end;
 
+procedure GstFrameWork.SetVisualWindow(SinkPlugName: string;WinCon:TWinControl);
+var SinkPlug:GPlugin;
+begin
+SinkPlug:=PipeLine.GetPlugByName(SinkPlugName); //SinkPlugin
+If Assigned(SinkPlug)
+  then _Gst_video_overlay_set_window_handle(SinkPlug.RealObject,WinCon.Handle)
+  else writeoutln('Error - '+SinkPlugName+' PlugIn not found in SetVisualWindow');
+end;
+
 function GstFrameWork.SimpleBuildLink(params:string):boolean;
 begin
 Result:=BuildPlugInsInPipeLine(params);
 if Result
   then Result:= PipeLine.SimpleLinkAll //link the plugins one to the other
+end;
+
+function GstFrameWork.Link(params:string):boolean;
+begin
+Result:=D_element_link_many_by_name(PipeLine,params);
 end;
 
 
