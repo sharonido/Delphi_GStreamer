@@ -160,7 +160,8 @@ object Form1: TForm1
       Align = alClient
       Caption = 'PanelVideo'
       TabOrder = 1
-      ExplicitWidth = 630
+      ExplicitLeft = -1
+      ExplicitTop = -1
     end
   end
 end

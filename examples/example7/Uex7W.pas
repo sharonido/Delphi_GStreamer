@@ -64,9 +64,7 @@ If GStreamer.link(SrcChain) and
   then
   begin
   TrackBar1.Position:=422;  //gives like a standing sinus in the video scope
-  Plug:=GStreamer.PipeLine.GetPlugByName('video_sink'); //SinkPlugin
-  _Gst_video_overlay_set_window_handle(Plug.RealObject,self.PanelVideo.Handle);
-  //GStreamer.SetVisualWindow('video_sink',)
+  GStreamer.SetVisualWindow('video_sink',PanelVideo);
   if not GStreamer.PipeLine.ChangeState(GST_STATE_PLAYING)  //change pipe state to play
     then WriteOutLn ('error in change pipeline state');
   end;
