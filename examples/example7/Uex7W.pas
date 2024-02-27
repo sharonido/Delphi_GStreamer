@@ -33,7 +33,7 @@ type
 
 var
   Form1: TForm1;
-  GStreamer:GstFrameWork;
+  GStreamer:TGstFrameWork;
 implementation
 
 {$R *.dfm}
@@ -42,8 +42,8 @@ procedure TForm1.FormCreate(Sender: TObject);
 var
 AudioChain,VideoChain,SrcChain:string;
 begin
-GstFrameWork.MemoLog:=Memo1;
-GStreamer:=GstFrameWork.Create(0,nil); //no parameters needed here
+GStreamer.MemoLog:=Memo1;
+GStreamer:=TGstFrameWork.Create(0,nil); //no parameters needed here
 SrcChain:='audiotestsrc name=audio_source ! tee ';
 AudioChain:= 'queue name=audio_queue ! audioconvert ! audioresample ! autoaudiosink name=audio_sink';
 VideoChain:= 'queue name=video_queue ! wavescope name=visual shader=0 style=1 !'+

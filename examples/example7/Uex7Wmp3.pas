@@ -28,12 +28,12 @@ type
     { Private declarations }
   public
     { Public declarations }
-    SrcPlug:GPlugIn
+    SrcPlug:TGPlugIn
   end;
 
 var
   Form1: TForm1;
-  GStreamer:GstFrameWork;
+  GStreamer:TGstFrameWork;
 implementation
 
 {$R *.dfm}
@@ -43,8 +43,8 @@ var
 AudioChain,VideoChain,SrcChain:string;
 begin
 Edit1.Text:=GetFullPathToParentFile('\MediaFiles\Baby.mp3')+'MediaFiles\Baby.mp3';
-GstFrameWork.MemoLog:=Memo1;      //reroute log from console to window memo
-GStreamer:=GstFrameWork.Create(0,nil); //no parameters needed here
+GStreamer.MemoLog:=Memo1;      //reroute log from console to window memo
+GStreamer:=TGstFrameWork.Create(0,nil); //no parameters needed here
 
 SrcChain:='filesrc ! mpegaudioparse ! mpg123audiodec ! audioconvert name=audio_src ! tee';
 AudioChain:= 'queue name=audio_queue ! audioconvert ! audioresample ! autoaudiosink name=audio_sink';

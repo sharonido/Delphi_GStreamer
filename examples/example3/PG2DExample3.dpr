@@ -43,27 +43,27 @@ The Src & convert plugins are linked dynamically at play time
 
 //main -------------------------------------------------------------------------
 Var
-Src,Sink,convert,resample :GPlugin;
-GStreamer:GstFrameWork;
+Src,Sink,convert,resample :TGPlugin;
+GStreamer:TGstFrameWork;
 c:char='A';
 DoOnce:boolean=True;
 begin
   try
-  GStreamer:=GstFrameWork.Create(0,nil); //no parameters needed here
+  GStreamer:=TGstFrameWork.Create(0,nil); //no parameters needed here
   if GStreamer.Started then
     try
     //Creating the Src & Sink Pluin classes & Adding the plugins to the pipe line
     //   data.source = gst_element_factory_make ("uridecodebin", "source");
-    Src:=GPlugIn.Create('uridecodebin', 'Internet source');
+    Src:=TGPlugIn.Create('uridecodebin', 'Internet source');
     GStreamer.PipeLine.AddPlugIn(Src);
 
-    convert:=GPlugIn.Create('audioconvert', 'convert');
+    convert:=TGPlugIn.Create('audioconvert', 'convert');
     GStreamer.PipeLine.AddPlugIn(convert);
 
-    resample:=GPlugIn.Create('audioresample','resample');
+    resample:=TGPlugIn.Create('audioresample','resample');
     GStreamer.PipeLine.AddPlugIn(resample);
 
-    Sink:=GPlugIn.Create('autoaudiosink','Audio sink plugin');
+    Sink:=TGPlugIn.Create('autoaudiosink','Audio sink plugin');
     GStreamer.PipeLine.AddPlugIn(Sink);
 
     if not D_element_link(convert,resample) or    //link all, but do not link  Src to convert

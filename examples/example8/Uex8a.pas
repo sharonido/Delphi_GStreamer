@@ -54,7 +54,7 @@ procedure stop_feed (source :PGstElement; data:pointer); cdecl;
 
 var
   Form1: TForm1;
-  GStreamer:GstFrameWork;
+  GStreamer:TGstFrameWork;
 
 implementation
 
@@ -70,8 +70,8 @@ begin
 xb := 1;                   //* For waveform generation */
 xd := 1;                   //* For waveform generation */
 SawMax :=30000;            //* For waveform generation */
-GstFrameWork.MemoLog:=Memo1;
-GStreamer:=GstFrameWork.Create(0,nil); //no parameters needed here
+TGstFrameWork.MemoLog:=Memo1;
+GStreamer:=TGstFrameWork.Create(0,nil); //no parameters needed here
 
 
 SrcChain:='appsrc name=audio_source ! tee ';

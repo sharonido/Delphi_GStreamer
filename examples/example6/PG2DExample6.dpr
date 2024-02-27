@@ -122,12 +122,12 @@ if (caps=nil) then WriteOutln('Warning: Caps are nil')
   end;
 end;
 
-procedure  print_pad_capabilities(Plug:GPlugin;PadName:string);
+procedure  print_pad_capabilities(Plug:TGPlugin;PadName:string);
 var
-pad :GPad;
+pad :TGPad;
 caps:PGstCaps;
 begin
-pad:=GPad.CreateStatic(Plug,PadName);
+pad:=TGPad.CreateStatic(Plug,PadName);
 WriteOutln('Capabilities for '+PadName+' Pad:');
 caps := _Gst_pad_get_current_caps(pad.RealObject);
 If not Assigned(caps) then caps:=_Gst_pad_query_caps(pad.RealObject,nil);
@@ -138,8 +138,8 @@ end;
 
 //main -------------------------------------------------------------------------
 Var
-GStreamer:GstFrameWork;
-plug:GPlugin;
+GStreamer:TGstFrameWork;
+plug:TGPlugin;
 MR:TGstMessageType;
 begin
 {$IfDef VER360}
@@ -158,7 +158,7 @@ program consul output:
 ''');
 {$Endif}
   try
-  GStreamer:=GstFrameWork.Create(0,nil); //no parameters needed here
+  GStreamer:=TGstFrameWork.Create(0,nil); //no parameters needed here
   if GStreamer.Started then
     try
     //---  print Template of Plugin Capabilities before plugin was created

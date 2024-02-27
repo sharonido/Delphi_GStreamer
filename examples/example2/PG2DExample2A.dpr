@@ -45,20 +45,20 @@ moving ball - try also other patterns)
 
 //main -------------------------------------------------------------------------
 Var
-GStreamer:GstFrameWork;
-Src,Sink :GPlugin;
+GStreamer:TGstFrameWork;
+Src,Sink :TGPlugin;
 patternNum:integer;
 EnterStr:string='';
 DoOnce:boolean=true;
 begin
   try
-  GStreamer:=GstFrameWork.Create(0,nil); //no parameters needed here
+  GStreamer:=TGstFrameWork.Create(0,nil); //no parameters needed here
   if GStreamer.Started then
     try
     //Creating the Src & Sink Pluin classes & Adding the plugins to the pipe line
-    Src:=GPlugIn.Create('videotestsrc','A video test source plugin');
+    Src:=TGPlugIn.Create('videotestsrc','A video test source plugin');
     GStreamer.PipeLine.AddPlugIn(Src);
-    Sink:=GPlugIn.Create('autovideosink','A video sink plugin');
+    Sink:=TGPlugIn.Create('autovideosink','A video sink plugin');
     GStreamer.PipeLine.AddPlugIn(Sink);
     if not GStreamer.PipeLine.SimpleLinkAll then   //link of src->sink
       begin

@@ -19,14 +19,14 @@ type
     procedure FormCreate(Sender: TObject);
   private
     { Private declarations }
-    plug:GPlugin;
+    plug:TGPlugin;
   public
     { Public declarations }
   end;
 
 var
   Form1: TForm1;
-  GStreamer:GstFrameWork;
+  GStreamer:TGstFrameWork;
 
 implementation
 
@@ -40,15 +40,15 @@ Form1.Memo1.Lines.Add(st);
 end;  }
 
 procedure printTemplatePlugCaps(const name:string); forward;
-procedure print_pad_capabilities(Plug:GPlugin;PadName:string);  forward;
+procedure print_pad_capabilities(Plug:TGPlugin;PadName:string);  forward;
 
 procedure TForm1.FormCreate(Sender: TObject);
 var
 MR:TGstMessageType;
 begin
 //GStreamer start
-GstFrameWork.MemoLog:=Memo1; //can be before create because in class var
-GStreamer:=GstFrameWork.Create(0,nil); //no parameters needed here
+TGstFrameWork.MemoLog:=Memo1; //can be before create because in class var
+GStreamer:=TGstFrameWork.Create(0,nil); //no parameters needed here
 if GStreamer.Started then
   begin
   //---  print Template of Plugin Capabilities before plugin was created
@@ -122,12 +122,12 @@ end;
 
 //------------------------------------------
 
-procedure print_pad_capabilities(Plug:GPlugin;PadName:string);
+procedure print_pad_capabilities(Plug:TGPlugin;PadName:string);
 var
-pad :GPad;
+pad :TGPad;
 caps:PGstCaps;
 begin
-pad:=GPad.CreateStatic(Plug,PadName);
+pad:=TGPad.CreateStatic(Plug,PadName);
 Form1.Memo2.Lines.Add('Capabilities for '+PadName+' Pad:');
 caps := _Gst_pad_get_current_caps(pad.RealObject);
 If not Assigned(caps) then caps:=_Gst_pad_query_caps(pad.RealObject,nil);

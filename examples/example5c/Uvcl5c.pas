@@ -52,7 +52,7 @@ type
     procedure CBAudioSelect(Sender: TObject);
   private
     { Private declarations }
-    playbin:GPlugIn;
+    playbin:TGPlugIn;
     NoSeek,NoPos:Boolean;
     Procedure ActButton(Btn:TBtnPressed;Status:TBtnsStatus);
     procedure ActPosition(NewPos:Int64);
@@ -67,7 +67,7 @@ procedure tags_cb (playbin :PGstElement;  stream:integer; data:pointer); cdecl;
 
 var
   FormVideoWin: TFormVideoWin;
-  GStreamer:GstFrameWork;
+  GStreamer:TGstFrameWork;
 implementation
 
 {$R *.dfm}
@@ -96,7 +96,7 @@ PanelVideo.Caption:='Wait for stream';
 
 //GStreamer start
 GStreamer.MemoLog:=Mlog;  //re-route activity log to the memo instead of console
-GStreamer:=GstFrameWork.Create(0,nil); //no parameters needed here
+GStreamer:=TGstFrameWork.Create(0,nil); //no parameters needed here
 if GStreamer.Started then
   begin
   GStreamer.OnDuration:=ActDuration;      //set callback for stream duration function.

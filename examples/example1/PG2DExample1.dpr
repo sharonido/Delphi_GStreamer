@@ -26,7 +26,7 @@ uses
 
 //main -------------------------------------------------------------------------
 Var
-GStreamer:GstFrameWork;
+GStreamer:TGstFrameWork;
 begin
 {$IfDef VER360}
 WriteOutln('''
@@ -45,7 +45,7 @@ program consul output:
 ''');
 {$Endif}
   try
-  GStreamer:=GstFrameWork.Create(0,nil); //no parameters needed here
+  GStreamer:=TGstFrameWork.Create(0,nil); //no parameters needed here
   if GStreamer.Started then
     try
     //launch the gstreamer pipeline

@@ -41,8 +41,8 @@ while the video is playing you can do 3 things:
 
 //main -------------------------------------------------------------------------
 Var
-GStreamer:GstFrameWork;
-playbin :GPlugin;
+GStreamer:TGstFrameWork;
+playbin :TGPlugin;
 StreamPos, StreamDuration:Int64;//can be -1
 key:char;
 begin
@@ -62,11 +62,11 @@ program consul output:
 ''');
 {$Endif}
   try
-  GStreamer:=GstFrameWork.Create(0,nil); //no parameters needed here
+  GStreamer:=TGstFrameWork.Create(0,nil); //no parameters needed here
   if GStreamer.Started then
     try
     //Creating the Src & Sink Pluin classes & Adding the plugins to the pipe line
-    playbin:=GPlugIn.Create('playbin'+
+    playbin:=TGPlugIn.Create('playbin'+
       ' uri=https://www.freedesktop.org/software/gstreamer-sdk/data/media/sintel_trailer-480p.webm',
       'An Internet video  plugin');
     GStreamer.PipeLine.AddPlugIn(playbin);

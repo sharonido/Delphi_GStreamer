@@ -25,9 +25,9 @@ Vcl.Forms, Vcl.ExtCtrls, Vcl.StdCtrls,Vcl.Controls;
 
 // gst objects -----------------------------------------------------------------
 Type
-GPipeLine=Class;
+TGPipeLine=Class;
 
-GNoUnrefObject=class(tobject)  //object that will not un_ref its RObject
+TGNoUnrefObject=class(tobject)  //object that will not un_ref its RObject
   protected
   RObject:pointer; //pointer to the real gst memory (psedu object)
   public
@@ -35,7 +35,7 @@ GNoUnrefObject=class(tobject)  //object that will not un_ref its RObject
   property RealObject:pointer read RObject write RObject;
 end;
 
-GObject=class(GNoUnrefObject)
+TGObject=class(TGNoUnrefObject)
   protected
   function GetReal:PGObject;
   public
@@ -45,19 +45,19 @@ GObject=class(GNoUnrefObject)
   property RealObject:PGObject read GetReal;// write RObject;
 end;
 
-GstMiniObject=class(GObject)
+TGstMiniObject=class(TGObject)
   protected
   function GetReal:PGstMiniObject;
   public
   property RealObject:PGstMiniObject read GetReal;// write RObject;
 end;
 
-GBus=class(GObject)   //GBus<>GMes cause future will do diffrent properties
+TGBus=class(TGObject)   //GBus<>GMes cause future will do diffrent properties
   public
-  constructor Create(pipe:GPipeLine);
+  constructor Create(pipe:TGPipeLine);
 end;
 
-GMsg=class(GstMiniObject)   //GMsg has its own unref
+TGMsg=class(TGstMiniObject)   //GMsg has its own unref
   protected
   RMsg:PGst_Mes;
   function GetReal:PGst_Mes;
@@ -70,7 +70,7 @@ GMsg=class(GstMiniObject)   //GMsg has its own unref
 end;
 
 
-GstObject=class(GstMiniObject)
+TGstObject=class(TGstMiniObject)
   protected
   fname:ansistring;
   function GetReal:PGstObject;
@@ -83,7 +83,7 @@ GstObject=class(GstMiniObject)
   property Name:string read GetName;
 end;
 
-TGstElement=class(GstObject)
+TGstElement=class(TGstObject)
   protected
   Ffactory_name:ansistring;
   function GetReal:PGstElement;
@@ -95,7 +95,7 @@ end;
 
 //GPlugin=Class(GstElement); //forward
 
-GPlugin=Class(TGstElement)
+TGPlugin=Class(TGstElement)
   private
   protected
 
@@ -107,25 +107,25 @@ GPlugin=Class(TGstElement)
 end;
 
 
-GPad=class(GstObject)
+TGPad=class(TGstObject)
   private
-  PlugRequest: GPlugIn;
+  PlugRequest: TGPlugin;
   function GetReal:PGstPad;
   public
   property RealObject:PGstPad read GetReal;// write RObject;
-  function LinkToSink(SinkPad:GPad):tGstPadLinkReturn;
-  constructor CreateReqested(plug:GPlugIn;name:string);
-  constructor CreateStatic(plug:GPlugIn;name:string;Dummy:char=' ');//Dummyis for C++ Warning
+  function LinkToSink(SinkPad:TGPad):tGstPadLinkReturn;
+  constructor CreateReqested(plug:TGPlugin;name:string);
+  constructor CreateStatic(plug:TGPlugin;name:string;Dummy:char=' ');//Dummyis for C++ Warning
   Destructor Destroy; override;
 end;
 
-GPipeLine=Class(TGstElement)
+TGPipeLine=Class(TGstElement)
   protected
-  fPlugIns:TObjectList<GPlugIn>;
+  fPlugIns:TObjectList<TGPlugin>;
   public
-  property PlugIns:TObjectList<GPlugIn> read fPlugIns;
-  function AddPlugIn(Plug:GPlugIn):boolean;
-  function GetPlugByName(PlugName:String):GPlugIn;
+  property PlugIns:TObjectList<TGPlugin> read fPlugIns;
+  function AddPlugIn(Plug:TGPlugin):boolean;
+  function GetPlugByName(PlugName:String):TGPlugin;
   function SimpleLinkAll:Boolean; //if Ok PlugIn=nil else first PlugIn that did not link
   function ChangeState(NewState:TGstState):boolean;
   constructor Create(Aname:string);
@@ -133,11 +133,11 @@ GPipeLine=Class(TGstElement)
 End;
 
 TGetInt64Event = procedure(AInt64: Int64) of object;
-GstFrameWork=class(TObject)
+TGstFrameWork=class(TObject)
   private
-  class var fPipeline:GPipeLine;   //pipeline & Bus are created with framework cause they
-  class var fBus:GBus;             //are used in most normal cases and take less the k mem
-  class var fMsg:GMsg;
+  class var fPipeline:TGPipeLine;   //pipeline & Bus are created with framework cause they
+  class var fBus:TGBus;             //are used in most normal cases and take less the k mem
+  class var fMsg:TGMsg;
   class var fterminate:Boolean;
   class var frunning:Boolean;
   class var fMsgResult:TGstMessageType;
@@ -159,15 +159,15 @@ GstFrameWork=class(TObject)
   class var OnApplication:TGetInt64Event;
   //class property MsgUsed:Boolean read fMsgUsed;
   class property Started:Boolean read fStarted;
-  class Property PipeLine:GPipeLine read fPipeline;
-  class Property Bus:GBus read fBus;
+  class Property PipeLine:TGPipeLine read fPipeline;
+  class Property Bus:TGBus read fBus;
   class Property Duration:int64 read fDuration write fDuration;
-  class Property Msg:GMsg read fMsg write fMsg;
+  class Property Msg:TGMsg read fMsg write fMsg;
   class Property MemoLog:TMemo read fMemoLog write setMemoLog;
   //class Property Running:boolean read frunning;
   class Property State:TGstState read fState;
   class Property G2DTerminate:Boolean read fterminate write fterminate;
-  procedure SetPadAddedCallback(const SrcPad,SinkPad:GPlugin; const capabilityStr:string);
+  procedure SetPadAddedCallback(const SrcPad,SinkPad:TGPlugin; const capabilityStr:string);
   function WaitForPlay(Sec:Integer):boolean; //wait sec seconds for play; if sec=-1 wait forever
   procedure CheckMsgAndRunFor(TimeInNanoSec:Int64);
   procedure CheckMsg;
@@ -193,26 +193,26 @@ G2DCallDll;
 procedure writeLog(st:string);
 begin
 if st.EndsWith(sLineBreak) then st:=st.Remove(st.Length-1);//lines.add inserts slineBreak
-if Assigned(GstFrameWork.fMemoLog)
-  then GstFrameWork.fMemoLog.Lines.Add(st);
+if Assigned(TGstFrameWork.fMemoLog)
+  then TGstFrameWork.fMemoLog.Lines.Add(st);
 end;
 //------------------------------------------------------------------------------
 // Gst Delphi objects
 //------------------------------------------------------------------------------
 //----   GNoUnrefObject=class(tobject)  ----
-function GNoUnrefObject.isCreated:boolean;
+function TGNoUnrefObject.isCreated:boolean;
 begin
 Result:= RealObject<>nil;
 end;
 
 //----- GstMiniObject=class(GNoUnrefObject) -------------------------
-function GstMiniObject.GetReal:PGstMiniObject;
+function TGstMiniObject.GetReal:PGstMiniObject;
 begin
   Result:=PGstMiniObject(RObject);
 end;
 
 //----   GObject=class(GNoUnrefObject)  ----
-Destructor GObject.Destroy;
+Destructor TGObject.Destroy;
 begin
 if RealObject<>nil
   then _Gst_object_unref(RealObject);
@@ -220,12 +220,12 @@ RObject:=nil; //just to be sure
 inherited Destroy;
 end;
 
-function GObject.GetReal:PGObject;
+function TGObject.GetReal:PGObject;
 begin
   Result:=PGObject(RObject);
 end;
 
-procedure GObject.SetAParam(ParName, ParValue: String);
+procedure TGObject.SetAParam(ParName, ParValue: String);
 var
 x:int64;
 f:single;
@@ -239,7 +239,7 @@ if TryStrToInt64(ParValue.Trim, X)
 end;
 //------- GstObject -------------------
 
-function GstObject.GetName: string;
+function TGstObject.GetName: string;
 begin
 //Result:=string(RealObject.name);
 if isCreated
@@ -247,12 +247,12 @@ if isCreated
   else Result:='The object was not created';
 end;
 
-function GstObject.GetReal:PGstObject;
+function TGstObject.GetReal:PGstObject;
 begin
   Result:=PGstObject(RObject);
 end;
 
-procedure GstObject.SetAParam(ParName, ParValue: String);
+procedure TGstObject.SetAParam(ParName, ParValue: String);
 begin
 if ParName.Trim='name' then fName:=ansistring(ParValue.Trim);
 inherited SetAParam(ParName, ParValue);
@@ -271,45 +271,45 @@ if fname=''
   else Result:=string(fname);
 end;
 //-----  GPad=class(GObject)-------
-constructor GPad.CreateReqested(plug:GPlugIn;name:string);
+constructor TGPad.CreateReqested(plug:TGPlugin;name:string);
 begin
 inherited Create;
 PlugRequest:=plug;
 RObject:=_Gst_element_get_request_pad(plug.RealObject,ansistring(name));
 end;
-constructor GPad.CreateStatic(plug:GPlugIn;name:string;Dummy:char=' ');//Dummyis for C++ Warning
+constructor TGPad.CreateStatic(plug:TGPlugin;name:string;Dummy:char=' ');//Dummyis for C++ Warning
 begin
 inherited Create;
 PlugRequest:=nil; //this pad is static - not requested
 RObject:=_Gst_element_get_static_pad(plug.RealObject,ansistring(name));
 end;
 
-Destructor GPad.Destroy;
+Destructor TGPad.Destroy;
 begin
 if PlugRequest<>nil then
   _Gst_element_release_request_pad(PlugRequest.RealObject,RealObject);
 inherited Destroy;
 end;
 
-function GPad.LinkToSink(SinkPad:GPad):TGstPadLinkReturn;
+function TGPad.LinkToSink(SinkPad:TGPad):TGstPadLinkReturn;
 begin
 Result:=_Gst_pad_link(RealObject,SinkPad.RealObject);
 end;
 
-function GPad.GetReal:PGstPad;
+function TGPad.GetReal:PGstPad;
 begin
   Result:=PGstPad(RObject);
 end;
 
 //---  GBus=class(GObject)  -----------------
-constructor GBus.Create(pipe:GPipeLine);
+constructor TGBus.Create(pipe:TGPipeLine);
 begin
 inherited Create;
 RObject:=_Gst_element_get_bus(pipe.RealObject);
 end;
 
 //---  GPlugIn=Class(GNoUnrefObject) --------
-constructor GPlugIn.Create(const Params:string; Aname:string = '');
+constructor TGPlugin.Create(const Params:string; Aname:string = '');
 begin
 inherited Create;
 fname:=ansistring(Aname);
@@ -325,7 +325,7 @@ if RObject=nil
 SetParams;
 End;
 
-procedure GPlugIn.SetParams;
+procedure TGPlugin.SetParams;
 var
   I: Integer;
   par: TArray<string>;
@@ -345,18 +345,18 @@ begin
 end;
 
 //----   GPipeLine=class(GObject)  ---------
-constructor GPipeLine.Create (Aname:string);
+constructor TGPipeLine.Create (Aname:string);
 begin
 inherited Create;
-fPlugIns:=TObjectList<GPlugIn>.Create(true);
+fPlugIns:=TObjectList<TGPlugin>.Create(true);
 //plugins will be free but,
 //not their RObject that is freed by the underlyng C Gsreamer framework
 fName:=ansistring(Aname);
 RObject:=DGst_pipeline_new(name);
 end;
 
-Destructor GPipeLine.Destroy;
-Var Plug:GPlugin;
+Destructor TGPipeLine.Destroy;
+Var Plug:TGPlugin;
 begin
     //plugins will be free but,
     //not their RObject - that is freed by the underlyng C Gsreamer framework
@@ -367,13 +367,13 @@ D_element_set_state(self,TGstState.GST_STATE_NULL);
 inherited Destroy;
 end;
 
-function GPipeLine.AddPlugIn(Plug:GPlugIn):boolean;
+function TGPipeLine.AddPlugIn(Plug:TGPlugin):boolean;
 begin
 PlugIns.Add(Plug);
 result:=_Gst_bin_add(Self.RealObject,Plug.RealObject);
 end;
 
-function GPipeLine.GetPlugByName(PlugName:String):GPlugIn;
+function TGPipeLine.GetPlugByName(PlugName:String):TGPlugin;
 var  I: Integer;
 begin
 Result:=nil;
@@ -385,7 +385,7 @@ for I := 0 to PlugIns.Count-1 do
   end;
 end;
 
-function GPipeLine.SimpleLinkAll:Boolean; //if Ok PlugIn=nil else first PlugIn that did not link
+function TGPipeLine.SimpleLinkAll:Boolean; //if Ok PlugIn=nil else first PlugIn that did not link
 var I:integer;
 begin
 result:=false;
@@ -401,11 +401,11 @@ if PlugIns.Count>1 then WriteOutln(PlugIns.Count.ToString+' plugins were success
 result:=true;
 end;
 
-function GPipeLine.ChangeState(NewState:TGstState):boolean;
+function TGPipeLine.ChangeState(NewState:TGstState):boolean;
 begin
 Result:=false;
 If Assigned(Application) then //if in win env
-  GstFrameWork.MsgTimer.Enabled:=True;
+  TGstFrameWork.MsgTimer.Enabled:=True;
 If D_element_set_state(self,NewState)=GST_STATE_CHANGE_FAILURE
   then WriteOutln('PipeLine '+Name+' could not change state to '+GstStateName(NewState))
   else
@@ -416,7 +416,7 @@ If D_element_set_state(self,NewState)=GST_STATE_CHANGE_FAILURE
 end;
 
 //----   GMsg=class(GObject)  ----------------
-constructor GMsg.Create(const TimeOut:Int64;const MType:UInt );
+constructor TGMsg.Create(const TimeOut:Int64;const MType:UInt );
 var
 old_state, new_state :TGstState;
 err:PGError;
@@ -424,19 +424,19 @@ debug_info:PAnsichar;
 st:string;
 begin
 inherited Create;
-GstFrameWork.fRunForEver:=TimeOut=DoForEver;
-GstFrameWork.fMsgUsed:=false;
-GstFrameWork.fMsgAssigned:=false;
-RObject:=_Gst_bus_timed_pop_filtered(GstFrameWork.Bus.RealObject,TimeOut,MType);
+TGstFrameWork.fRunForEver:=TimeOut=DoForEver;
+TGstFrameWork.fMsgUsed:=false;
+TGstFrameWork.fMsgAssigned:=false;
+RObject:=_Gst_bus_timed_pop_filtered(TGstFrameWork.Bus.RealObject,TimeOut,MType);
 RMsg:=RealObject;
 if (RMsg <> nil) then  // There is a msg
   begin
-  GstFrameWork.MsgResult:=MsgType;
-  GstFrameWork.fMsgAssigned:=true;
+  TGstFrameWork.MsgResult:=MsgType;
+  TGstFrameWork.fMsgAssigned:=true;
     case MsgType of  //* Parse message */
     GST_MESSAGE_ERROR:
       begin
-      GstFrameWork.fMsgUsed:=true;
+      TGstFrameWork.fMsgUsed:=true;
       debug_info:=nil;
       _Gst_message_parse_error(RMsg,@err,@debug_info);
       WriteOutln(
@@ -447,49 +447,49 @@ if (RMsg <> nil) then  // There is a msg
         then st:=string(debug_info)
         else st:='None';
       WriteOutln('Gst debug info: '+st);
-      If GstFrameWork.State=TGstState.GST_STATE_READY
+      If TGstFrameWork.State=TGstState.GST_STATE_READY
         then WriteOutln('Probebly stream src not found');
-      GstFrameWork.fterminate := TRUE;
+      TGstFrameWork.fterminate := TRUE;
       end;
     GST_MESSAGE_EOS:
       begin
       WriteOutln('');
       WriteOutln('End-Of-Stream reached.');
-      GstFrameWork.fMsgUsed:=true;
-      GstFrameWork.fterminate := TRUE;
+      TGstFrameWork.fMsgUsed:=true;
+      TGstFrameWork.fterminate := TRUE;
       end;
     GST_MESSAGE_STATE_CHANGED:
       begin
       //* We are only interested in state-changed messages from the pipeline */
-      if (RMsg.src = GstFrameWork.Pipeline.RealObject) then
+      if (RMsg.src = TGstFrameWork.Pipeline.RealObject) then
 
         begin
         _Gst_message_parse_state_changed(RMsg , @old_state, @new_state, nil);
         WriteOutln('Pipeline changed state from ' +
                     GstStateName(old_state) +
                     ' to ' +GstStateName(new_state));
-        GstFrameWork.fState:=new_state;
+        TGstFrameWork.fState:=new_state;
         If (new_state=TGstState.GST_STATE_READY) or (new_state=TGstState.GST_STATE_NULL)
-          then GstFrameWork.fDuration:=-1; //flag that the stream has no duration
-        GstFrameWork.fMsgUsed:=true;
-        GstFrameWork.frunning:=(TGstState(new_state)=TGstState.GST_STATE_PLAYING);
+          then TGstFrameWork.fDuration:=-1; //flag that the stream has no duration
+        TGstFrameWork.fMsgUsed:=true;
+        TGstFrameWork.frunning:=(TGstState(new_state)=TGstState.GST_STATE_PLAYING);
         end;
       end;
     GST_MESSAGE_DURATION_CHANGED:
       begin
-      GstFrameWork.fDuration:=0;
+      TGstFrameWork.fDuration:=0;
       end;
     GST_MESSAGE_APPLICATION:
       Begin
-      if Assigned(GstFrameWork.OnApplication) then
-        GstFrameWork.OnApplication(0);
+      if Assigned(TGstFrameWork.OnApplication) then
+        TGstFrameWork.OnApplication(0);
       End;
     else WriteOutln('Internal error in - GMsg.Create');
     end;
   end;
 end;
 
-Destructor GMsg.Destroy;
+Destructor TGMsg.Destroy;
 begin
 if RealObject<>nil
   then _Gst_message_unref(RealObject);
@@ -497,18 +497,18 @@ RObject:=nil;  //so it will not be unref as Gobject
 inherited Destroy;
 end;
 
-function GMsg.GetReal:PGst_Mes;
+function TGMsg.GetReal:PGst_Mes;
 begin
 Result:=PGst_Mes(RObject);
 end;
 
-Function GMsg.ftype:TGstMessageType;
+Function TGMsg.ftype:TGstMessageType;
 begin
 Result:=RMsg^.MType;
 end;
 
 //----   GstFrameWork=class(Tbject)  ----------------
-constructor GstFrameWork.Create(const ParamCn:integer; Params:PArrPChar);
+constructor TGstFrameWork.Create(const ParamCn:integer; Params:PArrPChar);
 begin
 if fStarted
   then WriteOutln('trying to create GstFrameWork twice')
@@ -536,14 +536,14 @@ if fStarted
     DGst_Init(ParamCn,Params);  //init the gst framework
     WriteOutln('Gst Framework initialized');
     // create a default pipeline
-    fPipeLine:=GPipeLine.Create('DelphiPipeline'); //delphi pipeline -just a name
+    fPipeLine:=TGPipeLine.Create('DelphiPipeline'); //delphi pipeline -just a name
     if not PipeLine.isCreated then
       begin
       WriteOutln('Default Pipeline '+PipeLine.name+' was not created');
       exit;
       end;
     // create a default  bus for the pipeline, to check on stream
-    fBus:=GBus.create(PipeLine);
+    fBus:=TGBus.create(PipeLine);
     if not Bus.isCreated then
       begin
       writeoutln('Default Bus was not created');
@@ -554,7 +554,7 @@ if fStarted
   end;
 end;
 
-Destructor GstFrameWork.Destroy;
+Destructor TGstFrameWork.Destroy;
 begin
 Bus.Free;
 if assigned(Pipeline) and not Pipeline.Disposed
@@ -567,7 +567,7 @@ if fstate=GST_STATE_PLAYING then
 inherited Destroy;
 end;
 
-procedure GstFrameWork.PrTimer(Sender:TObject);
+procedure TGstFrameWork.PrTimer(Sender:TObject);
 var Nano:Int64;
 begin
 //CheckMsgAndRunFor(0); //check for a new message -without waiting (3 times a sec)
@@ -580,7 +580,7 @@ if fDuration=0 then   //this stream changed its duration (so it has duration)
     else if Assigned(OnDuration)
       then OnDuration(fDuration);
   end;
-if (fDuration>0) and (GstFrameWork.State>TGstState.GST_STATE_READY) and  Assigned(OnDuration)
+if (fDuration>0) and (TGstFrameWork.State>TGstState.GST_STATE_READY) and  Assigned(OnDuration)
   then
   begin
   D_query_stream_position(PipeLine ,Nano);
@@ -588,7 +588,7 @@ if (fDuration>0) and (GstFrameWork.State>TGstState.GST_STATE_READY) and  Assigne
   end;
 end;
 
-class procedure GstFrameWork.SetMemoLog(m:TMemo);
+class procedure TGstFrameWork.SetMemoLog(m:TMemo);
 begin
 if assigned(m) and assigned(Application)
   then
@@ -601,18 +601,18 @@ if assigned(m) and assigned(Application)
   else WriteOut:=stdWriteOut;
 end;
 
-function GstFrameWork.setTeeChain(TeeName, ChainName:string):boolean;
+function TGstFrameWork.setTeeChain(TeeName, ChainName:string):boolean;
 var
-Plug:GPlugIn;
-PadSrc,PadSink:GPad;
+Plug:TGPlugin;
+PadSrc,PadSink:TGPad;
 begin
 Result:=false;
 plug:=PipeLine.GetPlugByName(TeeName); //the tee plugin
-PadSrc:=GPad.CreateReqested(Plug, 'src_%u');     //'src_%u' is the generic name for "tee" src pads
+PadSrc:=TGPad.CreateReqested(Plug, 'src_%u');     //'src_%u' is the generic name for "tee" src pads
 WriteOutLn('The '+plug.Name+' requested src pad obtained as '+PadSrc.Name);
   //Get queue PadSink by static
 plug:=PipeLine.GetPlugByName(ChainName); //the audio_queue plugin
-PadSink:=GPad.CreateStatic(Plug, 'sink');
+PadSink:=TGPad.CreateStatic(Plug, 'sink');
 WriteOutLn('The '+Plug.Name+' requested sink pad obtained as '+PadSink.Name);
   // link tee_audio_PadSrc to queue_audio_PadSink
 if GST_PAD_LINK_OK<>PadSrc.LinkToSink(PadSink)
@@ -625,10 +625,10 @@ if GST_PAD_LINK_OK<>PadSrc.LinkToSink(PadSink)
   end;
 end;
 
-function GstFrameWork.BuildPluginsInPipeLine(params:string):boolean;
+function TGstFrameWork.BuildPluginsInPipeLine(params:string):boolean;
 var
   PlugStrs:TArray<string>;
-  Plug:GPlugIn;
+  Plug:TGPlugin;
   I:Integer;
 begin
 Result:=false;
@@ -644,7 +644,7 @@ if Started then //check if G2D.dll was loaded, if not load it
     end;
   for I := 0 to length(PlugStrs)-1 do
     begin
-    Plug:=GPlugIn.Create(PlugStrs[i]);
+    Plug:=TGPlugin.Create(PlugStrs[i]);
     if not Plug.isCreated then
       begin
       WriteOutln('Error - Plug in  '+Plug.name+' was not found and not created');
@@ -708,13 +708,13 @@ if sink_pad<>nil then
 end;
 
 //****************************************************************************************************************
-procedure GstFrameWork.SetPadAddedCallback(const SrcPad,SinkPad:GPlugin; const capabilityStr:string);
+procedure TGstFrameWork.SetPadAddedCallback(const SrcPad,SinkPad:TGPlugin; const capabilityStr:string);
 begin
 PadCapabilityString:=ansistring(capabilityStr);
 _G_signal_connect (SrcPad.RealObject, ansistring('pad-added'), @pad_added_handler, SinkPad.RealObject);
 end;
 
-function GstFrameWork.WaitForPlay(Sec:Integer):boolean; //wait sec seconds for play; if sec=-1 wait forever
+function TGstFrameWork.WaitForPlay(Sec:Integer):boolean; //wait sec seconds for play; if sec=-1 wait forever
 Var I:integer;
 begin
 I:=0;
@@ -733,8 +733,8 @@ if State=GST_STATE_PLAYING
   end;
 end;
 
-procedure GstFrameWork.SetVisualWindow(SinkPlugName: string;WinCon:TWinControl);
-var SinkPlug:GPlugin;
+procedure TGstFrameWork.SetVisualWindow(SinkPlugName: string;WinCon:TWinControl);
+var SinkPlug:TGPlugin;
 begin
 SinkPlug:=PipeLine.GetPlugByName(SinkPlugName); //SinkPlugin
 If Assigned(SinkPlug)
@@ -742,31 +742,31 @@ If Assigned(SinkPlug)
   else writeoutln('Error - '+SinkPlugName+' PlugIn not found in SetVisualWindow');
 end;
 
-function GstFrameWork.SimpleBuildLink(params:string):boolean;
+function TGstFrameWork.SimpleBuildLink(params:string):boolean;
 begin
 Result:=BuildPlugInsInPipeLine(params);
 if Result
   then Result:= PipeLine.SimpleLinkAll //link the plugins one to the other
 end;
 
-function GstFrameWork.Link(params:string):boolean;
+function TGstFrameWork.Link(params:string):boolean;
 begin
 Result:=D_element_link_many_by_name(PipeLine,params);
 end;
 
 
-procedure GstFrameWork.CheckMsg;
+procedure TGstFrameWork.CheckMsg;
 begin
   repeat
-  Msg:=GMsg.Create(0,MsgFilter);
+  Msg:=TGMsg.Create(0,MsgFilter);
   until not fMsgAssigned;
 end;
 
-procedure GstFrameWork.CheckMsgAndRunFor(TimeInNanoSec:Int64);
+procedure TGstFrameWork.CheckMsgAndRunFor(TimeInNanoSec:Int64);
 begin
   repeat
   MsgResult:=GST_MESSAGE_UNKNOWN;
-  Msg:=GMsg.Create(TimeInNanoSec,MsgFilter);  //wait upto NanoSec, for Msg in MsgFilter
+  Msg:=TGMsg.Create(TimeInNanoSec,MsgFilter);  //wait upto NanoSec, for Msg in MsgFilter
   //if there was a msg in the time interval, MsgResult will change
   Msg.Free;
   sleep(0);
@@ -775,7 +775,7 @@ begin
 end;
 
 
-function GstFrameWork.SimpleBuildLinkPlay(params:string;NanoSecWaitMsg:Int64):boolean;
+function TGstFrameWork.SimpleBuildLinkPlay(params:string;NanoSecWaitMsg:Int64):boolean;
 begin
 Result:=SimpleBuildLink(Params); //Build & Link
 if Result then

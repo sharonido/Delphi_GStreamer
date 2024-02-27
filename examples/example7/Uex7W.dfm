@@ -82,8 +82,6 @@ object Form1: TForm1
     Caption = 'Panel1'
     ShowCaption = False
     TabOrder = 1
-    ExplicitLeft = 319
-    ExplicitWidth = 632
     object Panel3: TPanel
       Left = 1
       Top = 400
@@ -93,7 +91,6 @@ object Form1: TForm1
       Caption = 'Panel1'
       ShowCaption = False
       TabOrder = 0
-      ExplicitWidth = 630
       object Label2: TLabel
         Left = 1
         Top = 1
@@ -115,7 +112,6 @@ object Form1: TForm1
         Caption = 'Panel4'
         ShowCaption = False
         TabOrder = 0
-        ExplicitWidth = 512
         DesignSize = (
           215
           54)
@@ -147,7 +143,6 @@ object Form1: TForm1
           Position = 200
           TabOrder = 0
           OnChange = TrackBar1Change
-          ExplicitWidth = 510
         end
       end
     end
@@ -159,8 +154,6 @@ object Form1: TForm1
       Align = alClient
       Caption = 'PanelVideo'
       TabOrder = 1
-      ExplicitLeft = -1
-      ExplicitTop = -1
     end
   end
 end

@@ -169,17 +169,17 @@ function G2DcheckEnvironment:boolean;
 
 //function to translate Gstreamer c to delphi
 procedure DGst_init(const ParCount:integer;const ParStr:PArrPChar);
-function D_element_set_state(const Pipe:GPipeLine;State:TGstState):TGstStateChangeReturn;
+function D_element_set_state(const Pipe:TGPipeLine;State:TGstState):TGstStateChangeReturn;
 function DGst_pipeline_new(name:string):PGstElement;
 
-procedure D_object_set_int(obj:GObject;Param:string;val:int64);
-procedure D_object_set_float(obj:GObject;Param:string;val:single);
-procedure D_object_set_string(obj:GObject;Param,val:string);
+procedure D_object_set_int(obj:TGObject;Param:string;val:int64);
+procedure D_object_set_float(obj:TGObject;Param:string;val:single);
+procedure D_object_set_string(obj:TGObject;Param,val:string);
 //procedure D_object_set_double(plug:GPlugIn;Param :string; val:double);
 
-function  D_element_link(PlugSrc,PlugSink:GPlugIn):boolean; overload;
-function  D_element_link(Pipe:GPipeLine; PlugSrcName,PlugSinkName:string):boolean; overload;
-function  D_element_link_many_by_name(Pipe:GPipeLine;PlugNamesStr:string):boolean; //PlugNamesStr=(plug names comma seperated) ->Ok=(result='') error=(result='name of broken link pads')
+function  D_element_link(PlugSrc,PlugSink:TGPlugin):boolean; overload;
+function  D_element_link(Pipe:TGPipeLine; PlugSrcName,PlugSinkName:string):boolean; overload;
+function  D_element_link_many_by_name(Pipe:TGPipeLine;PlugNamesStr:string):boolean; //PlugNamesStr=(plug names comma seperated) ->Ok=(result='') error=(result='name of broken link pads')
 
 function D_query_stream_position(const Plug:TGstElement;var pos:Int64):boolean;
 function D_query_stream_duration(const Plug:TGstElement;var duration:Int64):boolean;
@@ -416,29 +416,29 @@ begin
   Result:=_Gst_pipeline_new(ansistring(name));
 end;
 //------------------------------------------
-procedure D_object_set_int(obj:GObject;Param:string;val:int64);
+procedure D_object_set_int(obj:TGObject;Param:string;val:int64);
 begin
 _G_object_set_int(obj.RealObject,ansistring(Param),val);
 end;
 //------------------------------------------
-procedure D_object_set_float(obj:GObject;Param:string;val:single);
+procedure D_object_set_float(obj:TGObject;Param:string;val:single);
 begin
 _G_object_set_float(obj.RealObject,ansistring(Param),val);
 end;
 //------------------------------------------
-procedure D_object_set_string(obj:GObject;Param,val:string);
+procedure D_object_set_string(obj:TGObject;Param,val:string);
 begin
 _G_object_set_pchar(obj.RealObject,ansistring(Param),ansistring(val));
 end;
 //------------------------------------------
-function D_element_set_state(const Pipe:GPipeLine;State:TGstState):TGstStateChangeReturn;
+function D_element_set_state(const Pipe:TGPipeLine;State:TGstState):TGstStateChangeReturn;
 begin
 Result:=_Gst_element_set_state(pipe.RealObject,state);
 end;
 //------------------------------------------
 
 
-function  D_element_link(PlugSrc,PlugSink:GPlugIn):boolean;
+function  D_element_link(PlugSrc,PlugSink:TGPlugIn):boolean;
 begin
 if (PlugSrc=nil) or (PlugSink=nil)
   then Result:=false
@@ -446,7 +446,7 @@ if (PlugSrc=nil) or (PlugSink=nil)
 end;
 //------------------------------------------
 
-function  D_element_link(Pipe:GPipeLine; PlugSrcName,PlugSinkName:string):boolean;
+function  D_element_link(Pipe:TGPipeLine; PlugSrcName,PlugSinkName:string):boolean;
 begin
 Result:=D_element_link(Pipe.GetPlugByName(PlugSrcName),Pipe.GetPlugByName(PlugSinkName));
 end;
@@ -474,7 +474,7 @@ result:=_Gst_element_seek_simple(Plug.RealObject,GST_FORMAT_TIME,
 end;
 //------------------------------------------
 
-function D_element_link_many_by_name(Pipe:GPipeLine;PlugNamesStr:string):boolean; //PlugNamesStr=(plug names comma seperated) ->Ok=(result='') error=(result='name of broken link pads')
+function D_element_link_many_by_name(Pipe:TGPipeLine;PlugNamesStr:string):boolean; //PlugNamesStr=(plug names comma seperated) ->Ok=(result='') error=(result='name of broken link pads')
 Var
   I:Integer;
   NameArr:TArray<string>;

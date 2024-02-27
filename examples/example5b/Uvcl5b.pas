@@ -42,7 +42,7 @@ type
     procedure Timer1Timer(Sender: TObject);
   private
     { Private declarations }
-    playbin:GPlugIn;
+    playbin:TGPlugIn;
     NoSeek,NoPos:Boolean;
     procedure ActPosition(NewPos:Int64);
     Procedure ActButton(Btn:TBtnPressed;Status:TBtnsStatus);
@@ -53,7 +53,7 @@ type
 
 var
   FormVideoWin: TFormVideoWin;
-  GStreamer:GstFrameWork;
+  GStreamer:TGstFrameWork;
 implementation
 
 {$R *.dfm}
@@ -76,7 +76,7 @@ PanelDuration.Visible:=false;        //visual stuff
 
 //GStreamer start
 GStreamer.MemoLog:=Mlog;  //re-route activity log to the memo instead of console
-GStreamer:=GstFrameWork.Create(0,nil); //no parameters needed here
+GStreamer:=TGstFrameWork.Create(0,nil); //no parameters needed here
 if GStreamer.Started then
   begin
   GStreamer.OnDuration:=ActDuration;  //set callback for stream duration function.

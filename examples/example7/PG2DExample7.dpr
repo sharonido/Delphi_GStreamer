@@ -36,7 +36,7 @@ This program:
 
 //main -------------------------------------------------------------------------
 Var
-  GStreamer:GstFrameWork;
+  GStreamer:TGstFrameWork;
   SrcChain, AudioChain, VideoChain: string;
 
 begin
@@ -61,7 +61,7 @@ This program:
 ''');
 {$Endif}
   try
-  GStreamer:=GstFrameWork.Create(0,nil); //no parameters needed here
+  GStreamer:=TGstFrameWork.Create(0,nil); //no parameters needed here
     try
     SrcChain:='audiotestsrc name=audio_source ! tee ';
     AudioChain:= 'queue name=audio_queue ! audioconvert ! audioresample ! autoaudiosink name=audio_sink';

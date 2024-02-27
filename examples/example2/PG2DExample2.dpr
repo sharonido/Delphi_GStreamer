@@ -44,7 +44,7 @@ This program is like the previous "PG2DExample1" but adds 3 features:
 
 //main -------------------------------------------------------------------------
 Var
-GStreamer:GstFrameWork;
+GStreamer:TGstFrameWork;
 patternNum:integer;
 EnterStr:string='';
 DoOnce:Boolean=True;
@@ -53,7 +53,7 @@ writeln;
 Writeln('Mouse click on this window to focuse it, so keyboard will be read');
 writeln;
   try
-  GStreamer:=GstFrameWork.Create(0,nil); //no parameters needed here
+  GStreamer:=TGstFrameWork.Create(0,nil); //no parameters needed here
   if GStreamer.Started then
     try
     //launch the gstreamer pipeline but do not wait

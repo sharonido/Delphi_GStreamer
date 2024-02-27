@@ -33,7 +33,7 @@ type
 
 var
   FormVideoWin: TFormVideoWin;
-  GStreamer:GstFrameWork;
+  GStreamer:TGstFrameWork;
 implementation
 
 {$R *.dfm}
@@ -73,7 +73,7 @@ FPlayPauseBtns1.sbStop.Enabled:=false;
 
 //GStreamer start
 GStreamer.MemoLog:=Mlog;//redirect log - is before start, cause the log change is a static class
-GStreamer:=GstFrameWork.Create(0,nil); //no parameters needed here
+GStreamer:=TGstFrameWork.Create(0,nil); //no parameters needed here
 if GStreamer.Started then
   begin
   srcStr:=ESrc.Text;
