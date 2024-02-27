@@ -49,13 +49,13 @@ Procedure pad_added_handler(src, new_pad, data:pointer); cdecl;
 
 var
 n1,n2:string;
-sink_pad:^_GstPad;
-GstCaps:^_GstCaps;
+sink_pad:PGstPad;
+GstCaps:PGstCaps;
 PStruct: PGstStructure;
 GstCapsStr:Pansichar;
 begin
-n2:=string(_GstObject(src^).name);
-n1:=string(_GstObject(new_pad^).name);
+n2:=string(_TGstObject(src^).name);
+n1:=string(_TGstObject(new_pad^).name);
 writeln('Received new pad '+n1+' from '+n2);
 GstCaps:=nil;
 sink_pad := _Gst_element_get_static_pad (data{convert.RealObject}, 'sink');
@@ -71,7 +71,7 @@ if _Gst_pad_is_linked(sink_pad)
     then writeln('This pad is of type '+n1+' which is not audio. Ignoring.')
     else
     begin
-    if (_Gst_pad_link(new_pad, sink_pad)<>GstPadLinkReturn.GST_PAD_LINK_OK)
+    if (_Gst_pad_link(new_pad, sink_pad)<>TGstPadLinkReturn.GST_PAD_LINK_OK)
       then writeln('This pad is of type '+n1+' but link failed.')
       else writeln('Pad link  with (type '''+n1+''') succeeded.');
     end;

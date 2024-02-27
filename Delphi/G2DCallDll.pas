@@ -26,7 +26,7 @@ System.SysUtils;
 
 Type
 
-GstStructureForeachFunc=function(const field_id:GQuark; const value:pointer;user_data:Pointer):boolean; cdecl ;
+GstStructureForeachFunc=function(const field_id:TGQuark; const value:pointer;user_data:Pointer):boolean; cdecl ;
   { TODO : check ansistyring vs pansichar on all }
 // --- types of functions/procedures to find in G2D.dll ---
 Tgst_init = procedure (const ParCount:integer;const ParStr:PArrPChar); cdecl ;
@@ -37,13 +37,13 @@ Tgst_mini_object_unref = procedure(mini_object:pointer) cdecl;
 Tgst_element_factory_make = function (const factoryname,name:ansistring):pointer; cdecl ;
 Tgst_bin_add = function (const Pipe,plug:pointer):boolean; cdecl;
 Tgst_element_link =function (const plugA,plugB:pointer):boolean; cdecl; //like Tgst_bin_add but diffrent in dll
-Tgst_element_set_state =function (const pipe:pointer;const state:GstState):GstStateChangeReturn; cdecl;
+Tgst_element_set_state =function (const pipe:pointer;const state:TGstState):TGstStateChangeReturn; cdecl;
 Tgst_bus_timed_pop_filtered = function (const Bus:pointer;const TimeOut:Int64;const MType:UInt):pointer; cdecl;
 Tgst_message_parse_error= procedure (mes :PGst_Mes; gerror:PPGError; debug:PPAnsiChar); cdecl ;
 Tgst_message_unref = procedure (ref:pointer); cdecl ;
 Tgst_element_get_request_pad =function (Const pad:pointer; const name:AnsiString):pointer; cdecl ;
 Tgst_element_get_static_pad =function (Const pad:pointer; const name:AnsiString):pointer; cdecl ;
-Tgst_pad_link =function (Const PadSrc,PadSink:pointer):GstPadLinkReturn;  cdecl ;
+Tgst_pad_link =function (Const PadSrc,PadSink:pointer):TGstPadLinkReturn;  cdecl ;
 Tgst_element_release_request_pad =procedure( const Plug,Pad:pointer) cdecl ;
 Tgst_message_parse_state_changed =
   procedure (const message :pointer; oldstate, newstate, pending :pointer); cdecl ;
@@ -62,12 +62,12 @@ Tgst_object_get_name =function (Const pad:pointer):Pansichar;  cdecl ;
 Tg_signal_connect =procedure (const instance: pointer; const detailed_signal:ansistring;
   const c_handler , data: pointer); cdecl;
 
-Tgst_element_query_position = function(const element:pointer; const format:GstFormat;
+Tgst_element_query_position = function(const element:pointer; const format:TGstFormat;
   const cur:PInt64):boolean; cdecl;
-Tgst_element_query_duration = function(const element:pointer; const format:GstFormat;
+Tgst_element_query_duration = function(const element:pointer; const format:TGstFormat;
   const duration:PUInt64):boolean; cdecl;
-Tgst_element_seek_simple =function (const element:pointer; const format:GstFormat;
-  const seek_flags: GstSeekFlags; const seek_pos:UInt64):boolean; cdecl;
+Tgst_element_seek_simple =function (const element:pointer; const format:TGstFormat;
+  const seek_flags: TGstSeekFlags; const seek_pos:UInt64):boolean; cdecl;
 
 Tgst_element_factory_find =function(const name:ansistring):PGstElementFactory; cdecl;
 Tgst_element_factory_get_metadata =function(const factory:PGstElementFactory; name:ansistring):pansichar; cdecl;
@@ -79,7 +79,7 @@ Tgst_caps_is_any = function(const caps: PGstCaps):Boolean;cdecl;
 Tgst_caps_is_empty = function(const caps: PGstCaps):Boolean;cdecl;
 Tgst_structure_foreach = function (const  structure:PGstStructure; func: GstStructureForeachFunc ; user_data:pointer):boolean;cdecl;
 Tgst_value_serialize = function(const value:pointer):PAnsiChar;cdecl;
-Tg_quark_to_string =function(quark:GQuark):PAnsiChar;cdecl;
+Tg_quark_to_string =function(quark:TGQuark):PAnsiChar;cdecl;
 Tgst_static_caps_get =function(static_caps: pointer):PGstCaps;cdecl;
 Tgst_bus_add_signal_watch =procedure(bus: pointer)cdecl;
 Tgst_video_overlay_set_window_handle = procedure (plugbin : pointer {PGstElement};handle:UInt64 {guintptr});cdecl;
@@ -87,10 +87,10 @@ Tg_signal_emit_by_name_int = procedure (instance:pointer; detailed_signal:PAnsic
 Tg_signal_emit_by_name_pointer = procedure (instance:pointer; detailed_signal:PAnsichar;p:pointer;pval:pointer);cdecl;
 TGst_tag_list_get_string = function (const list :PGstMiniObject; const tag:pansichar; value:PPAnsiChar):boolean;cdecl;
 TGst_tag_list_get_uint = function (const list :PGstMiniObject; const tag:pansichar; value:PUInt):boolean;cdecl;
-TGst_audio_info_set_format = procedure (info: PGstAudioInfo; format: GstAudioFormat; rate,channels:integer; const position :PGstAudioChannelPosition);cdecl;
+TGst_audio_info_set_format = procedure (info: PGstAudioInfo; format: TGstAudioFormat; rate,channels:integer; const position :PGstAudioChannelPosition);cdecl;
 TGst_audio_info_to_caps = function (const info:PGstAudioInfo): PGstCaps;cdecl;
 TGst_buffer_new_and_alloc = function(size:integer):PGstBuffer;cdecl;
-TGst_buffer_map = function (buffer:PGstBuffer;info :PGstMapInfo; flags: GstMapFlags ):boolean;cdecl;
+TGst_buffer_map = function (buffer:PGstBuffer;info :PGstMapInfo; flags: TGstMapFlags ):boolean;cdecl;
 TGst_buffer_unmap = procedure (buffer:PGstBuffer;info :PGstMapInfo);cdecl;
 // ---End of types of functions/procedures to find in G2D.dll ---
 
@@ -169,7 +169,7 @@ function G2DcheckEnvironment:boolean;
 
 //function to translate Gstreamer c to delphi
 procedure DGst_init(const ParCount:integer;const ParStr:PArrPChar);
-function D_element_set_state(const Pipe:GPipeLine;State:GstState):GstStateChangeReturn;
+function D_element_set_state(const Pipe:GPipeLine;State:TGstState):TGstStateChangeReturn;
 function DGst_pipeline_new(name:string):PGstElement;
 
 procedure D_object_set_int(obj:GObject;Param:string;val:int64);
@@ -431,7 +431,7 @@ begin
 _G_object_set_pchar(obj.RealObject,ansistring(Param),ansistring(val));
 end;
 //------------------------------------------
-function D_element_set_state(const Pipe:GPipeLine;State:GstState):GstStateChangeReturn;
+function D_element_set_state(const Pipe:GPipeLine;State:TGstState):TGstStateChangeReturn;
 begin
 Result:=_Gst_element_set_state(pipe.RealObject,state);
 end;
@@ -469,7 +469,7 @@ end;
 function D_query_stream_seek(const Plug:TGstElement;const seek_pos:UInt64):boolean;
 begin
 result:=_Gst_element_seek_simple(Plug.RealObject,GST_FORMAT_TIME,
-  GstSeekFlags( integer(GST_SEEK_FLAG_FLUSH) or integer(GST_SEEK_FLAG_KEY_UNIT)),
+  TGstSeekFlags( integer(GST_SEEK_FLAG_FLUSH) or integer(GST_SEEK_FLAG_KEY_UNIT)),
   seek_pos);
 end;
 //------------------------------------------

@@ -61,9 +61,9 @@ GMsg=class(GstMiniObject)   //GMsg has its own unref
   protected
   RMsg:PGst_Mes;
   function GetReal:PGst_Mes;
-  function ftype:GstMessageType;
+  function ftype:TGstMessageType;
   public
-  property MsgType:GstMessageType read ftype;
+  property MsgType:TGstMessageType read ftype;
   property RealObject:PGst_Mes read GetReal;// write RObject;
   constructor Create(const TimeOut:Int64;const MType:UInt );
   Destructor Destroy; override;
@@ -113,7 +113,7 @@ GPad=class(GstObject)
   function GetReal:PGstPad;
   public
   property RealObject:PGstPad read GetReal;// write RObject;
-  function LinkToSink(SinkPad:GPad):GstPadLinkReturn;
+  function LinkToSink(SinkPad:GPad):tGstPadLinkReturn;
   constructor CreateReqested(plug:GPlugIn;name:string);
   constructor CreateStatic(plug:GPlugIn;name:string;Dummy:char=' ');//Dummyis for C++ Warning
   Destructor Destroy; override;
@@ -127,7 +127,7 @@ GPipeLine=Class(TGstElement)
   function AddPlugIn(Plug:GPlugIn):boolean;
   function GetPlugByName(PlugName:String):GPlugIn;
   function SimpleLinkAll:Boolean; //if Ok PlugIn=nil else first PlugIn that did not link
-  function ChangeState(NewState:GstState):boolean;
+  function ChangeState(NewState:TGstState):boolean;
   constructor Create(Aname:string);
   Destructor Destroy; override;
 End;
@@ -140,11 +140,11 @@ GstFrameWork=class(TObject)
   class var fMsg:GMsg;
   class var fterminate:Boolean;
   class var frunning:Boolean;
-  class var fMsgResult:GstMessageType;
+  class var fMsgResult:TGstMessageType;
   class var fStarted:boolean;
   class var fMsgUsed:boolean;
   class var fMsgAssigned:boolean;
-  class var fState:GstState;
+  class var fState:TGstState;
   class var fRunForEver:boolean;
   class var fDuration:int64;
   Class var fMemoLog:TMemo;
@@ -152,7 +152,7 @@ GstFrameWork=class(TObject)
   class procedure SetMemoLog(m:TMemo);static;
   public
   class var MsgFilter:integer;
-  class var MsgResult:GstMessageType;
+  class var MsgResult:TGstMessageType;
   class var MsgTimer:TTimer;
   class var OnDuration:TGetInt64Event;
   class var OnPosition:TGetInt64Event;
@@ -165,7 +165,7 @@ GstFrameWork=class(TObject)
   class Property Msg:GMsg read fMsg write fMsg;
   class Property MemoLog:TMemo read fMemoLog write setMemoLog;
   //class Property Running:boolean read frunning;
-  class Property State:GstState read fState;
+  class Property State:TGstState read fState;
   class Property G2DTerminate:Boolean read fterminate write fterminate;
   procedure SetPadAddedCallback(const SrcPad,SinkPad:GPlugin; const capabilityStr:string);
   function WaitForPlay(Sec:Integer):boolean; //wait sec seconds for play; if sec=-1 wait forever
@@ -182,7 +182,10 @@ GstFrameWork=class(TObject)
 
 end;
 
+Procedure pad_added_handler(src, new_pad, data:pointer); cdecl;
+///**************************************************************************************************
 implementation
+
 uses
 G2DCallDll;
 
@@ -288,7 +291,7 @@ if PlugRequest<>nil then
 inherited Destroy;
 end;
 
-function GPad.LinkToSink(SinkPad:GPad):GstPadLinkReturn;
+function GPad.LinkToSink(SinkPad:GPad):TGstPadLinkReturn;
 begin
 Result:=_Gst_pad_link(RealObject,SinkPad.RealObject);
 end;
@@ -360,7 +363,7 @@ begin
 for plug in PlugIns do
   Plug.RObject:=nil;
 PlugIns.Free;  //use dispose so it will also work in Android/ios arm
-D_element_set_state(self,GstState.GST_STATE_NULL);
+D_element_set_state(self,TGstState.GST_STATE_NULL);
 inherited Destroy;
 end;
 
@@ -398,7 +401,7 @@ if PlugIns.Count>1 then WriteOutln(PlugIns.Count.ToString+' plugins were success
 result:=true;
 end;
 
-function GPipeLine.ChangeState(NewState:GstState):boolean;
+function GPipeLine.ChangeState(NewState:TGstState):boolean;
 begin
 Result:=false;
 If Assigned(Application) then //if in win env
@@ -415,7 +418,7 @@ end;
 //----   GMsg=class(GObject)  ----------------
 constructor GMsg.Create(const TimeOut:Int64;const MType:UInt );
 var
-old_state, new_state :GstState;
+old_state, new_state :TGstState;
 err:PGError;
 debug_info:PAnsichar;
 st:string;
@@ -444,7 +447,7 @@ if (RMsg <> nil) then  // There is a msg
         then st:=string(debug_info)
         else st:='None';
       WriteOutln('Gst debug info: '+st);
-      If GstFrameWork.State=GstState.GST_STATE_READY
+      If GstFrameWork.State=TGstState.GST_STATE_READY
         then WriteOutln('Probebly stream src not found');
       GstFrameWork.fterminate := TRUE;
       end;
@@ -466,10 +469,10 @@ if (RMsg <> nil) then  // There is a msg
                     GstStateName(old_state) +
                     ' to ' +GstStateName(new_state));
         GstFrameWork.fState:=new_state;
-        If (new_state=GstState.GST_STATE_READY) or (new_state=GstState.GST_STATE_NULL)
+        If (new_state=TGstState.GST_STATE_READY) or (new_state=TGstState.GST_STATE_NULL)
           then GstFrameWork.fDuration:=-1; //flag that the stream has no duration
         GstFrameWork.fMsgUsed:=true;
-        GstFrameWork.frunning:=(GstState(new_state)=GstState.GST_STATE_PLAYING);
+        GstFrameWork.frunning:=(TGstState(new_state)=TGstState.GST_STATE_PLAYING);
         end;
       end;
     GST_MESSAGE_DURATION_CHANGED:
@@ -499,7 +502,7 @@ begin
 Result:=PGst_Mes(RObject);
 end;
 
-Function GMsg.ftype:GstMessageType;
+Function GMsg.ftype:TGstMessageType;
 begin
 Result:=RMsg^.MType;
 end;
@@ -526,7 +529,7 @@ if fStarted
              integer(GST_MESSAGE_APPLICATION);
   fterminate:=false;
   fDuration:=-1;
-  fMsgResult:=GstMessageType.GST_MESSAGE_UNKNOWN;
+  fMsgResult:=TGstMessageType.GST_MESSAGE_UNKNOWN;
   if G2DcheckEnvironment and //check the GStreamer Enviroment on this machine
       G2dDllLoad then //check if G2D.dll was loaded, if not load it
     begin
@@ -577,7 +580,7 @@ if fDuration=0 then   //this stream changed its duration (so it has duration)
     else if Assigned(OnDuration)
       then OnDuration(fDuration);
   end;
-if (fDuration>0) and (GstFrameWork.State>GstState.GST_STATE_READY) and  Assigned(OnDuration)
+if (fDuration>0) and (GstFrameWork.State>TGstState.GST_STATE_READY) and  Assigned(OnDuration)
   then
   begin
   D_query_stream_position(PipeLine ,Nano);
@@ -664,14 +667,14 @@ Var PadCapabilityString:AnsiString;
 Procedure pad_added_handler(src, new_pad, data:pointer); cdecl;
 var
 n1,n2:string;
-sink_pad:^_GstPad;
-GstCaps:^_GstCaps;
+sink_pad:PGstPad;
+GstCaps:PGstCaps;
 GstStruct: PGstStructure;
 GstCapsStr:Pansichar;
 begin
 //Get & write names - just for user readabilty
-n2:=string(_GstObject(src^).name);
-n1:=string(_GstObject(new_pad^).name);
+n2:=string(_TGstObject(src^).name);
+n1:=string(_TGstObject(new_pad^).name);
 writeln('Received new pad '+n1+' from '+n2);
 GstCaps:=nil;
 //Sink pad is the pad that receives the stream
@@ -692,7 +695,7 @@ if _Gst_pad_is_linked(sink_pad)
     else
     begin
     // do the actual pad Link needed
-    if (_Gst_pad_link(new_pad, sink_pad)<>GstPadLinkReturn.GST_PAD_LINK_OK)
+    if (_Gst_pad_link(new_pad, sink_pad)<>TGstPadLinkReturn.GST_PAD_LINK_OK)
       then writeln('This pad is of type '+n1+' but link failed.')
       else writeln('Pad link  with (type '''+n1+''') succeeded.');
     end;

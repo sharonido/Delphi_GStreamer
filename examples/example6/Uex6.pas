@@ -27,7 +27,6 @@ type
 var
   Form1: TForm1;
   GStreamer:GstFrameWork;
-//MR:GstMessageType;
 
 implementation
 
@@ -45,7 +44,7 @@ procedure print_pad_capabilities(Plug:GPlugin;PadName:string);  forward;
 
 procedure TForm1.FormCreate(Sender: TObject);
 var
-MR:GstMessageType;
+MR:TGstMessageType;
 begin
 //GStreamer start
 GstFrameWork.MemoLog:=Memo1; //can be before create because in class var
@@ -75,14 +74,14 @@ if GStreamer.Started then
         print_pad_capabilities(plug,'sink');
         end;
 
-      until (GStreamer.State=GstState.GST_STATE_PLAYING);
+      until (GStreamer.State=GST_STATE_PLAYING);
     end;
   end;
 end;
 
 //--------------------------------------------------------------------------
 
-function print_field(const field:GQuark; const value:pointer;pfx:Pointer):boolean; cdecl ;
+function print_field(const field:TGQuark; const value:pointer;pfx:Pointer):boolean; cdecl ;
 Var
 st,qname:AnsiString;
 begin
@@ -144,7 +143,7 @@ TemplatePlugin:PGstElementFactory;
 Plugname,PadName:string;
 pads :PGList;
 caps :PGstCaps;
-padtemplate :^_GstStaticPadTemplate;
+padtemplate :PGstStaticPadTemplate;
 PadNum:integer;
 begin
 caps:=nil;
@@ -189,7 +188,7 @@ TemplatePlugin:=_Gst_element_factory_find(ansistring(name));
       end;
     end;
   finally
-    _Gst_object_unref(@(TemplatePlugin._object));
+    _Gst_object_unref(@(TemplatePlugin.obj));
     _Gst_mini_object_unref(caps);
   end;
 end;

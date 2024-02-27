@@ -71,7 +71,6 @@ object Form1: TForm1
         '----------------------------------------')
       ScrollBars = ssBoth
       TabOrder = 0
-      ExplicitWidth = 312
     end
   end
   object Panel2: TPanel

@@ -40,7 +40,6 @@ implementation
 
 procedure TForm1.FormCreate(Sender: TObject);
 var
-Plug:GPlugIn;
 AudioChain,VideoChain,SrcChain:string;
 begin
 GstFrameWork.MemoLog:=Memo1;

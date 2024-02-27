@@ -62,7 +62,7 @@ implementation
 
 procedure TForm1.FormCreate(Sender: TObject);
 var
-info:_GstAudioInfo;
+info:_TGstAudioInfo;
 audio_caps :PGstCaps;
 AudioChain,VideoChain,SrcChain:string;
 //res:string;
@@ -156,12 +156,10 @@ end;
 procedure TForm1.push_data;
 var
 buffer  :PGstBuffer;
-ret     :GstFlowReturn;
-i       :integer; // int i;
-map     :GstMapInfo;  // GstMapInfo map;
+ret     :TGstFlowReturn;
+map     :TGstMapInfo;  // GstMapInfo map;
 SmallIntArr :Pint16Arr;  //gint16 *raw;
 num_chunk_samples :uint64;  //gint num_samples = CHUNK_SIZE / 2;    /* Because each sample is 16 bits */
-freq    :single;  //gfloat freq;}
 begin
 while GStreamer.State<GST_STATE_READY do
   Application.ProcessMessages;

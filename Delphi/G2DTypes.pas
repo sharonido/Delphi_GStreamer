@@ -38,9 +38,10 @@ PArrPChar=^PCharArr;        //for C:->  char *argv[];
 {$Z4}
 {$Endif}
 gsize =UInt64;
+UInt=Cardinal;  //UInt 32bit unsigned integer -In pascal winapi also defined
 
-PGstAudioFormat = ^GstAudioFormat;
-GstAudioFormat = (
+PGstAudioFormat = ^TGstAudioFormat;
+TGstAudioFormat = (
   GST_AUDIO_FORMAT_UNKNOWN,
   GST_AUDIO_FORMAT_ENCODED,
   //* 8 bit */
@@ -99,8 +100,8 @@ GstAudioFormat = (
   GST_AUDIO_FORMAT_F64 = _GST_AUDIO_FORMAT_NE(F64)
   }
 
-PGstAudioChannelPosition = ^GstAudioChannelPosition;
-GstAudioChannelPosition=( {
+PGstAudioChannelPosition = ^TGstAudioChannelPosition;
+TGstAudioChannelPosition=( {
   /* These get negative indices to allow to use
    * the enum values of the normal cases for the
    * bit-mask position */  }
@@ -139,7 +140,7 @@ GstAudioChannelPosition=( {
   GST_AUDIO_CHANNEL_POSITION_SURROUND_RIGHT
 );
 
-GstAudioFormatFlags = (
+TGstAudioFormatFlags = (
   GST_AUDIO_FORMAT_FLAG_INTEGER  = (1 shl 0),
   GST_AUDIO_FORMAT_FLAG_FLOAT    = (1 shl 1),
   GST_AUDIO_FORMAT_FLAG_SIGNED   = (1 shl 2),
@@ -147,22 +148,22 @@ GstAudioFormatFlags = (
   GST_AUDIO_FORMAT_FLAG_UNPACK   = (1 shl 5)
 );
 
-GstAudioPackFlags =(
+TGstAudioPackFlags =(
   GST_AUDIO_PACK_FLAG_NONE             = 0,
   GST_AUDIO_PACK_FLAG_TRUNCATE_RANGE   = (1 shl 0)
 );
 
-GstAudioFlags =(
+TGstAudioFlags =(
   GST_AUDIO_FLAG_NONE              = 0,
   GST_AUDIO_FLAG_UNPOSITIONED      = (1 shl 0)
 );
 
-GstAudioLayout =(
+TGstAudioLayout =(
   GST_AUDIO_LAYOUT_INTERLEAVED = 0,
   GST_AUDIO_LAYOUT_NON_INTERLEAVED
 );
 
-GstFormat = (
+TGstFormat = (
   GST_FORMAT_UNDEFINED  =  0,
   GST_FORMAT_DEFAULT    =  1,
   GST_FORMAT_BYTES      =  2,
@@ -170,20 +171,22 @@ GstFormat = (
   GST_FORMAT_BUFFERS    =  4,
   GST_FORMAT_PERCENT    =  5);
 
-GstStateChangeReturn=(
+TGstStateChangeReturn=(
   GST_STATE_CHANGE_FAILURE             = 0,
   GST_STATE_CHANGE_SUCCESS             = 1,
   GST_STATE_CHANGE_ASYNC               = 2,
   GST_STATE_CHANGE_NO_PREROLL          = 3);
 
-GstState=(
+
+PGstState=^TGstState;
+TGstState=(
   GST_STATE_VOID_PENDING        = 0,
   GST_STATE_NULL                = 1,
   GST_STATE_READY               = 2,
   GST_STATE_PAUSED              = 3,
   GST_STATE_PLAYING             = 4);
 
-GstPadLinkReturn=(
+TGstPadLinkReturn=(
   GST_PAD_LINK_OK               =  0,
   GST_PAD_LINK_WRONG_HIERARCHY  = -1,
   GST_PAD_LINK_WAS_LINKED       = -2,
@@ -192,7 +195,7 @@ GstPadLinkReturn=(
   GST_PAD_LINK_NOSCHED          = -5,
   GST_PAD_LINK_REFUSED          = -6 );
    //**************************
-GstSeekFlags =(
+TGstSeekFlags =(
   GST_SEEK_FLAG_NONE            = 0,
   GST_SEEK_FLAG_FLUSH           = (1 shl 0),
   GST_SEEK_FLAG_ACCURATE        = (1 shl 1),
@@ -211,7 +214,7 @@ GstSeekFlags =(
   GST_SEEK_FLAG_INSTANT_RATE_CHANGE = (1 shl 10));
 
   //*********************
-GstMessageType=(
+TGstMessageType=(
   GST_MESSAGE_UNKNOWN           = 0,
   GST_MESSAGE_EOS               = (1 shl 0),
   GST_MESSAGE_ERROR             = (1 shl 1),
@@ -254,34 +257,32 @@ GstMessageType=(
   GST_MESSAGE_DEVICE_CHANGED    = GST_MESSAGE_EXTENDED + 7,
   GST_MESSAGE_ANY               = -1); //$ffffffff);       bypass the error
 
-UInt=Cardinal;  //UInt 32bit unsigned integer -In pascal winapi also defined
-
-PGList=^GList;
-GList=record  //an element in a chain
+PGList=^TGList;
+TGList=record  //an element in a chain
   data: pointer;
   next,
   prev: PGList;
   end;
 
-GstPadDirection =(
+TGstPadDirection =(
   GST_PAD_UNKNOWN,
   GST_PAD_SRC,
   GST_PAD_SINK );
 
-GstPadPresence  =(
+TGstPadPresence  =(
   GST_PAD_ALWAYS,
   GST_PAD_SOMETIMES,
   GST_PAD_REQUEST);
 
 
-GstMapFlags =(
+TGstMapFlags =(
   GST_MAP_READ      = 1, //GST_LOCK_FLAG_READ, =1 in windows
   GST_MAP_WRITE     = 2, //GST_LOCK_FLAG_WRITE,=2 in windows
 
   GST_MAP_FLAG_LAST = (1 shl 16)
   ); //} GstMapFlags;
 
-GstFlowReturn=(
+TGstFlowReturn=(
   //* custom success starts here */
   GST_FLOW_CUSTOM_SUCCESS_2 = 102,
   GST_FLOW_CUSTOM_SUCCESS_1 = 101,
@@ -305,23 +306,23 @@ GstFlowReturn=(
   ); //} GstFlowReturn;
 
 //not packed records, cause will be difrent in 64/32 os and on android/ios
-//void (*GstAudioFormatUnpack) (const GstAudioFormatInfo *info, GstAudioPackFlags flags, gpointer dest, gconstpointer data, gint length);
-PGstAudioFormatInfo = ^_GstAudioFormatInfo;
-GstAudioFormatUnpack = procedure (const info:PGstAudioFormatInfo; flags:GstAudioPackFlags; dest, data:pointer; length:integer);cdecl;
+//void (*TGstAudioFormatUnpack) (const TGstAudioFormatInfo *info, GstAudioPackFlags flags, gpointer dest, gconstpointer data, gint length);
+PGstAudioFormatInfo = ^_TGstAudioFormatInfo;
+GstAudioFormatUnpack = procedure (const info:PGstAudioFormatInfo; flags:TGstAudioPackFlags; dest, data:pointer; length:integer);cdecl;
 //void (*GstAudioFormatPack) (const GstAudioFormatInfo *info, GstAudioPackFlags flags, gconstpointer src,  gpointer data, gint length);
-GstAudioFormatPack = procedure (const info:PGstAudioFormatInfo; flags: GstAudioPackFlags; src, data:pointer; length:integer);cdecl;
-_GstAudioFormatInfo = record
+GstAudioFormatPack = procedure (const info:PGstAudioFormatInfo; flags: TGstAudioPackFlags; src, data:pointer; length:integer);cdecl;
+_TGstAudioFormatInfo = record
   //*< public >*/
-  format :GstAudioFormat;   //GstAudioFormat format;
+  format :TGstAudioFormat;   //TGstAudioFormat format;
   name,                     //const gchar *name;
   description  :PansiChar;  //const gchar *description;
-  flags :GstAudioFormatFlags;    //GstAudioFormatFlags flags;
+  flags :TGstAudioFormatFlags;    //GstAudioFormatFlags flags;
   endianness,
   width,
   depth   :integer;
   silence :array[0..7] of int8; //[8];
 
-  unpack_format :GstAudioFormat;
+  unpack_format :TGstAudioFormat;
   unpack_func   :GstAudioFormatUnpack;
   pack_func     :GstAudioFormatPack;
 
@@ -329,53 +330,57 @@ _GstAudioFormatInfo = record
   _gst_reserved :array[0..GST_PADDING-1] of pointer
 end;
 
-PGstAudioInfo =^_GstAudioInfo;
-_GstAudioInfo =record
-  finfo     :PGstAudioFormatInfo;   //const GstAudioFormatInfo *finfo;
-  flags     :GstAudioFlags;
-  layout    :GstAudioLayout;
+PGstAudioInfo =^_TGstAudioInfo;
+_TGstAudioInfo =record
+  finfo     :PGstAudioFormatInfo;   //const TGstAudioFormatInfo *finfo;
+  flags     :TGstAudioFlags;
+  layout    :TGstAudioLayout;
   rate,
   channels,
   bpf       :integer;
-  position  :array [0..63] of GstAudioChannelPosition; //   position[64];
+  position  :array [0..63] of TGstAudioChannelPosition; //   position[64];
 
   //*< private >*/
   _gst_reserved :array [0..GST_PADDING-1] of pointer;
 end;
 
 
-GQuark=UInt32;
-_GError = record
- domain   :GQuark;      //GQuark   domain;
+TGQuark=UInt32;
+_TGError = record
+ domain   :TGQuark;      //GQuark   domain;
  code     :Integer;     //gint     code;
  Amessage :pansichar;   //gchar *message;
 end;
-PGError=^_GError;
+PGError=^_TGError;
 PPGError=^PGError;
 
-_GstMiniObject= record
+PGstMiniObject=^_TGstMiniObject;
+_TGstMiniObject= record
   GMiniObjectType:   uint64;
 
    refcount:integer;
    lockstate:integer;
    flags    :uint;
 
-  copy:function():_GstMiniObject;
+  copy:function():_TGstMiniObject;
   dispose:function():boolean;
   free:procedure();
 
   priv_uint:integer;     //guint
   priv_pointer:pointer;  //gpointer
   end;
-PGstMiniObject=^_GstMiniObject;
 
-PGstCaps = ^GstCaps;
-GstCaps = _GstMiniObject;
+PGstCaps = ^_TGstCaps;
+
+_TGstCaps = record
+  mini_object:_TGstMiniObject;
+  end;
+
 
 GstClockTime =int64;
-PGstBuffer =^_GstBuffer;
-_GstBuffer =record
-  mini_object   :_GstMiniObject;
+PGstBuffer =^_TGstBuffer;
+_TGstBuffer =record
+  mini_object   :_TGstMiniObject;
   //*< public >*/ /* with COW */
   pool          :pointer;   //GstBufferPool         *pool;
   //* timestamp */
@@ -387,8 +392,8 @@ _GstBuffer =record
   offset_end    :uint64;
 end;
 
-_GstMemory =record
-  mini_object :_GstMiniObject;
+_TGstMemory =record
+  mini_object :_TGstMiniObject;
   allocator   :pointer;  //  GstAllocator   *allocator;
   parent      :pointer;  //  GstMemory      *parent;
   maxsize,
@@ -397,10 +402,10 @@ _GstMemory =record
   size       :uint64     // gsize           size
 end;
 
-PGstMapInfo=^GstMapInfo;
-GstMapInfo = record
-  memory  :^_GstMemory;
-  flags   :GstMapFlags; //flags;
+PGstMapInfo=^TGstMapInfo;
+TGstMapInfo = record
+  memory  :^_TGstMemory;
+  flags   :TGstMapFlags; //flags;
   data    :PByte;  //guint8 *data;
   size,           //gsize size;
   maxsize:uint64;  //gsize maxsize;
@@ -411,23 +416,23 @@ GstMapInfo = record
   _gst_reserved :array[0..GST_PADDING-1] of pointer;//gpointer _gst_reserved[GST_PADDING];
 end; //} GstMapInfo;
 
-GstStaticCaps = record
+TGstStaticCaps = record
 
-  caps :^GstCaps;
+  caps :PGstCaps;
   AString : Pansichar;
 
   //*< private >*/
   _gst_reserved :pointer;
   end;
 
-_GstStaticPadTemplate =record
+PGstStaticPadTemplate =^_TGstStaticPadTemplate;
+_TGstStaticPadTemplate =record
   name_template :PAnsiChar;
-  direction     :GstPadDirection;
-  presence      :GstPadPresence;
-  static_caps   :GstStaticCaps;
+  direction     :TGstPadDirection;
+  presence      :TGstPadPresence;
+  static_caps   :TGstStaticCaps;
   end;
-GstStaticPadTemplate = _GstStaticPadTemplate;
-PGstStaticPadTemplate =^GstStaticPadTemplate;
+//GstStaticPadTemplate = _GstStaticPadTemplate;
 //----------  _Gst Object  --------------------------------------------------
 _GObject= record
   g_type_instance :pointer; //GTypeInstance
@@ -435,18 +440,20 @@ _GObject= record
   ref_count :integer;  // guint  (atomic)
   qdata    :pointer //GData
   end;
-GObject = _GObject;
-PGObject = ^GObject;
+TG_Object = _GObject;
+PGObject = ^TG_Object;
 
-_GstObject= record
+
+PGstObject=^_TGstObject;
+_TGstObject= record
         //not packed record, cause will be difrent in 64/32 os and on android/ios
 
-  _object : _GObject ;
+  obj : TG_Object ;
 
   // < public >*/ /* with LOCK */
   lock  :pointer;           // object LOCK */
   name  :pansichar;        // object name */
-  parent:^_GstObject;       //* this object's parent, weak ref */        // object name */
+  parent:PGstObject;       //* this object's parent, weak ref */        // object name */
   flags : int32;            //guint32
   {
   //*< private >*/
@@ -455,93 +462,83 @@ _GstObject= record
   guint64        last_sync;
   gpointer _gst_reserved;  }
   end;
-PGstObject=^_GstObject;
 
-_GstElementFactory = record
-  _object : _GObject ;
+PGstElementFactory = ^_TGstElementFactory;
+_TGstElementFactory = record
+  obj : TG_Object ;
   {more fields}
   end;
-PGstElementFactory = ^_GstElementFactory;
 
-_GRecMutex  =record
+_TGRecMutex  =record
   p:pointer;
   i:array[0..1] of uint;
   end;
 
-_GCond =record  //same as _GRecMutex
+_TGCond =record  //same as _GRecMutex
   p:pointer;
   i:array[0..1] of uint;
   end;
 
-Type
-_GstBus  =record
-  _object :_GstObject;
+_TGstBus  =record
+  _object :_TGstObject;
   //*< private >*/
   priv    : pointer; //GstBusPrivate;
   _gst_reserved :array[0..GST_PADDING-1] of pointer;//gpointer _gst_reserved[GST_PADDING];
 end;
 
-_GstClock = record
-  _object: _GstObject;
+
+PGstClock = ^_TGstClock;
+_TGstClock = record
+  _object: _TGstObject;
   //*< private >*/
   priv :pointer;// GstClockPrivate *priv;
   _gst_reserved :array[0..GST_PADDING-1] of pointer;//gpointer _gst_reserved[GST_PADDING];
   end;
 
 
-_GList = record
-  data  :pointer;//gpointer data;
-  next  :^_GList;//GList *next;
-  prev  :^_GList;//GList *prev;
-  end;
-
-_GstElement =record
+PGstElement=^_TGstElement;
+_TGstElement =record
   //*< public >*/ /* with LOCK */
-  _object :_GstObject;
-  state_lock:_GRecMutex;
+  _object :_TGstObject;
+  state_lock:_TGRecMutex;
 
   //* element state */
-  state_cond: _GCond;
+  state_cond: _TGCond;
   state_cookie  :uint;
 
   target_state,
   current_state,
   next_state,
-  pending_state:GstState;
-  last_return: GstStateChangeReturn;
-  bus :_GstBus;
+  pending_state:TGstState;
+  last_return: TGstStateChangeReturn;
+  bus :_TGstBus;
 
   //* allocated clock */
-  clock :^_GstClock;
+  clock :PGstClock;
   base_time :int64; //GstClockTimeDiff; //* NULL/READY: 0 - PAUSED: current time - PLAYING: difference to clock */
   start_time:uint64;  //GstClockTime
 
   //* element pads, these lists can only be iterated while holding
   // * the LOCK or checking the cookie after each LOCK. */
   numpads :uint16;
-  pads    :^_GList;     //  GList                *pads;
+  pads    :PGList;     //  GList                *pads;
   numsrcpads  :uint16;  //guint16               numsrcpads;
-  srcpads     :^_GList; //GList                *srcpads;
+  srcpads     :PGList; //GList                *srcpads;
   numsinkpads :uint16;  //guint16               numsinkpads;
-  sinkpads    :^_GList; //GList                *sinkpads;
+  sinkpads    :PGList; //GList                *sinkpads;
   pads_cookie :uint32;//guint32               pads_cookie;
 
   //* with object LOCK */
-  contexts    :^_GList;//GList                *contexts;
+  contexts    :PGList;//GList                *contexts;
 
   //*< private >*/
   _gst_reserved :array[0..GST_PADDING-2] of pointer;//gpointer _gst_reserved[GST_PADDING-1]
   end;
-PGstElement=^_GstElement;
 
-_GstCaps = record
-  mini_object:_GstMiniObject;
-  end;
-
-
-_GstStructure = record
+PGstStructure = ^_TGstStructure;
+_TGstStructure = record
   GstType :UInt64;
-  name    :GQuark;  //integer
+  name    :TGQuark;  //integer
 {
   GType type;
 
@@ -550,19 +547,17 @@ _GstStructure = record
   }
   end;
 
-GstStructure = _GstStructure;
-PGstStructure = ^GstStructure;
 
-PGstPad = ^_GstPad;
-_GstPad =record
-_object       :_GstObject; //GstObject       object;
+PGstPad = ^_TGstPad;
+_TGstPad =record
+_object       :_TGstObject; //GstObject       object;
 //*< public >*/
 element_private:pointer;//gpointer       element_private;
 padtemplate   :pointer;{ TODO : change pointer to GstPadTemplate }//GstPadTemplate  *padtemplate;
-direction     :GstPadDirection;//GstPadDirection   direction;
+direction     :TGstPadDirection;//GstPadDirection   direction;
 //*< private >*/
 //* streaming rec_lock */
-stream_rec_lock : _GRecMutex; //GRecMutex		         stream_rec_lock;
+stream_rec_lock : _TGRecMutex; //GRecMutex		         stream_rec_lock;
 task            :pointer; { TODO : change pointer to ^GstTask }//  GstTask			*task;
  { TODO : complet the record... }
 //this is only first elements of the pad record
@@ -646,25 +641,18 @@ task            :pointer; { TODO : change pointer to ^GstTask }//  GstTask			*ta
 };
 *)
 end;
-
-
-
-
 //-----------------------------------------------------------
-Gst_Mes=record
-  RMiniObj:_GstMiniObject;
-  MType:GstMessageType;
+
+PGst_Mes=^TGst_Mes;
+TGst_Mes=record
+  RMiniObj:_TGstMiniObject;
+  MType:TGstMessageType;
   timestamp: Uint64;
   src: pointer;//PGstObject;
   seqnum: Uint32;
-  lock  : _GRecMutex;//GMutex          lock;                 /* lock and cond for async delivery */
-  cond  : _GCond;//GCond           cond;
+  lock  : _TGRecMutex;//GMutex          lock;                 /* lock and cond for async delivery */
+  cond  : _TGCond;//GCond           cond;
 end;
-
-PGst_Mes=^Gst_Mes;
-PGstState=^GstState;
-
-
 //--------------------------------
 var
 gst_root_envBin:string='';     //after init =>envirament var..
@@ -682,8 +670,8 @@ procedure stdWriteOut(st:string);
 function DateToIso(DT:TDateTime):string;
 function NanoToSecStr(Nano:Uint64):string;
 
-function GstStateName(State:GstState):string;
-function GstPadLinkReturnName(Ret:GstPadLinkReturn):string;
+function GstStateName(State:TGstState):string;
+function GstPadLinkReturnName(Ret:TGstPadLinkReturn):string;
 
 
 var
@@ -726,7 +714,7 @@ begin
     else Result:=SecondsToTimeString(Nano div 1000000000);
 end;
 
-function GstStateName(State:GstState):string;
+function GstStateName(State:TGstState):string;
 begin
 case State of
   GST_STATE_VOID_PENDING: Result:='Pending';
@@ -738,7 +726,7 @@ case State of
 end;
 end;
 //-----------------------------------------------------------
-function GstPadLinkReturnName(Ret:GstPadLinkReturn):string;
+function GstPadLinkReturnName(Ret:TGstPadLinkReturn):string;
 begin
   case Ret of
   GST_PAD_LINK_OK                :Result:='GST_PAD_LINK_OK';

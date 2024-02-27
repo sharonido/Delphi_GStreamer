@@ -33,7 +33,7 @@ TemplatePlugin:PGstElementFactory;
 Plugname,PadName:string;
 pads :PGList;
 caps :PGstCaps;
-padtemplate :^_GstStaticPadTemplate;
+padtemplate :PGstStaticPadTemplate;
 PadNum:integer;
 begin
 caps:=nil;
@@ -78,12 +78,12 @@ TemplatePlugin:=_Gst_element_factory_find(ansistring(name));
       end;
     end;
   finally
-    _Gst_object_unref(@(TemplatePlugin._object));
+    _Gst_object_unref(@(TemplatePlugin.obj));
     _Gst_mini_object_unref(caps);
   end;
 end;
 
-function print_field(const field:GQuark; const value:pointer;pfx:Pointer):boolean; cdecl ;
+function print_field(const field:TGQuark; const value:pointer;pfx:Pointer):boolean; cdecl ;
 Var
 st,qname:AnsiString;
 begin
@@ -140,7 +140,7 @@ end;
 Var
 GStreamer:GstFrameWork;
 plug:GPlugin;
-MR:GstMessageType;
+MR:TGstMessageType;
 begin
 {$IfDef VER360}
 WriteOutln('''
