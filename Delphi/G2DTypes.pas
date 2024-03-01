@@ -653,6 +653,8 @@ TGst_Mes=record
   lock  : _TGRecMutex;//GMutex          lock;                 /* lock and cond for async delivery */
   cond  : _TGCond;//GCond           cond;
 end;
+
+PGstSample =pointer;// GstSample is an undefine structure (record) so a pointer to it is just a pointer
 //--------------------------------
 var
 gst_root_envBin:string='';     //after init =>envirament var..

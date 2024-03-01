@@ -31,13 +31,6 @@ var
 implementation
 
 {$R *.dfm}
-{
-//writing to log in memo
-procedure writeLog(st:string);
-begin
-if st.EndsWith(sLineBreak) then st:=st.Remove(st.Length-1);//lines.add inserts slineBreak
-Form1.Memo1.Lines.Add(st);
-end;  }
 
 procedure printTemplatePlugCaps(const name:string); forward;
 procedure print_pad_capabilities(Plug:TGPlugin;PadName:string);  forward;

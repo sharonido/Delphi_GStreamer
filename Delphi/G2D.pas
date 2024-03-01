@@ -192,9 +192,9 @@ G2DCallDll;
 //writing to log in memo
 procedure writeLog(st:string);
 begin
-if st.EndsWith(sLineBreak) then st:=st.Remove(st.Length-1);//lines.add inserts slineBreak
-if Assigned(TGstFrameWork.fMemoLog)
-  then TGstFrameWork.fMemoLog.Lines.Add(st);
+with TGstFrameWork.fMemoLog do
+  if Assigned(TGstFrameWork.fMemoLog)
+    then Lines[Lines.Count-1]:=Lines[Lines.Count-1]+st;
 end;
 //------------------------------------------------------------------------------
 // Gst Delphi objects
@@ -588,6 +588,10 @@ if (fDuration>0) and (TGstFrameWork.State>TGstState.GST_STATE_READY) and  Assign
   end;
 end;
 
+procedure donullwrite(st:string);
+begin
+  //do nothing
+end;
 class procedure TGstFrameWork.SetMemoLog(m:TMemo);
 begin
 if assigned(m) and assigned(Application)
@@ -597,7 +601,7 @@ if assigned(m) and assigned(Application)
   WriteOut:=writeLog; //re-route activity log to the memo instead of console
   end
   else if assigned(Application)
-  then WriteOut:=nil
+  then WriteOut:=donullwrite
   else WriteOut:=stdWriteOut;
 end;
 

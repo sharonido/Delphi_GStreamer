@@ -183,6 +183,9 @@ void _G_signal_emit_by_name_int(gpointer instance, const gchar* detailed_signal,
 void _G_signal_emit_by_name_pointer(gpointer instance, const gchar* detailed_signal, gpointer p, gpointer pval) {
     g_signal_emit_by_name(instance, detailed_signal, p, pval);
 }
+void _G_signal_emit_by_name_pointer1(gpointer instance, const gchar* detailed_signal, gpointer pval) {
+    g_signal_emit_by_name(instance, detailed_signal, pval);
+}
 
 gboolean _Gst_tag_list_get_string(const GstTagList* list, const gchar* tag, gchar** value) {
     return gst_tag_list_get_string(list, tag, value);
@@ -217,3 +220,10 @@ void _Gst_buffer_unmap(GstBuffer* buffer, GstMapInfo* info) {
     gst_buffer_unmap(buffer, info);
 }
 
+void _Gst_sample_unref(GstSample* sample) {
+    gst_sample_unref(sample);
+}
+
+void _Gst_buffer_unref(GstBuffer* buf) {
+    gst_buffer_unref(buf);
+}

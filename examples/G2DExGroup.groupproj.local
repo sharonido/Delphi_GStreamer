@@ -4,6 +4,6 @@
     <Transaction>2024-01-23 13:17:49.000.614,C:\Users\Ido\Documents\Embarcadero\Studio\Projects\ProjectGroup1.groupproj=C:\Users\Ido\Documents\Embarcadero\Studio\Projects\G2D\examples\G2DExGroup.groupproj</Transaction>
   </Transactions>
 	<Default.Personality>
-		<Projects ActiveProject="C:\Users\Ido\Documents\Embarcadero\Studio\Projects\G2D\examples\test\PG2Dexample8Wb.dproj"/>
+		<Projects ActiveProject="C:\Users\Ido\Documents\Embarcadero\Studio\Projects\G2D\examples\example8\PG2Dexample8Wb.dproj"/>
 	</Default.Personality>
 </BorlandProject>

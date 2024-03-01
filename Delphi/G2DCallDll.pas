@@ -85,6 +85,7 @@ Tgst_bus_add_signal_watch =procedure(bus: pointer)cdecl;
 Tgst_video_overlay_set_window_handle = procedure (plugbin : pointer {PGstElement};handle:UInt64 {guintptr});cdecl;
 Tg_signal_emit_by_name_int = procedure (instance:pointer; detailed_signal:PAnsichar;index:integer;pval:pointer);cdecl;
 Tg_signal_emit_by_name_pointer = procedure (instance:pointer; detailed_signal:PAnsichar;p:pointer;pval:pointer);cdecl;
+Tg_signal_emit_by_name_pointer1= procedure (instance:pointer; detailed_signal:PAnsichar;pval:pointer);cdecl;
 TGst_tag_list_get_string = function (const list :PGstMiniObject; const tag:pansichar; value:PPAnsiChar):boolean;cdecl;
 TGst_tag_list_get_uint = function (const list :PGstMiniObject; const tag:pansichar; value:PUInt):boolean;cdecl;
 TGst_audio_info_set_format = procedure (info: PGstAudioInfo; format: TGstAudioFormat; rate,channels:integer; const position :PGstAudioChannelPosition);cdecl;
@@ -92,6 +93,8 @@ TGst_audio_info_to_caps = function (const info:PGstAudioInfo): PGstCaps;cdecl;
 TGst_buffer_new_and_alloc = function(size:integer):PGstBuffer;cdecl;
 TGst_buffer_map = function (buffer:PGstBuffer;info :PGstMapInfo; flags: TGstMapFlags ):boolean;cdecl;
 TGst_buffer_unmap = procedure (buffer:PGstBuffer;info :PGstMapInfo);cdecl;
+TGst_buffer_unref= procedure(buf :PGstBuffer);cdecl;
+TGst_sample_unref = procedure(sample :PGstSample);cdecl;
 // ---End of types of functions/procedures to find in G2D.dll ---
 
 
@@ -136,6 +139,7 @@ _Gst_object_get_name          :Tgst_object_get_name;
 _G_signal_connect             :Tg_signal_connect;
 _G_signal_emit_by_name_int    :Tg_signal_emit_by_name_int;
 _G_signal_emit_by_name_pointer:Tg_signal_emit_by_name_pointer;
+_G_signal_emit_by_name_pointer1:Tg_signal_emit_by_name_pointer1;
 _Gst_element_query_position   :Tgst_element_query_position;
 _Gst_element_query_duration   :Tgst_element_query_duration;
 _Gst_element_seek_simple      :Tgst_element_seek_simple;
@@ -156,6 +160,8 @@ _Gst_audio_info_to_caps       :TGst_audio_info_to_caps;
 _Gst_buffer_new_and_alloc     :TGst_buffer_new_and_alloc;
 _Gst_buffer_map               :TGst_buffer_map;
 _Gst_buffer_unmap             :TGst_buffer_unmap;
+_Gst_sample_unref             :TGst_sample_unref;
+_Gst_buffer_unref             :TGst_buffer_unref;
 //End of The GST functions that point to nil but will get the right address in G2D.dll by setProcFromDll in G2dDllLoad
 
 DiTmp1,DiTmp2:Ppointer; //for debuging only
@@ -358,13 +364,16 @@ if G2dDllHnd=0 then
      setProcFromDll(@_Gst_video_overlay_set_window_handle,'_Gst_video_overlay_set_window_handle')or
      setProcFromDll(@_G_signal_emit_by_name_int,'_G_signal_emit_by_name_int')or
      setProcFromDll(@_G_signal_emit_by_name_pointer,'_G_signal_emit_by_name_pointer')or
+     setProcFromDll(@_G_signal_emit_by_name_pointer1,'_G_signal_emit_by_name_pointer1')or
      setProcFromDll(@_Gst_tag_list_get_string,'_Gst_tag_list_get_string')or
      setProcFromDll(@_Gst_tag_list_get_uint,'_Gst_tag_list_get_uint')or
      setProcFromDll(@_Gst_audio_info_set_format,'_Gst_audio_info_set_format')or
      setProcFromDll(@_Gst_audio_info_to_caps,'_Gst_audio_info_to_caps')or
      setProcFromDll(@_Gst_buffer_new_and_alloc,'_Gst_buffer_new_and_alloc')or
      setProcFromDll(@_Gst_buffer_map,'_Gst_buffer_map')or
-     setProcFromDll(@_Gst_buffer_unmap,'_Gst_buffer_unmap')
+     setProcFromDll(@_Gst_buffer_unmap,'_Gst_buffer_unmap')or
+     setProcFromDll(@_Gst_sample_unref,'_Gst_sample_unref')or
+     setProcFromDll(@_Gst_buffer_unref,'_Gst_buffer_unref')
 
 
      //never used or setProcFromDll(@_G_object_set_double,'_G_object_set_double')
