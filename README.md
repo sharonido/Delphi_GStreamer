@@ -1,4 +1,4 @@
-#### Contributor:
+﻿#### Contributor:
 ido@pitaron.info
 
 ## Before you start
@@ -35,7 +35,23 @@ After downloading be sure to install them (by Double click on both). When instal
 Open: https://github.com/sharonido/Delphi_GStreamer you should download the whole repository by the green download button, or if you have git installed in your system then from cmd line enter the command:  
 > git clone https://<i></i>github.com/sharonido/Delphi_GStreamer.git  
 It is important to maintain the G2D internal structure (that we have here). It does not matter where you decide to put this directory structure in your system.
+
 #### Explanation
-**In bin** directory there is  “G2D.dll” file. If you are running the examples, they will find it in the bin directory. If you build your own program, you should include the G2D.dll file in the directory of your exe file.   
-**In the Delphi** directory there are Pascal units that use the dll and build a Delphi Object oriented wrapper around the native C functions in the DLL. These files should be included in the uses of your project and in the units that use them like in the examples provided in the **examples directory**.  
-**In the C** directory, there are the C source of the G2D.dll. You can use them if you want to change the G2D.dll. Do that only if you are sure you know what you are doing  .
+**In the bin** directory there is  “G2D.dll” file. If you are running the examples,
+they will find it in the bin directory. If you build your own program, you should include
+the G2D.dll file in the directory of your exe file.<br>
+**In the C** directory, there are the C source of the G2D.dll.
+You can use them if you want to change the G2D.dll.
+Do that only if you are sure you know what you are doing.<br>
+**In the Delphi** directory there are Pascal units that use the dll and build a
+Delphi Object oriented wrapper around the native C functions in the DLL.
+These files should be included in the uses of your project and in the units
+that use them like in the examples provided in the examples directory.<br>
+**In the Examples** directory, there are sub-directories that follow the tutorials of GStreamer.
+The sub-directories follows thue directories in:
+https://gstreamer.freedesktop.org/documentation/tutorials/index.html?gi-language=c
+Each sub-directory follows a tutorial. That is example1 directory follows tutorial 1.
+example2 follows tutorial 2. and so on. in some sub-directories there are more the one
+example. some examples use a console program. some example (with a "W" in their name)
+use VCL with a delphi Tpanel as an output for rendering the video.
+
