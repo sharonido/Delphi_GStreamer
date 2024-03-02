@@ -1,7 +1,7 @@
 ﻿<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
     <PropertyGroup>
-        <ProjectGuid>{B560AFD3-6DFA-4ED3-BF67-1BE0F489D14F}</ProjectGuid>
-        <MainSource>PG2Dexample8Wb.dpr</MainSource>
+        <ProjectGuid>{F42A333F-5957-4191-A3C8-DED190D27478}</ProjectGuid>
+        <MainSource>PG2Dexample8Wc.dpr</MainSource>
         <Base>True</Base>
         <Config Condition="'$(Config)'==''">Debug</Config>
         <TargetedPlatforms>32771</TargetedPlatforms>
@@ -75,7 +75,7 @@
         <DCC_N>false</DCC_N>
         <DCC_S>false</DCC_S>
         <DCC_ImageBase>00400000</DCC_ImageBase>
-        <SanitizedProjectName>PG2Dexample8Wb</SanitizedProjectName>
+        <SanitizedProjectName>PG2Dexample8Wc</SanitizedProjectName>
         <DCC_Namespace>Vcl;Vcl.Imaging;Vcl.Touch;Vcl.Samples;Vcl.Shell;System;Xml;Data;Datasnap;Web;Soap;$(DCC_Namespace)</DCC_Namespace>
         <VerInfo_Locale>1033</VerInfo_Locale>
         <VerInfo_Keys>CompanyName=;FileDescription=;FileVersion=1.0.0.0;InternalName=;LegalCopyright=;LegalTrademarks=;OriginalFilename=;ProductName=;ProductVersion=1.0.0.0;Comments=;CFBundleName=</VerInfo_Keys>
@@ -135,13 +135,12 @@
         <DelphiCompile Include="$(MainSource)">
             <MainSource>MainSource</MainSource>
         </DelphiCompile>
+        <DCCReference Include="Uex8c.pas">
+            <Form>Form1</Form>
+        </DCCReference>
         <DCCReference Include="..\..\Delphi\G2D.pas"/>
         <DCCReference Include="..\..\Delphi\G2DCallDll.pas"/>
         <DCCReference Include="..\..\Delphi\G2DTypes.pas"/>
-        <DCCReference Include="Uex8b.pas">
-            <Form>Form1</Form>
-            <FormType>dfm</FormType>
-        </DCCReference>
         <BuildConfiguration Include="Base">
             <Key>Base</Key>
         </BuildConfiguration>
@@ -160,7 +159,7 @@
         <BorlandProject>
             <Delphi.Personality>
                 <Source>
-                    <Source Name="MainSource">PG2Dexample8Wb.dpr</Source>
+                    <Source Name="MainSource">PG2Dexample8Wc.dpr</Source>
                 </Source>
             </Delphi.Personality>
             <Platforms>
@@ -169,9 +168,9 @@
                 <Platform value="Win64">True</Platform>
             </Platforms>
             <Deployment Version="4">
-                <DeployFile LocalName="PG2Dexample8Wb.exe" Configuration="Debug" Class="ProjectOutput">
+                <DeployFile LocalName="PG2Dexample8Wc.exe" Configuration="Debug" Class="ProjectOutput">
                     <Platform Name="Win64">
-                        <RemoteName>PG2Dexample8Wb.exe</RemoteName>
+                        <RemoteName>PG2Dexample8Wc.exe</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
                 </DeployFile>

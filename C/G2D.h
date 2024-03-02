@@ -78,3 +78,4 @@ extern EXPORTDLL gboolean _Gst_buffer_map(GstBuffer* buffer, GstMapInfo* info, G
 extern EXPORTDLL void _Gst_buffer_unmap(GstBuffer* buffer, GstMapInfo* info);
 extern EXPORTDLL void _Gst_sample_unref(GstSample* sample);
 extern EXPORTDLL void _Gst_buffer_unref(GstBuffer* buf);
+extern EXPORTDLL GstBuffer* _Gst_sample_get_buffer(GstSample* sample);

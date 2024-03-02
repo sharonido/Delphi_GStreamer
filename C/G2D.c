@@ -227,3 +227,7 @@ void _Gst_sample_unref(GstSample* sample) {
 void _Gst_buffer_unref(GstBuffer* buf) {
     gst_buffer_unref(buf);
 }
+
+GstBuffer* _Gst_sample_get_buffer(GstSample* sample) {
+    gst_sample_get_buffer(sample);
+}

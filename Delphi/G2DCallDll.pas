@@ -95,6 +95,7 @@ TGst_buffer_map = function (buffer:PGstBuffer;info :PGstMapInfo; flags: TGstMapF
 TGst_buffer_unmap = procedure (buffer:PGstBuffer;info :PGstMapInfo);cdecl;
 TGst_buffer_unref= procedure(buf :PGstBuffer);cdecl;
 TGst_sample_unref = procedure(sample :PGstSample);cdecl;
+TGst_sample_get_buffer = function(sample: pointer):PGstBuffer;cdecl;
 // ---End of types of functions/procedures to find in G2D.dll ---
 
 
@@ -162,6 +163,7 @@ _Gst_buffer_map               :TGst_buffer_map;
 _Gst_buffer_unmap             :TGst_buffer_unmap;
 _Gst_sample_unref             :TGst_sample_unref;
 _Gst_buffer_unref             :TGst_buffer_unref;
+_Gst_sample_get_buffer        :TGst_sample_get_buffer;
 //End of The GST functions that point to nil but will get the right address in G2D.dll by setProcFromDll in G2dDllLoad
 
 DiTmp1,DiTmp2:Ppointer; //for debuging only
@@ -373,7 +375,8 @@ if G2dDllHnd=0 then
      setProcFromDll(@_Gst_buffer_map,'_Gst_buffer_map')or
      setProcFromDll(@_Gst_buffer_unmap,'_Gst_buffer_unmap')or
      setProcFromDll(@_Gst_sample_unref,'_Gst_sample_unref')or
-     setProcFromDll(@_Gst_buffer_unref,'_Gst_buffer_unref')
+     setProcFromDll(@_Gst_buffer_unref,'_Gst_buffer_unref')or
+     setProcFromDll(@_Gst_sample_get_buffer,'_Gst_sample_get_buffer')
 
 
      //never used or setProcFromDll(@_G_object_set_double,'_G_object_set_double')
