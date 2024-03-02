@@ -50,8 +50,8 @@ that use them like in the examples provided in the examples directory.<br>
 **In the Examples** directory, there are sub-directories that follow the tutorials of GStreamer.
 The sub-directories follows these directories in:<br>
 https://gstreamer.freedesktop.org/documentation/tutorials/index.html?gi-language=c<br>
-Each sub-directory follows a tutorial. That is example1 directory follows tutorial 1.
-example2 follows tutorial 2. and so on. in some sub-directories there are more the one
-example. some examples use a console program. some example (with a "W" in their name)
+Each sub-directory follows a tutorial. That is, example1 directory follows tutorial 1,
+example2 follows tutorial 2, and so on. In some sub-directories there are more then one
+example. Some examples use a console program. some example (with a "W" in their name)
 use VCL with a delphi Tpanel as an output for rendering the video.
 
