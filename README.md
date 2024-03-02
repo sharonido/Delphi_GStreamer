@@ -36,7 +36,7 @@ Open: https://github.com/sharonido/Delphi_GStreamer you should download the whol
 > git clone https://<i></i>github.com/sharonido/Delphi_GStreamer.git  
 It is important to maintain the G2D internal structure (that we have here). It does not matter where you decide to put this directory structure in your system.
 
-#### Explanation
+### Explanation
 **In the bin** directory there is  “G2D.dll” file. If you are running the examples,
 they will find it in the bin directory. If you build your own program, you should include
 the G2D.dll file in the directory of your exe file.<br>
@@ -52,6 +52,6 @@ The sub-directories follows these directories in:<br>
 https://gstreamer.freedesktop.org/documentation/tutorials/index.html?gi-language=c<br>
 Each sub-directory follows a tutorial. That is, example1 directory follows tutorial 1,
 example2 follows tutorial 2, and so on. In some sub-directories there are more then one
-example. Some examples use a console program. some example (with a "W" in their name)
+example. Some examples use a console program. Some examples (with a "W" in their name)
 use VCL with a delphi Tpanel as an output for rendering the video.
 
