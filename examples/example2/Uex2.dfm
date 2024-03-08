@@ -32,7 +32,6 @@ object Form1: TForm1
     Align = alClient
     Caption = 'VideoPanel'
     TabOrder = 0
-    OnClick = VideoPanelClick
     ExplicitWidth = 583
     ExplicitHeight = 425
   end

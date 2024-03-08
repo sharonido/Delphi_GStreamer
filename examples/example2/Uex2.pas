@@ -27,7 +27,6 @@ type
     RadioButton10: TRadioButton;
     procedure FormCreate(Sender: TObject);
     procedure RadioButton1Click(Sender: TObject);
-    procedure VideoPanelClick(Sender: TObject);
   private
     { Private declarations }
   public
@@ -62,14 +61,4 @@ procedure TForm1.RadioButton1Click(Sender: TObject);
 begin
 D_object_set_int(GStreamer.PipeLine.PlugIns[0],'pattern',(Sender as TRadioButton).Tag);
 end;
-
-var pat:integer=0;
-procedure TForm1.VideoPanelClick(Sender: TObject);
-begin
-pat:=pat+1;
-label1.Caption:=pat.ToString;
-D_object_set_int(GStreamer.PipeLine.PlugIns[0],'pattern',pat)
-end;
-
-
 end.
