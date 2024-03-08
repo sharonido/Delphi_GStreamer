@@ -8,12 +8,26 @@ uses
   Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.ExtCtrls,
   G2D,
   G2DCallDll,
-  G2DTypes;
+  G2DTypes, Vcl.StdCtrls;
 
 type
   TForm1 = class(TForm)
     VideoPanel: TPanel;
+    Label1: TLabel;
+    GroupBox1: TGroupBox;
+    RadioButton1: TRadioButton;
+    RadioButton2: TRadioButton;
+    RadioButton3: TRadioButton;
+    RadioButton4: TRadioButton;
+    RadioButton5: TRadioButton;
+    RadioButton6: TRadioButton;
+    RadioButton7: TRadioButton;
+    RadioButton8: TRadioButton;
+    RadioButton9: TRadioButton;
+    RadioButton10: TRadioButton;
     procedure FormCreate(Sender: TObject);
+    procedure RadioButton1Click(Sender: TObject);
+    procedure VideoPanelClick(Sender: TObject);
   private
     { Private declarations }
   public
@@ -43,5 +57,19 @@ GStreamer:=TGstFrameWork.Create(0,nil); //no parameters needed here
       GStreamer.PipeLine.ChangeState(GST_STATE_PLAYING);
       end;
 end;
+
+procedure TForm1.RadioButton1Click(Sender: TObject);
+begin
+D_object_set_int(GStreamer.PipeLine.PlugIns[0],'pattern',(Sender as TRadioButton).Tag);
+end;
+
+var pat:integer=0;
+procedure TForm1.VideoPanelClick(Sender: TObject);
+begin
+pat:=pat+1;
+label1.Caption:=pat.ToString;
+D_object_set_int(GStreamer.PipeLine.PlugIns[0],'pattern',pat)
+end;
+
 
 end.
