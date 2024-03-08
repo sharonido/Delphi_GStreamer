@@ -1,4 +1,5 @@
 program PG2DExample2W;
+{$APPTYPE CONSOLE} //use the console for loging events
 
 uses
   Vcl.Forms,
