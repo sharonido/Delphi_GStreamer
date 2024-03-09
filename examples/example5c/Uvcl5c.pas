@@ -27,10 +27,6 @@ type
     FPlayPauseBtns1: TFPlayPauseBtns;
     PanelDuration: TPanel;
     PosSlider: TTrackBar;
-    Label3: TLabel;
-    LPosition: TLabel;
-    Label4: TLabel;
-    LDuration: TLabel;
     CBSrc: TComboBox;
     DialogSrc: TOpenDialog;
     BLoad: TBitBtn;
@@ -43,6 +39,12 @@ type
     lblSubs: TLabel;
     CBText: TComboBox;
     Timer1: TTimer;
+    Panel6: TPanel;
+    Label3: TLabel;
+    LPosition: TLabel;
+    Panel7: TPanel;
+    Label4: TLabel;
+    LDuration: TLabel;
     procedure FormCreate(Sender: TObject);
     procedure PosSliderChange(Sender: TObject);
     procedure CBSrcChange(Sender: TObject);

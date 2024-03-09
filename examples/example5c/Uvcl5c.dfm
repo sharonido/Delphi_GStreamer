@@ -283,6 +283,7 @@ object FormVideoWin: TFormVideoWin
       ParentFont = False
       TabOrder = 0
       OnClick = PanelVideoClick
+      ExplicitLeft = 0
     end
     object Panel3: TPanel
       Left = 1
@@ -320,44 +321,70 @@ object FormVideoWin: TFormVideoWin
         Caption = 'PanelDuration'
         ShowCaption = False
         TabOrder = 1
-        object Label3: TLabel
-          Left = 6
-          Top = 11
-          Width = 46
-          Height = 15
-          Caption = 'Position:'
-        end
-        object LPosition: TLabel
-          Left = 55
-          Top = 11
-          Width = 51
-          Height = 19
-          AutoSize = False
-          Caption = '00:00:00.0'
-        end
-        object Label4: TLabel
-          Left = 475
-          Top = 11
-          Width = 49
-          Height = 15
-          Caption = 'Duration:'
-        end
-        object LDuration: TLabel
-          Left = 527
-          Top = 11
-          Width = 68
-          Height = 19
-          AutoSize = False
-          Caption = '00:00:00.0'
-        end
         object PosSlider: TTrackBar
           Left = 112
-          Top = 5
-          Width = 357
-          Height = 29
+          Top = 1
+          Width = 384
+          Height = 33
+          Align = alClient
           Frequency = 2
           TabOrder = 0
           OnChange = PosSliderChange
+          ExplicitLeft = 94
+          ExplicitTop = 5
+          ExplicitWidth = 357
+        end
+        object Panel6: TPanel
+          Left = 1
+          Top = 1
+          Width = 111
+          Height = 33
+          Align = alLeft
+          BevelOuter = bvNone
+          Caption = 'Panel6'
+          ShowCaption = False
+          TabOrder = 1
+          object Label3: TLabel
+            Left = 5
+            Top = 10
+            Width = 46
+            Height = 15
+            Alignment = taCenter
+            Caption = 'Position:'
+          end
+          object LPosition: TLabel
+            Left = 55
+            Top = 11
+            Width = 51
+            Height = 19
+            AutoSize = False
+            Caption = '00:00:00.0'
+          end
+        end
+        object Panel7: TPanel
+          Left = 496
+          Top = 1
+          Width = 115
+          Height = 33
+          Align = alRight
+          BevelOuter = bvNone
+          Caption = 'Panel7'
+          ShowCaption = False
+          TabOrder = 2
+          object Label4: TLabel
+            Left = 6
+            Top = 11
+            Width = 49
+            Height = 15
+            Caption = 'Duration:'
+          end
+          object LDuration: TLabel
+            Left = 61
+            Top = 12
+            Width = 51
+            Height = 15
+            Caption = '00:00:00.0'
+          end
         end
       end
     end
