@@ -175,105 +175,36 @@ end;
 
 //callback function when stream has meta data (analyze_streams meta data)
 procedure TFormVideoWin.ActStreamData(app: Int64);
-var
-I, n_video, n_audio, n_text:integer;
-BR:UInt;
-tags: PGstMiniObject;// GstTagList *tags;
-pcstr:pansichar;
-total_str:string;
+var vstrs,astrs,tstrs:TArray<string>;
 begin
+vstrs:=GStreamer.VideoStrInStream;
+astrs:=GStreamer.AudioStrInStream;
+tstrs:=GStreamer.TextStrInStream;
 // Set label numbers
-_G_object_get(playbin.RealObject,pansichar('n-video'),@n_video);
-LblVideoCn.Caption:='Numer of Video in stream is: '+n_video.ToString;
-_G_object_get(playbin.RealObject,pansichar('n-audio'),@n_audio);
-LblAudioCn.Caption:='Numer of Audio chanels  in stream is: '+n_audio.ToString;
-_G_object_get(playbin.RealObject,pansichar('n-text'),@n_text);
-lblSubs.Caption :='Numer of Subtitle chanels  in stream is: '+n_text.ToString;
-
+LblVideoCn.Caption:='Numer of Video in stream is: '+Length(vstrs).ToString;
+LblAudioCn.Caption:='Numer of Audio chanels  in stream is: '+Length(astrs).ToString;
+lblSubs.Caption :='Numer of Subtitle chanels  in stream is: '+Length(tstrs).ToString;
+//set PanelVideo.Caption
+If Length(vstrs)>0
+  then
+  PanelVideo.Caption:='Wait for video'
+  else if Length(astrs)>0 then PanelVideo.Caption:='This is an audio stream'
+  else PanelVideo.Caption:='Unknown stream type';
 //set video options
 CBVideo.Items.Clear;
-CBVideo.Text:='None';
-If n_video>0
-  then PanelVideo.Caption:='Wait for video'
-  else if n_audio>0 then PanelVideo.Caption:='This is an audio stream';
-for I := 0 to n_video-1 do
-  begin
-  pcstr:=nil;
-  tags:=nil;
-  _G_signal_emit_by_name_int(playbin.RealObject,pansichar('get-video-tags'),I,@tags);
-  if Assigned(tags) then
-    begin
-    if _Gst_tag_list_get_string(tags,pansichar('video-codec'),@pcstr) and Assigned(pcstr)
-      then total_str:='codec: '+string(pcstr)
-      else total_str:='codec: unknown';
-    BR:=0;
-    if _Gst_tag_list_get_uint(tags,pansichar('bitrate'),@BR) and (BR<>0)
-      then total_str:=total_str+';  Bitrate='+(BR div 1000).ToString+'K';
-    end
-    else total_str:='codec: not in list';
-  if CBVideo.Items.Count>I
-    then begin
-         CBVideo.Items.Insert(I,total_str);
-         CBVideo.Items.Delete(I+1);
-         end
-    else CBVideo.Items.Add(total_str);
-  CBVideo.Text:=total_str;
-  CBVideo.ItemIndex:=0;
-  end;
+if Length(vstrs)=0 then CBVideo.Items.Add('None')
+                   else CBVideo.Items.AddStrings(vstrs);
+CBVideo.ItemIndex:=0;
 //set audio options
 CBAudio.Items.Clear;
-CBAudio.Text:='None';
-for I := 0 to n_audio-1 do
-  begin
-  pcstr:=nil;
-  tags:=nil;
-  _G_signal_emit_by_name_int(playbin.RealObject,pansichar('get-audio-tags'),I,@tags);
-  if Assigned(tags) then
-    begin
-    if _Gst_tag_list_get_string(tags,pansichar('audio-codec'),@pcstr) and Assigned(pcstr)
-      then total_str:='codec: '+string(pcstr)
-      else total_str:='codec: unknown';
-    pcstr:=nil;
-    if _Gst_tag_list_get_string(tags,pansichar('language-code'),@pcstr) and Assigned(pcstr)
-      then total_str:=total_str+'; Language:'+string(pcstr);
-    BR:=0;
-    if _Gst_tag_list_get_uint(tags,pansichar('bitrate'),@BR) and (BR<>0)
-      then total_str:=total_str+'; Bitrate='+(BR div 1000).ToString+'K';
-    end
-    else total_str:='codec: not in list';
-  if CBAudio.Items.Count>I
-    then begin
-         CBAudio.Items.Insert(I,total_str);
-         CBAudio.Items.Delete(I+1);
-         end
-    else CBAudio.Items.Add(total_str);
-  CBAudio.Text:=total_str;
-  CBAudio.ItemIndex:=0;
-  end;
+if Length(astrs)=0 then CBAudio.Items.Add('None')
+                   else CBAudio.Items.AddStrings(astrs);
+CBAudio.ItemIndex:=0;
 //set subtext
 CBText.Items.Clear;
-CBText.Text:='None';
-for I := 0 to n_text-1 do
-  begin
-  pcstr:=nil;
-  tags:=nil;
-  _G_signal_emit_by_name_int(playbin.RealObject,pansichar('get-text-tags'),I,@tags);
-  if Assigned(tags) then
-    begin
-    if _Gst_tag_list_get_string(tags,pansichar('language-code'),@pcstr) and Assigned(pcstr)
-      then total_str:='Language:'+string(pcstr)
-      else total_str:='Language: unknown';
-    end
-    else total_str:='Language: not in list';
-  if CBText.Items.Count>I
-    then begin
-         CBText.Items.Insert(I,total_str);
-         CBText.Items.Delete(I+1);
-         end
-    else CBVideo.Items.Add(total_str);
-  CBText.Text:=total_str;
-  CBText.ItemIndex:=0;
-  end;
+if Length(tstrs)=0 then CBText.Items.Add('None')
+                   else CBText.Items.AddStrings(tstrs);
+CBText.ItemIndex:=0;
 end;
 
 //Callback from the stream to say it has a duriation
@@ -344,7 +275,6 @@ end;
 procedure TFormVideoWin.CBAudioSelect(Sender: TObject);
 begin
 playbin.setAParam('current-audio',CBAudio.ItemIndex.ToString );
-//_G_object_set_int (playbin.RealObject,pansichar('current-audio'), CBAudio.ItemIndex);
 end;
 
 end.

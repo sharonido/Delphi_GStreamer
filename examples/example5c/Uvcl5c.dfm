@@ -283,7 +283,6 @@ object FormVideoWin: TFormVideoWin
       ParentFont = False
       TabOrder = 0
       OnClick = PanelVideoClick
-      ExplicitLeft = 0
     end
     object Panel3: TPanel
       Left = 1
@@ -330,9 +329,6 @@ object FormVideoWin: TFormVideoWin
           Frequency = 2
           TabOrder = 0
           OnChange = PosSliderChange
-          ExplicitLeft = 94
-          ExplicitTop = 5
-          ExplicitWidth = 357
         end
         object Panel6: TPanel
           Left = 1

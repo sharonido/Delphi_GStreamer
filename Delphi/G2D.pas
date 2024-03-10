@@ -149,6 +149,9 @@ TGstFrameWork=class(TObject)
   class var fDuration:int64;
   Class var fMemoLog:TMemo;
   procedure PrTimer(Sender:TObject);
+  class function GetVideoStrInStream:TArray<String>; static;
+  class function GetAudioStrInStream:TArray<String>; static;
+  class function GetTextStrInStream:TArray<String>; static;
   class procedure SetMemoLog(m:TMemo);static;
   public
   class var MsgFilter:integer;
@@ -162,6 +165,9 @@ TGstFrameWork=class(TObject)
   class Property PipeLine:TGPipeLine read fPipeline;
   class Property Bus:TGBus read fBus;
   class Property Duration:int64 read fDuration write fDuration;
+  class Property VideoStrInStream:TArray<String> read GetVideoStrInStream;
+  class Property AudioStrInStream:TArray<String> read GetAudioStrInStream;
+  class Property TextStrInStream:TArray<String> read GetTextStrInStream;
   class Property Msg:TGMsg read fMsg write fMsg;
   class Property MemoLog:TMemo read fMemoLog write setMemoLog;
   //class Property Running:boolean read frunning;
@@ -565,6 +571,82 @@ if fstate=GST_STATE_PLAYING then
   WriteOutln('Stream had ran until '+DateToIso(Now));
   end;
 inherited Destroy;
+end;
+
+class function TGstFrameWork.GetAudioStrInStream: TArray<String>;
+var
+I, n_audio :integer;
+BR:UInt;
+tags: PGstMiniObject;// GstTagList *tags;
+pcstr:pansichar;
+begin
+_G_object_get(PipeLine.PlugIns[0].RealObject,pansichar('n-audio'),@n_audio);
+SetLength(Result,n_audio);
+for I := 0 to n_audio-1 do
+  begin
+  pcstr:=nil;
+  tags:=nil;
+  _G_signal_emit_by_name_int(PipeLine.PlugIns[0].RealObject,pansichar('get-audio-tags'),I,@tags);
+  if Assigned(tags) then
+    begin
+    if _Gst_tag_list_get_string(tags,pansichar('audio-codec'),@pcstr) and Assigned(pcstr)
+      then Result[i]:='codec: '+string(pcstr)
+      else Result[i]:='codec: unknown';
+    if _Gst_tag_list_get_string(tags,pansichar('language-code'),@pcstr) and Assigned(pcstr)
+      then Result[i]:=Result[i]+'; Language:'+string(pcstr);
+    BR:=0;
+    if _Gst_tag_list_get_uint(tags,pansichar('bitrate'),@BR) and (BR<>0)
+      then Result[i]:=Result[i]+';  Bitrate='+(BR div 1000).ToString+'K';
+    end
+    else Result[i]:='codec: not in list';
+  end;
+end;
+
+class function TGstFrameWork.GetTextStrInStream: TArray<String>;
+var
+I, n_text :integer;
+tags: PGstMiniObject;// GstTagList *tags;
+pcstr:pansichar;
+begin
+_G_object_get(PipeLine.PlugIns[0].RealObject,pansichar('n-text'),@n_text);
+SetLength(Result,n_text);
+for I := 0 to n_text-1 do
+  begin
+  pcstr:=nil;
+  tags:=nil;
+  _G_signal_emit_by_name_int(PipeLine.PlugIns[0].RealObject,pansichar('get-text-tags'),I,@tags);
+  if Assigned(tags) then
+    if _Gst_tag_list_get_string(tags,pansichar('language-code'),@pcstr) and Assigned(pcstr)
+      then Result[i]:=Result[i]+'; Language:'+string(pcstr)
+      else Result[i]:='Language: unkown';
+  end;
+end;
+
+class function TGstFrameWork.GetVideoStrInStream: TArray<String>;
+var
+I, n_video :integer;
+BR:UInt;
+tags: PGstMiniObject;// GstTagList *tags;
+pcstr:pansichar;
+begin
+_G_object_get(PipeLine.PlugIns[0].RealObject,pansichar('n-video'),@n_video);
+SetLength(Result,n_video);
+for I := 0 to n_video-1 do
+  begin
+  pcstr:=nil;
+  tags:=nil;
+  _G_signal_emit_by_name_int(PipeLine.PlugIns[0].RealObject,pansichar('get-video-tags'),I,@tags);
+  if Assigned(tags) then
+    begin
+    if _Gst_tag_list_get_string(tags,pansichar('video-codec'),@pcstr) and Assigned(pcstr)
+      then Result[i]:='codec: '+string(pcstr)
+      else Result[i]:='codec: unknown';
+    BR:=0;
+    if _Gst_tag_list_get_uint(tags,pansichar('bitrate'),@BR) and (BR<>0)
+      then Result[i]:=Result[i]+';  Bitrate='+(BR div 1000).ToString+'K';
+    end
+    else Result[i]:='codec: not in list';
+  end;
 end;
 
 procedure TGstFrameWork.PrTimer(Sender:TObject);
