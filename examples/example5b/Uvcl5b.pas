@@ -47,6 +47,7 @@ type
     procedure ActPosition(NewPos:Int64);
     Procedure ActButton(Btn:TBtnPressed;Status:TBtnsStatus);
     Procedure ActDuration(NewDuration:Int64);
+    Procedure GStateChanged(State: TGstState);
   public
     { Public declarations }
   end;
@@ -69,9 +70,7 @@ if (srcStr <> '')
   then CBSrc.Items.Add(srcStr+'\MediaFiles\Ocean.mp4');//add Ocean.mp4 to the combx box for easy user selection
 //button play/pause/stop init
 FPlayPauseBtns1.OnBtnPressed:=ActButton; //set callback for action on button click
-FPlayPauseBtns1.Status:=bsPaused;
-FPlayPauseBtns1.sbPlay.Down:=false;
-FPlayPauseBtns1.sbStop.Enabled:=false;
+FPlayPauseBtns1.Enabled:=false;
 PanelDuration.Visible:=false;        //visual stuff
 
 //GStreamer start
@@ -79,6 +78,7 @@ GStreamer.MemoLog:=Mlog;  //re-route activity log to the memo instead of console
 GStreamer:=TGstFrameWork.Create(0,nil); //no parameters needed here
 if GStreamer.Started then
   begin
+  GStreamer.OnChangeStatus:=GStateChanged; //set callback for state change
   GStreamer.OnDuration:=ActDuration;  //set callback for stream duration function.
   GStreamer.OnPosition:=ActPosition;  //set callback for stream duration function.
   srcStr:=CBSrc.Text;
@@ -113,11 +113,23 @@ begin
     TBtnsStatus.bsStoped:
     begin
     writeoutln('Stop cmd');
+    FPlayPauseBtns1.Enabled:=false;
     GStreamer.PipeLine.ChangeState(GST_STATE_READY);
+    GStreamer.PipeLine.ChangeState(GST_STATE_PAUSED);
     PanelDuration.Visible:=false;
     end;
     else writeoutln('Btn press Error');
   end
+end;
+
+//This is a callback from the stream to say it has a new State
+procedure TFormVideoWin.GStateChanged(State: TGstState);
+begin
+If state=TGstState.GST_STATE_PAUSED then
+  begin
+  FPlayPauseBtns1.Enabled:=true;
+  FPlayPauseBtns1.sbStop.Enabled:=false;
+  end;
 end;
 
 //This is a callback from the stream to say it has a new position
@@ -171,10 +183,10 @@ end;
 procedure TFormVideoWin.CBSrcChange(Sender: TObject);
 var srcStr:string;
 begin  //stream source has been changed by user
+GStreamer.PipeLine.ChangeState(GST_STATE_READY);//stop the current stream
 //set the buttons
-FPlayPauseBtns1.sbStop.Enabled:=false;
-FPlayPauseBtns1.sbPlay.down:=false;
-ActButton(TBtnPressed.bpStop,TBtnsStatus.bsStoped);
+FPlayPauseBtns1.sbPlay.Down:=false;
+FPlayPauseBtns1.Enabled:=false;
 //get & set user src
 srcStr:=CBSrc.Text;
 if not srcStr.StartsWith('https:') then srcStr:='file:///'+srcStr;

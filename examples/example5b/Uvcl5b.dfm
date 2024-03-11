@@ -205,6 +205,7 @@ object FormVideoWin: TFormVideoWin
       ParentFont = False
       TabOrder = 0
       OnClick = PanelVideoClick
+      ExplicitLeft = 0
     end
     object Panel3: TPanel
       Left = 1
@@ -225,43 +226,76 @@ object FormVideoWin: TFormVideoWin
         ShowCaption = False
         TabOrder = 0
         object Label3: TLabel
-          Left = 6
+          AlignWithMargins = True
+          Left = 1
           Top = 11
           Width = 46
-          Height = 15
+          Height = 23
+          Margins.Left = 0
+          Margins.Top = 10
+          Margins.Bottom = 0
+          Align = alLeft
           Caption = 'Position:'
+          ExplicitLeft = 6
+          ExplicitHeight = 15
         end
         object LPosition: TLabel
-          Left = 55
+          AlignWithMargins = True
+          Left = 50
           Top = 11
           Width = 51
-          Height = 19
+          Height = 23
+          Margins.Left = 0
+          Margins.Top = 10
+          Margins.Bottom = 0
+          Align = alLeft
           AutoSize = False
           Caption = '00:00:00.0'
+          ExplicitLeft = 112
+          ExplicitTop = 12
         end
         object Label4: TLabel
-          Left = 475
+          AlignWithMargins = True
+          Left = 494
           Top = 11
           Width = 49
-          Height = 15
+          Height = 20
+          Margins.Left = 0
+          Margins.Top = 10
+          Margins.Right = 0
+          Align = alRight
           Caption = 'Duration:'
+          ExplicitLeft = 426
+          ExplicitTop = 12
         end
         object LDuration: TLabel
-          Left = 527
+          AlignWithMargins = True
+          Left = 543
           Top = 11
           Width = 68
-          Height = 19
+          Height = 20
+          Margins.Left = 0
+          Margins.Top = 10
+          Margins.Right = 0
+          Align = alRight
           AutoSize = False
           Caption = '00:00:00.0'
+          ExplicitLeft = 527
+          ExplicitHeight = 19
         end
         object PosSlider: TTrackBar
-          Left = 112
-          Top = 5
-          Width = 357
-          Height = 29
+          Left = 104
+          Top = 1
+          Width = 390
+          Height = 33
+          Align = alClient
           Frequency = 2
           TabOrder = 0
           OnChange = PosSliderChange
+          ExplicitLeft = 112
+          ExplicitTop = 5
+          ExplicitWidth = 357
+          ExplicitHeight = 29
         end
       end
       inline FPlayPauseBtns1: TFPlayPauseBtns

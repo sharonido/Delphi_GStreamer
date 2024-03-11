@@ -24,11 +24,12 @@ type
     FPlayPauseBtns1: TFPlayPauseBtns;
     procedure FormCreate(Sender: TObject);
     procedure PanelVideoClick(Sender: TObject);
+    Procedure ActButton(Btn:TBtnPressed;Status:TBtnsStatus);
+    Procedure GStateChanged(State: TGstState);
   private
     { Private declarations }
   public
     { Public declarations }
-    Procedure ActButton(Btn:TBtnPressed;Status:TBtnsStatus);
   end;
 
 var
@@ -37,6 +38,31 @@ var
 implementation
 
 {$R *.dfm}
+
+procedure TFormVideoWin.FormCreate(Sender: TObject);
+var
+srcStr:string;
+begin
+//botton play stop init
+FPlayPauseBtns1.OnBtnPressed:=ActButton; //set callback for action on button click
+FPlayPauseBtns1.Enabled:=false;
+//GStreamer start
+GStreamer.MemoLog:=Mlog;//redirect log - is before start, cause the log change is a static class
+GStreamer:=TGstFrameWork.Create(0,nil); //no parameters needed here
+if GStreamer.Started then
+  begin
+  GStreamer.OnChangeStatus:=GStateChanged; //set callback for state change
+  srcStr:=ESrc.Text;
+  if not srcStr.StartsWith('https:') then srcStr:='file:///'+srcStr;
+
+  if not GStreamer.SimpleBuildLink('playbin uri='+srcStr)
+    then writeOutln('error in the prog');
+
+  GStreamer.SetVisualWindow('playbin',PanelVideo);  //render the video on PanelVideo
+  PanelVideo.Caption:='Wait for video';
+  GStreamer.PipeLine.ChangeState(GST_STATE_PAUSED); //run
+  end;
+end;
 
 //callback function when bottons are pressed
 Procedure TFormVideoWin.ActButton(Btn:TBtnPressed;Status:TBtnsStatus);
@@ -55,41 +81,23 @@ begin
     TBtnsStatus.bsStoped:
     begin
     writeoutln('Stop cmd');
+    FPlayPauseBtns1.Enabled:=false;
     GStreamer.PipeLine.ChangeState(GST_STATE_READY);
+    GStreamer.PipeLine.ChangeState(GST_STATE_PAUSED);
     end;
     else writeoutln('Btn press Error');
   end
 end;
-
-procedure TFormVideoWin.FormCreate(Sender: TObject);
-var
-srcStr:string;
+//callback function when state has changed
+procedure TFormVideoWin.GStateChanged(State: TGstState);
 begin
-//botton play stop init
-FPlayPauseBtns1.OnBtnPressed:=ActButton; //set callback for action on button click
-FPlayPauseBtns1.Status:=bsPaused;
-FPlayPauseBtns1.sbPlay.Down:=false;
-FPlayPauseBtns1.sbStop.Enabled:=false;
-
-//GStreamer start
-GStreamer.MemoLog:=Mlog;//redirect log - is before start, cause the log change is a static class
-GStreamer:=TGstFrameWork.Create(0,nil); //no parameters needed here
-if GStreamer.Started then
+If state=TGstState.GST_STATE_PAUSED then
   begin
-  srcStr:=ESrc.Text;
-  if not srcStr.StartsWith('https:') then srcStr:='file:///'+srcStr;
-
-  if not GStreamer.SimpleBuildLink('playbin uri='+srcStr)
-     //('playbin uri=https://www.freedesktop.org/software/gstreamer-sdk/data/media/sintel_trailer-480p.webm')
-     //('playbin uri=file:///C:\temp\demo5.mp4')
-     // DoForEver)
-      then writeOutln('error in the prog');
-
-  GStreamer.SetVisualWindow('playbin',PanelVideo);
-  PanelVideo.Caption:='Wait for video';
-  GStreamer.PipeLine.ChangeState(GST_STATE_PAUSED);
+  FPlayPauseBtns1.Enabled:=true;
+  FPlayPauseBtns1.sbStop.Enabled:=false;
   end;
 end;
+
 
 procedure TFormVideoWin.PanelVideoClick(Sender: TObject);
 begin
