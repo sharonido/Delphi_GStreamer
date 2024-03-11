@@ -140,6 +140,7 @@ TGstFrameWork=class(TObject)
   class var fPipeline:TGPipeLine;   //pipeline & Bus are created with framework cause they
   class var fBus:TGBus;             //are used in most normal cases and take less the k mem
   class var fMsg:TGMsg;
+  class var fTagedPlugin :TGPlugin;
   class var fterminate:Boolean;
   class var frunning:Boolean;
   class var fMsgResult:TGstMessageType;
@@ -177,6 +178,7 @@ TGstFrameWork=class(TObject)
   class Property State:TGstState read fState;
   class Property G2DTerminate:Boolean read fterminate write fterminate;
   procedure SetPadAddedCallback(const SrcPad,SinkPad:TGPlugin; const capabilityStr:string);
+  procedure SetTagsForPlug(TagedPlugin:TGPlugin);
   function WaitForPlay(Sec:Integer):boolean; //wait sec seconds for play; if sec=-1 wait forever
   procedure CheckMsgAndRunFor(TimeInNanoSec:Int64);
   procedure CheckMsg;
@@ -586,13 +588,13 @@ BR:UInt;
 tags: PGstMiniObject;// GstTagList *tags;
 pcstr:pansichar;
 begin
-_G_object_get(PipeLine.PlugIns[0].RealObject,pansichar('n-audio'),@n_audio);
+_G_object_get(fTagedPlugin.RealObject,pansichar('n-audio'),@n_audio);
 SetLength(Result,n_audio);
 for I := 0 to n_audio-1 do
   begin
   pcstr:=nil;
   tags:=nil;
-  _G_signal_emit_by_name_int(PipeLine.PlugIns[0].RealObject,pansichar('get-audio-tags'),I,@tags);
+  _G_signal_emit_by_name_int(fTagedPlugin.RealObject,pansichar('get-audio-tags'),I,@tags);
   if Assigned(tags) then
     begin
     if _Gst_tag_list_get_string(tags,pansichar('audio-codec'),@pcstr) and Assigned(pcstr)
@@ -614,13 +616,13 @@ I, n_text :integer;
 tags: PGstMiniObject;// GstTagList *tags;
 pcstr:pansichar;
 begin
-_G_object_get(PipeLine.PlugIns[0].RealObject,pansichar('n-text'),@n_text);
+_G_object_get(fTagedPlugin.RealObject,pansichar('n-text'),@n_text);
 SetLength(Result,n_text);
 for I := 0 to n_text-1 do
   begin
   pcstr:=nil;
   tags:=nil;
-  _G_signal_emit_by_name_int(PipeLine.PlugIns[0].RealObject,pansichar('get-text-tags'),I,@tags);
+  _G_signal_emit_by_name_int(fTagedPlugin.RealObject,pansichar('get-text-tags'),I,@tags);
   if Assigned(tags) then
     if _Gst_tag_list_get_string(tags,pansichar('language-code'),@pcstr) and Assigned(pcstr)
       then Result[i]:=Result[i]+'; Language:'+string(pcstr)
@@ -635,13 +637,13 @@ BR:UInt;
 tags: PGstMiniObject;// GstTagList *tags;
 pcstr:pansichar;
 begin
-_G_object_get(PipeLine.PlugIns[0].RealObject,pansichar('n-video'),@n_video);
+_G_object_get(fTagedPlugin.RealObject,pansichar('n-video'),@n_video);
 SetLength(Result,n_video);
 for I := 0 to n_video-1 do
   begin
   pcstr:=nil;
   tags:=nil;
-  _G_signal_emit_by_name_int(PipeLine.PlugIns[0].RealObject,pansichar('get-video-tags'),I,@tags);
+  _G_signal_emit_by_name_int(fTagedPlugin.RealObject,pansichar('get-video-tags'),I,@tags);
   if Assigned(tags) then
     begin
     if _Gst_tag_list_get_string(tags,pansichar('video-codec'),@pcstr) and Assigned(pcstr)
@@ -806,6 +808,30 @@ procedure TGstFrameWork.SetPadAddedCallback(const SrcPad,SinkPad:TGPlugin; const
 begin
 PadCapabilityString:=ansistring(capabilityStr);
 _G_signal_connect (SrcPad.RealObject, ansistring('pad-added'), @pad_added_handler, SinkPad.RealObject);
+end;
+
+
+//callback function when tags are changed in stream(playbin)
+procedure tags_cb (playbin :PGstElement;  stream:integer; data:pointer); cdecl;
+begin
+//We are called here by playbin plugin thread that might not be main thread.
+//To change GUI we must be in main thread.
+//So "Synchronize" and call ActStreamData in main
+//You can also call by posting an application message - but we do not use here
+System.Classes.TThread.Synchronize(nil,
+procedure
+  begin
+    if Assigned(TGstFrameWork.OnApplication)
+      then TGstFrameWork.OnApplication(1)
+  end);
+end;
+
+procedure TGstFrameWork.SetTagsForPlug(TagedPlugin: TGPlugin);
+begin
+fTagedPlugin:= TagedPlugin;
+_G_signal_connect (fTagedPlugin.RealObject,pansichar('video-tags-changed'),@tags_cb, nil);
+_G_signal_connect (fTagedPlugin.RealObject,pansichar('audio-tags-changed'),@tags_cb, nil);
+_G_signal_connect (fTagedPlugin.RealObject,pansichar('text-tags-changed'),@tags_cb, nil);
 end;
 
 function TGstFrameWork.WaitForPlay(Sec:Integer):boolean; //wait sec seconds for play; if sec=-1 wait forever
