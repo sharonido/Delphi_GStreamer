@@ -133,6 +133,8 @@ TGPipeLine=Class(TGstElement)
 End;
 
 TGetInt64Event = procedure(AInt64: Int64) of object;
+TGetGStateEvent = procedure(State: TGstState) of object;
+
 TGstFrameWork=class(TObject)
   private
   class var fPipeline:TGPipeLine;   //pipeline & Bus are created with framework cause they
@@ -160,6 +162,7 @@ TGstFrameWork=class(TObject)
   class var OnDuration:TGetInt64Event;
   class var OnPosition:TGetInt64Event;
   class var OnApplication:TGetInt64Event;
+  class var OnChangeStatus:TGetGStateEvent;
   //class property MsgUsed:Boolean read fMsgUsed;
   class property Started:Boolean read fStarted;
   class Property PipeLine:TGPipeLine read fPipeline;
@@ -479,7 +482,10 @@ if (RMsg <> nil) then  // There is a msg
           then TGstFrameWork.fDuration:=-1; //flag that the stream has no duration
         TGstFrameWork.fMsgUsed:=true;
         TGstFrameWork.frunning:=(TGstState(new_state)=TGstState.GST_STATE_PLAYING);
+        if Assigned(TGstFrameWork.OnChangeStatus)
+          then TGstFrameWork.OnChangeStatus(new_state);
         end;
+
       end;
     GST_MESSAGE_DURATION_CHANGED:
       begin
@@ -662,7 +668,9 @@ if fDuration=0 then   //this stream changed its duration (so it has duration)
     else if Assigned(OnDuration)
       then OnDuration(fDuration);
   end;
-if (fDuration>0) and (TGstFrameWork.State>TGstState.GST_STATE_READY) and  Assigned(OnDuration)
+if (fDuration>0) and
+  (TGstFrameWork.State>TGstState.GST_STATE_READY) and
+  Assigned(OnDuration) and Assigned(OnPosition)
   then
   begin
   D_query_stream_position(PipeLine ,Nano);
