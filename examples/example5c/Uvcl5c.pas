@@ -60,12 +60,10 @@ type
     procedure ActPosition(NewPos:Int64);
     Procedure ActDuration(NewDuration:Int64);
     Procedure ActStreamData(app:Int64);
+	Procedure GStateChanged(State: TGstState);
   public
     { Public declarations }
   end;
-
-//callback function when tags are changed in stream(playbin)
-procedure tags_cb (playbin :PGstElement;  stream:integer; data:pointer); cdecl;
 
 var
   FormVideoWin: TFormVideoWin;
@@ -89,11 +87,8 @@ if (srcStr <> '')
   end;
 //button play/pause/stop init
 FPlayPauseBtns1.OnBtnPressed:=ActButton; //set callback for action on button click
-FPlayPauseBtns1.Status:=bsPaused;
-FPlayPauseBtns1.sbPlay.Down:=false;
-FPlayPauseBtns1.sbStop.Enabled:=false;
-//visual stuff
-PanelDuration.Visible:=false;
+FPlayPauseBtns1.Enabled:=false;
+PanelDuration.Visible:=false;        //visual stuff
 PanelVideo.Caption:='Wait for stream';
 
 //GStreamer start
@@ -101,6 +96,7 @@ GStreamer.MemoLog:=Mlog;  //re-route activity log to the memo instead of console
 GStreamer:=TGstFrameWork.Create(0,nil); //no parameters needed here
 if GStreamer.Started then
   begin
+  GStreamer.OnChangeStatus:=GStateChanged;//set callback for state change
   GStreamer.OnDuration:=ActDuration;      //set callback for stream duration function.
   GStreamer.OnPosition:=ActPosition;      //set callback for stream duration function.
   GStreamer.OnApplication:=ActStreamData; //set callback for Stream data function.
@@ -114,26 +110,10 @@ if GStreamer.Started then
   //set the window handle that playbin will render the video on
   GStreamer.SetVisualWindow('playbin',PanelVideo);
   //Set callback for tags
-  _G_signal_connect (playbin.RealObject,pansichar('video-tags-changed'),@tags_cb, nil);
-  _G_signal_connect (playbin.RealObject,pansichar('audio-tags-changed'),@tags_cb, nil);
-  _G_signal_connect (playbin.RealObject,pansichar('text-tags-changed'),@tags_cb, nil);
+  GStreamer.SetTagsForPlug(playbin);
   //get ready to play, and move to the pause state
   GStreamer.PipeLine.ChangeState(GST_STATE_PAUSED);
   end;
-end;
-
-//callback function when tags are changed in stream(playbin)
-procedure tags_cb (playbin :PGstElement;  stream:integer; data:pointer); cdecl;
-begin
-//We are called here by playbin plugin thread that might not be main thread.
-//To change GUI we must be in main thread.
-//So "Synchronize" and call ActStreamData in main
-//You can also call by posting an application message - but we do not use here
-System.Classes.TThread.Synchronize(nil,
-procedure
-  begin
-    FormVideoWin.ActStreamData(0);
-  end);
 end;
 
 //callback function when bottons are pressed
@@ -153,14 +133,26 @@ begin
     TBtnsStatus.bsStoped:
     begin
     writeoutln('Stop cmd');
+    FPlayPauseBtns1.Enabled:=false;
     GStreamer.PipeLine.ChangeState(GST_STATE_READY);
+    GStreamer.PipeLine.ChangeState(GST_STATE_PAUSED);
     PanelDuration.Visible:=false;
     end;
     else writeoutln('Btn press Error');
   end
 end;
 
-//callback function when stream has a new position
+//This is a callback from the stream to say it has a new State
+procedure TFormVideoWin.GStateChanged(State: TGstState);
+begin
+If state=TGstState.GST_STATE_PAUSED then
+  begin
+  FPlayPauseBtns1.Enabled:=true;
+  FPlayPauseBtns1.sbStop.Enabled:=false;
+  end;
+end;
+
+//This is a callback from the stream to say it has a new position
 procedure TFormVideoWin.ActPosition(NewPos:Int64);
 begin
 if (NewPos>=0) and not NoPos then
@@ -175,7 +167,9 @@ end;
 
 //callback function when stream has meta data (analyze_streams meta data)
 procedure TFormVideoWin.ActStreamData(app: Int64);
-var vstrs,astrs,tstrs:TArray<string>;
+var
+vstrs,astrs,tstrs:TArray<string>;
+
 begin
 vstrs:=GStreamer.VideoStrInStream;
 astrs:=GStreamer.AudioStrInStream;
@@ -222,6 +216,7 @@ end;
 
 //--------------------  PosSliderChange &  Timer1Timer ------------------------
 //the PosSliderChange & Timer1Timer are capled -to overcome a bug in vcl
+ { TODO : make a cleaner fix by adding a frame with a trackbar that has a mouse up after change }
 procedure TFormVideoWin.PosSliderChange(Sender: TObject);
 begin
 if not NoSeek then //check if the movment of the slider was done by user
@@ -245,10 +240,10 @@ end;
 procedure TFormVideoWin.CBSrcChange(Sender: TObject);
 var srcStr:string;
 begin  //stream source has been changed by user
+GStreamer.PipeLine.ChangeState(GST_STATE_READY);//stop the current stream
 //set the buttons
-FPlayPauseBtns1.sbStop.Enabled:=false;
-FPlayPauseBtns1.sbPlay.down:=false;
-ActButton(TBtnPressed.bpStop,TBtnsStatus.bsStoped);
+FPlayPauseBtns1.sbPlay.Down:=false;
+FPlayPauseBtns1.Enabled:=false;
 //get & set user src
 srcStr:=CBSrc.Text;
 if not srcStr.StartsWith('https:') then srcStr:='file:///'+srcStr;
@@ -257,7 +252,7 @@ PlayBin.SetAParam('uri',srcStr);
 GStreamer.PipeLine.ChangeState(GST_STATE_PAUSED);
 end;
 
-//load a new
+//to load a new video file
 procedure TFormVideoWin.BLoadClick(Sender: TObject);
 begin //load a file as a stream source
 if DialogSrc.Execute then
