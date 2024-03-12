@@ -370,8 +370,12 @@ _TGstMiniObject= record
   priv_pointer:pointer;  //gpointer
   end;
 
-PGstCaps = ^_TGstCaps;
+PGstEvent = ^_GstEvent;
+_GstEvent = record
+  mini_object:_TGstMiniObject;
+  end;
 
+PGstCaps = ^_TGstCaps;
 _TGstCaps = record
   mini_object:_TGstMiniObject;
   end;
