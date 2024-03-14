@@ -9,6 +9,7 @@ object FPlayPauseBtns: TFPlayPauseBtns
     Left = 6
     Top = 0
     Width = 249
+    Height = 29
     Margins.Left = 6
     Margins.Top = 0
     Margins.Right = 0

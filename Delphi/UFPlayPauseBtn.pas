@@ -65,7 +65,7 @@ FStatus:=Value;
    bsStoped:
      begin
      sbStop.Down:=false;
-     sbStop.Enabled:=false;
+     //sbStop.Enabled:=false;
      end ;
   end;
 end;
