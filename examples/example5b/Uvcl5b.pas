@@ -206,6 +206,7 @@ end;
 //click on the video panel=click on start/pause (like in most video apps)
 procedure TFormVideoWin.PanelVideoClick(Sender: TObject);
 begin  //click on the video is as a click on play/pause button
+FPlayPauseBtns1.sbPlay.down:=not FPlayPauseBtns1.sbPlay.down;
 FPlayPauseBtns1.sbPlayClick(nil);
 end;
 

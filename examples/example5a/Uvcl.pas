@@ -101,6 +101,7 @@ end;
 
 procedure TFormVideoWin.PanelVideoClick(Sender: TObject);
 begin
+FPlayPauseBtns1.sbPlay.down:=not FPlayPauseBtns1.sbPlay.down;
 FPlayPauseBtns1.sbPlayClick(nil);
 end;
 

@@ -205,7 +205,6 @@ object FormVideoWin: TFormVideoWin
       ParentFont = False
       TabOrder = 0
       OnClick = PanelVideoClick
-      ExplicitLeft = 0
     end
     object Panel3: TPanel
       Left = 1
@@ -236,7 +235,6 @@ object FormVideoWin: TFormVideoWin
           Margins.Bottom = 0
           Align = alLeft
           Caption = 'Position:'
-          ExplicitLeft = 6
           ExplicitHeight = 15
         end
         object LPosition: TLabel
@@ -265,8 +263,7 @@ object FormVideoWin: TFormVideoWin
           Margins.Right = 0
           Align = alRight
           Caption = 'Duration:'
-          ExplicitLeft = 426
-          ExplicitTop = 12
+          ExplicitHeight = 15
         end
         object LDuration: TLabel
           AlignWithMargins = True
@@ -292,10 +289,6 @@ object FormVideoWin: TFormVideoWin
           Frequency = 2
           TabOrder = 0
           OnChange = PosSliderChange
-          ExplicitLeft = 112
-          ExplicitTop = 5
-          ExplicitWidth = 357
-          ExplicitHeight = 29
         end
       end
       inline FPlayPauseBtns1: TFPlayPauseBtns
