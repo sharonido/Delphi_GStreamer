@@ -137,8 +137,8 @@ procedure TFormVideoWin.ActPosition(NewPos:Int64);
 begin
 if (NewPos>=0) and not NoPos then
   begin
-  LPosition.Caption:=NanoToSecStr(NewPos);
-  NewPos:=NewPos div GST_100MSEC;
+  LPosition.Caption:=NanoToSec100Str(NewPos);
+  NewPos:=NewPos div GST_10MSEC;
   NoSeek:=true;
   PosSlider.Position:=NewPos;
   NoSeek:=false;
@@ -148,10 +148,10 @@ end;
 //This is a callback from the stream to say it has a duriation
 Procedure TFormVideoWin.ActDuration(NewDuration:Int64);
 begin
-LDuration.Caption:=NanoToSecStr(NewDuration);
+LDuration.Caption:=NanoToSec100Str(NewDuration);
 if NewDuration>0 then
   begin
-  PosSlider.Max:=NewDuration div GST_100MSEC;
+  PosSlider.Max:=NewDuration div GST_10MSEC;
   PosSlider.Frequency:=PosSlider.Max div 10;
   PanelDuration.Visible:=true;
   end;
@@ -175,7 +175,7 @@ procedure TFormVideoWin.Timer1Timer(Sender: TObject);
 begin
 Timer1.Enabled:=false; //close the timer
 //we must not seek before the prev seek finished so we delay (with timer)
-D_query_stream_seek(GStreamer.PipeLine, PosSlider.Position*GST_100MSEC);
+D_query_stream_seek(GStreamer.PipeLine, PosSlider.Position*GST_10MSEC);
 NoPos:=false;  //disable the position update of the slider
 end;
 //-end of  PosSliderChange &  Timer1Timer ------------------------------------

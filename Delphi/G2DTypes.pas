@@ -676,6 +676,7 @@ gst_root_envBin:string='';     //after init =>envirament var..
 //------------------------------------------
 const
 GST_MSECOND=int64(1000000);  //the GST_Clock runs in nano sec so msec is a milion nano
+GST_10MSEC=10*GST_MSECOND;
 GST_100MSEC=100*GST_MSECOND;
 GST_SECOND=1000*GST_MSECOND; //the GST_Clock runs in nano sec so msec is a milion nano
 GST_CLOCK_TIME_NONE=-1;      //-1=>for ever
@@ -687,6 +688,7 @@ procedure WriteError(err:string);
 
 function DateToIso(DT:TDateTime):string;
 function NanoToSecStr(Nano:Uint64):string;
+function NanoToSec100Str(Nano:Uint64):string;
 
 function GstStateName(State:TGstState):string;
 function GstPadLinkReturnName(Ret:TGstPadLinkReturn):string;
@@ -732,11 +734,31 @@ begin
   Result := Format('%d:%.2d:%.2d', [hours, minutes, seconds]);
 end;
 
+function Seconds100ToTimeString(sec100: Int64): string;
+var
+  seconds, hours, minutes: Int64;
+begin
+  hours := sec100 div 360000;
+  sec100 := sec100 mod 360000;
+  minutes := sec100 div 6000;
+  sec100 := sec100 mod 6000;
+  seconds := sec100 div 100;
+  sec100 := sec100 mod 100;
+  Result := Format('%d:%.2d:%.2d:%.2d', [hours, minutes, seconds,sec100]);
+end;
+
 function NanoToSecStr(Nano:Uint64):string;
 begin
   if int64(Nano)<0
     then Result:='Null'
-    else Result:=SecondsToTimeString(Nano div 1000000000);
+    else Result:=SecondsToTimeString(Int64(Nano) div GST_SECOND);
+end;
+
+function NanoToSec100Str(Nano:Uint64):string;
+begin
+  if int64(Nano)<0
+    then Result:='Null'
+    else Result:=Seconds100ToTimeString(Int64(Nano) div GST_10MSEC );
 end;
 
 function GstStateName(State:TGstState):string;
