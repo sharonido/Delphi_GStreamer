@@ -20,11 +20,20 @@ interface
 uses
 //G2DCallDll,  //in implementation anti cyrculer calls
 G2DTypes,
-System.Classes, System.SysUtils, System.Generics.Collections,
-Vcl.Forms, Vcl.ExtCtrls, Vcl.StdCtrls,Vcl.Controls;
+System.Classes, System.SysUtils, System.Generics.Collections, System.UITypes,
+Vcl.Forms, Vcl.ExtCtrls, Vcl.StdCtrls,Vcl.Controls,
+Vcl.Dialogs;
+
 
 // gst objects -----------------------------------------------------------------
 Type
+TAppMsgType=(
+  GstAppMsg =0,
+  GstNewTags=1,
+  EndofStream=2
+  );
+
+
 TGPipeLine=Class;
 
 TGNoUnrefObject=class(tobject)  //object that will not un_ref its RObject
@@ -151,20 +160,25 @@ TGstFrameWork=class(TObject)
   class var fRunForEver:boolean;
   class var fDuration:int64;
   Class var fMemoLog:TMemo;
+  Class var frate:double;
+  Class var fposition:Int64;
   procedure PrTimer(Sender:TObject);
   class function GetVideoStrInStream:TArray<String>; static;
   class function GetAudioStrInStream:TArray<String>; static;
   class function GetTextStrInStream:TArray<String>; static;
   class procedure SetMemoLog(m:TMemo);static;
+  class procedure SetRate(R:double);static;
   public
   class var MsgFilter:integer;
   class var MsgResult:TGstMessageType;
+  class var Sink:PGstElement;
   class var MsgTimer:TTimer;
   class var OnDuration:TGetInt64Event;
   class var OnPosition:TGetInt64Event;
   class var OnApplication:TGetInt64Event;
   class var OnChangeStatus:TGetGStateEvent;
   //class property MsgUsed:Boolean read fMsgUsed;
+  class property Position:Int64 read fposition;
   class property Started:Boolean read fStarted;
   class Property PipeLine:TGPipeLine read fPipeline;
   class Property Bus:TGBus read fBus;
@@ -174,6 +188,7 @@ TGstFrameWork=class(TObject)
   class Property TextStrInStream:TArray<String> read GetTextStrInStream;
   class Property Msg:TGMsg read fMsg write fMsg;
   class Property MemoLog:TMemo read fMemoLog write setMemoLog;
+  class Property Rate:double read frate write SetRate;
   //class Property Running:boolean read frunning;
   class Property State:TGstState read fState;
   class Property G2DTerminate:Boolean read fterminate write fterminate;
@@ -326,12 +341,12 @@ inherited Create;
 fname:=ansistring(Aname);
 ParamList:=params.Trim.Split([' ',#9]);
 if length(ParamList)<1 then
-  WriteOutln('Error in GPlugIn.Create -no name');
+  WriteError('Error in GPlugIn.Create -no name');
 Ffactory_name:=ansistring(ParamList[0]);
 if AName='' then AName:=ParamList[0];
 RObject:=_Gst_element_factory_make(ansistring(ParamList[0]),fname);
 if RObject=nil
-  then WriteOutLn ('Error '+AName+' was not created')
+  then WriteError ('Error '+AName+' was not created')
   else WriteOutLn (AName+' was created');
 SetParams;
 End;
@@ -404,7 +419,7 @@ for I := 0 to PlugIns.Count-2 do
   if not D_element_link(PlugIns[I],PlugIns[I+1])
     then
     begin
-    WriteOutln('Error '+PlugIns[I].Name+' did not link to '+PlugIns[I+1].Name);
+    WriteError('Error '+PlugIns[I].Name+' did not link to '+PlugIns[I+1].Name);
     exit;
     end;
 
@@ -466,6 +481,8 @@ if (RMsg <> nil) then  // There is a msg
       begin
       WriteOutln('');
       WriteOutln('End-Of-Stream reached.');
+      if Assigned(TGstFrameWork.OnApplication) then
+        TGstFrameWork.OnApplication(Int64(EndofStream));
       TGstFrameWork.fMsgUsed:=true;
       TGstFrameWork.fterminate := TRUE;
       end;
@@ -496,9 +513,9 @@ if (RMsg <> nil) then  // There is a msg
     GST_MESSAGE_APPLICATION:
       Begin
       if Assigned(TGstFrameWork.OnApplication) then
-        TGstFrameWork.OnApplication(0);
+        TGstFrameWork.OnApplication(Int64(GstAppMsg));
       End;
-    else WriteOutln('Internal error in - GMsg.Create');
+    else WriteError('Internal error in - GMsg.Create');
     end;
   end;
 end;
@@ -543,6 +560,8 @@ if fStarted
              integer(GST_MESSAGE_APPLICATION);
   fterminate:=false;
   fDuration:=-1;
+  frate:=1;
+  Sink:=nil;
   fMsgResult:=TGstMessageType.GST_MESSAGE_UNKNOWN;
   if G2DcheckEnvironment and //check the GStreamer Enviroment on this machine
       G2dDllLoad then //check if G2D.dll was loaded, if not load it
@@ -601,7 +620,7 @@ for I := 0 to n_audio-1 do
       then Result[i]:='codec: '+string(pcstr)
       else Result[i]:='codec: unknown';
     if _Gst_tag_list_get_string(tags,pansichar('language-code'),@pcstr) and Assigned(pcstr)
-      then Result[i]:=Result[i]+'; Language:'+string(pcstr);
+      then Result[i]:=Result[i]+'; Language: '+string(pcstr);
     BR:=0;
     if _Gst_tag_list_get_uint(tags,pansichar('bitrate'),@BR) and (BR<>0)
       then Result[i]:=Result[i]+';  Bitrate='+(BR div 1000).ToString+'K';
@@ -625,7 +644,7 @@ for I := 0 to n_text-1 do
   _G_signal_emit_by_name_int(fTagedPlugin.RealObject,pansichar('get-text-tags'),I,@tags);
   if Assigned(tags) then
     if _Gst_tag_list_get_string(tags,pansichar('language-code'),@pcstr) and Assigned(pcstr)
-      then Result[i]:=Result[i]+'; Language:'+string(pcstr)
+      then Result[i]:='Language: '+string(pcstr)
       else Result[i]:='Language: unkown';
   end;
 end;
@@ -658,7 +677,6 @@ for I := 0 to n_video-1 do
 end;
 
 procedure TGstFrameWork.PrTimer(Sender:TObject);
-var Nano:Int64;
 begin
 //CheckMsgAndRunFor(0); //check for a new message -without waiting (3 times a sec)
 CheckMsg; //check for a new message -without waiting (3 times a sec)
@@ -675,8 +693,8 @@ if (fDuration>0) and
   Assigned(OnDuration) and Assigned(OnPosition)
   then
   begin
-  D_query_stream_position(PipeLine ,Nano);
-  OnPosition(Nano);
+  D_query_stream_position(PipeLine ,fPosition);
+  OnPosition(fPosition);
   end;
 end;
 
@@ -712,7 +730,7 @@ PadSink:=TGPad.CreateStatic(Plug, 'sink');
 WriteOutLn('The '+Plug.Name+' requested sink pad obtained as '+PadSink.Name);
   // link tee_audio_PadSrc to queue_audio_PadSink
 if GST_PAD_LINK_OK<>PadSrc.LinkToSink(PadSink)
-  then WriteOutLn('Error in link '+PadSrc.Name+' to '+PadSink.Name)
+  then WriteError('Error in link '+PadSrc.Name+' to '+PadSink.Name)
   else
   begin
   WriteOutLn('Pads were linked');
@@ -735,7 +753,7 @@ if Started then //check if G2D.dll was loaded, if not load it
   //the pipeline (they are still not connected to one another)
   if length(PlugStrs)<1 then
     begin
-    WriteOutln('Error no plugins where provided');
+    WriteError('Error no plugins where provided');
     exit;
     end;
   for I := 0 to length(PlugStrs)-1 do
@@ -743,7 +761,7 @@ if Started then //check if G2D.dll was loaded, if not load it
     Plug:=TGPlugin.Create(PlugStrs[i]);
     if not Plug.isCreated then
       begin
-      WriteOutln('Error - Plug in  '+Plug.name+' was not found and not created');
+      WriteError('Error - Plug in  '+Plug.name+' was not found and not created');
       PipeLine.Free;
       fPipeLine:=nil;
       exit;
@@ -753,7 +771,7 @@ if Started then //check if G2D.dll was loaded, if not load it
   WriteOutln('pipeline was built successfully');
   Result:=true;
   end
-  else WriteOutln('GStreamer framework did not start error');
+  else WriteError('GStreamer framework did not start error');
 end;
 //****************************************************************************************************************
 
@@ -810,6 +828,65 @@ PadCapabilityString:=ansistring(capabilityStr);
 _G_signal_connect (SrcPad.RealObject, ansistring('pad-added'), @pad_added_handler, SinkPad.RealObject);
 end;
 
+class procedure TGstFrameWork.SetRate(R: double);
+var
+position  :int64;
+seek_event:PGstEvent;
+begin
+if Sink=nil then
+_G_object_get (pipeline.RealObject,pansichar('video-sink'), @Sink);
+if Sink=nil then
+  _G_object_get (pipeline.PlugIns[0].RealObject,pansichar('video-sink'), @Sink);
+if Sink=nil
+  then WriteError('No video_sink found in GStreamer SetRate')
+  else
+  begin
+  if not D_query_stream_position(pipeline, position)
+    then WriteError('No position in GStreamer SetRate')
+    else
+    begin
+    if R>0
+    then seek_event := _Gst_event_new_seek (R, GST_FORMAT_TIME,
+          integer(GST_SEEK_FLAG_FLUSH) or integer(GST_SEEK_FLAG_ACCURATE),
+          GST_SEEK_TYPE_SET, position, GST_SEEK_TYPE_END, 0)
+    else seek_event := _Gst_event_new_seek (R, GST_FORMAT_TIME,
+          integer(GST_SEEK_FLAG_FLUSH) or integer(GST_SEEK_FLAG_ACCURATE),
+          GST_SEEK_TYPE_SET, 0, GST_SEEK_TYPE_SET, position);
+
+    if seek_event=nil
+      then WriteError('Internal seek_event was not created' )
+      else if  _Gst_element_send_event (Sink, seek_event)
+      then frate:=R
+      else WriteError('This video clip did not respond'+sLineBreak+'to "change speed" cmd');
+    end;
+  end;
+end;
+(*
+
+  /* Create the seek event */
+  if (data->rate > 0) {
+    seek_event =
+        gst_event_new_seek (data->rate, GST_FORMAT_TIME,
+        GST_SEEK_FLAG_FLUSH | GST_SEEK_FLAG_ACCURATE, GST_SEEK_TYPE_SET,
+        position, GST_SEEK_TYPE_END, 0);
+  } else {
+    seek_event =
+        gst_event_new_seek (data->rate, GST_FORMAT_TIME,
+        GST_SEEK_FLAG_FLUSH | GST_SEEK_FLAG_ACCURATE, GST_SEEK_TYPE_SET, 0,
+        GST_SEEK_TYPE_SET, position);
+  }
+
+  if (data->video_sink == NULL) {
+    /* If we have not done so, obtain the sink through which we will send the seek events */
+    g_object_get (data->pipeline, "video-sink", &data->video_sink, NULL);
+  }
+
+  /* Send the event */
+  gst_element_send_event (data->video_sink, seek_event);
+
+  g_print ("Current rate: %g\n", data->rate);
+
+*)
 
 //callback function when tags are changed in stream(playbin)
 procedure tags_cb (playbin :PGstElement;  stream:integer; data:pointer); cdecl;
@@ -822,7 +899,7 @@ System.Classes.TThread.Synchronize(nil,
 procedure
   begin
     if Assigned(TGstFrameWork.OnApplication)
-      then TGstFrameWork.OnApplication(1)
+      then TGstFrameWork.OnApplication(Int64(GstNewTags))
   end);
 end;
 
@@ -849,7 +926,7 @@ if State=GST_STATE_PLAYING
   else
   begin
   Result:=false;
-  WriteOutln('Error Gstreamer did not run');
+  WriteError('Error Gstreamer did not run');
   end;
 end;
 
@@ -859,7 +936,7 @@ begin
 SinkPlug:=PipeLine.GetPlugByName(SinkPlugName); //SinkPlugin
 If Assigned(SinkPlug)
   then _Gst_video_overlay_set_window_handle(SinkPlug.RealObject,WinCon.Handle)
-  else writeoutln('Error - '+SinkPlugName+' PlugIn not found in SetVisualWindow');
+  else WriteError('Error - '+SinkPlugName+' PlugIn not found in SetVisualWindow');
 end;
 
 function TGstFrameWork.SimpleBuildLink(params:string):boolean;

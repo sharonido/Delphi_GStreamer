@@ -96,6 +96,9 @@ TGst_buffer_unmap = procedure (buffer:PGstBuffer;info :PGstMapInfo);cdecl;
 TGst_buffer_unref= procedure(buf :PGstBuffer);cdecl;
 TGst_sample_unref = procedure(sample :PGstSample);cdecl;
 TGst_sample_get_buffer = function(sample: pointer):PGstBuffer;cdecl;
+TGst_event_new_seek = function(rate:double; format:TGstFormat; flags:integer;//TGstSeekFlags;
+    start_type:TGstSeekType; start:int64; stop_type:TGstSeekType; stop:int64):PGstEvent;cdecl;
+TGst_element_send_event = function(element:PGstElement; event:PGstEvent):boolean;cdecl;
 // ---End of types of functions/procedures to find in G2D.dll ---
 
 
@@ -164,6 +167,8 @@ _Gst_buffer_unmap             :TGst_buffer_unmap;
 _Gst_sample_unref             :TGst_sample_unref;
 _Gst_buffer_unref             :TGst_buffer_unref;
 _Gst_sample_get_buffer        :TGst_sample_get_buffer;
+_Gst_event_new_seek           :TGst_event_new_seek;
+_Gst_element_send_event       :TGst_element_send_event;
 //End of The GST functions that point to nil but will get the right address in G2D.dll by setProcFromDll in G2dDllLoad
 
 DiTmp1,DiTmp2:Ppointer; //for debuging only
@@ -376,7 +381,9 @@ if G2dDllHnd=0 then
      setProcFromDll(@_Gst_buffer_unmap,'_Gst_buffer_unmap')or
      setProcFromDll(@_Gst_sample_unref,'_Gst_sample_unref')or
      setProcFromDll(@_Gst_buffer_unref,'_Gst_buffer_unref')or
-     setProcFromDll(@_Gst_sample_get_buffer,'_Gst_sample_get_buffer')
+     setProcFromDll(@_Gst_sample_get_buffer,'_Gst_sample_get_buffer')or
+     setProcFromDll(@_Gst_event_new_seek,'_Gst_event_new_seek')or
+     setProcFromDll(@_Gst_element_send_event,'_Gst_element_send_event')
 
 
      //never used or setProcFromDll(@_G_object_set_double,'_G_object_set_double')
@@ -464,7 +471,6 @@ Result:=D_element_link(Pipe.GetPlugByName(PlugSrcName),Pipe.GetPlugByName(PlugSi
 end;
 //------------------------------------------
 //GPlugin
-//function D_query_stream_position(const Plug:TGstElement;var pos:Int64):boolean;
 function D_query_stream_position(const Plug:TGstElement;var pos:Int64):boolean;
 begin
 result:=_Gst_element_query_position(Plug.RealObject,GST_FORMAT_TIME,@pos) and (pos>=0);
