@@ -20,7 +20,8 @@ uses
 {$IFDEF MSWINDOWS}
 Winapi.Windows,
 {$ENDIF }
-System.SysUtils;
+System.SysUtils, System.UITypes,
+Vcl.Forms, Vcl.Dialogs;
 // Types  & Const -------------------------------------------------------------
 
 const
@@ -213,6 +214,11 @@ TGstSeekFlags =(
   GST_SEEK_FLAG_TRICKMODE_FORWARD_PREDICTED = (1 shl 9),
   GST_SEEK_FLAG_INSTANT_RATE_CHANGE = (1 shl 10));
 
+TGstSeekType =(
+  GST_SEEK_TYPE_NONE            = 0,
+  GST_SEEK_TYPE_SET             = 1,
+  GST_SEEK_TYPE_END             = 2
+);
   //*********************
 TGstMessageType=(
   GST_MESSAGE_UNKNOWN           = 0,
@@ -373,6 +379,11 @@ _TGstMiniObject= record
 PGstEvent = ^_GstEvent;
 _GstEvent = record
   mini_object:_TGstMiniObject;
+  //*< public >*/ /* with COW */
+  EventType :uint32;     //GstEventType  type; (GstEventType is a enum with size 0f 4)
+  //* FIXME 2.0: Remove the GstEvent::timestamp field */
+  timestamp :uint64;    //guint64       timestamp;
+  seqnum    :uint32;    //guint32       seqnum;
   end;
 
 PGstCaps = ^_TGstCaps;
@@ -672,6 +683,7 @@ DoForEver=GST_CLOCK_TIME_NONE;
 
 procedure WriteOutln(st:string);
 procedure stdWriteOut(st:string);
+procedure WriteError(err:string);
 
 function DateToIso(DT:TDateTime):string;
 function NanoToSecStr(Nano:Uint64):string;
@@ -694,6 +706,13 @@ procedure WriteOutln(st:string);
 begin
 If Assigned(WriteOut)
   then WriteOut(st+sLineBreak)
+end;
+
+procedure WriteError(err:string);
+begin
+WriteOutln(err);
+if assigned(Application) then
+    MessageDlg(err, mtInformation, [mbOk], 0, mbOk);
 end;
 //------------------------------------------------------------------------------
 function DateToIso(DT:TDateTime):string;
