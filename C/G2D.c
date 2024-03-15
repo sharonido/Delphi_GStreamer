@@ -231,3 +231,12 @@ void _Gst_buffer_unref(GstBuffer* buf) {
 GstBuffer* _Gst_sample_get_buffer(GstSample* sample) {
     gst_sample_get_buffer(sample);
 }
+
+GstEvent* _Gst_event_new_seek(gdouble rate, GstFormat format, GstSeekFlags flags, GstSeekType start_type, gint64 start,
+    GstSeekType stop_type, gint64 stop) G_GNUC_MALLOC {
+    return gst_event_new_seek(rate, format, flags, start_type, start, stop_type, stop);
+}
+
+gboolean _Gst_element_send_event(GstElement* element, GstEvent* event) {
+    return gst_element_send_event(element, event);
+}

@@ -79,3 +79,7 @@ extern EXPORTDLL void _Gst_buffer_unmap(GstBuffer* buffer, GstMapInfo* info);
 extern EXPORTDLL void _Gst_sample_unref(GstSample* sample);
 extern EXPORTDLL void _Gst_buffer_unref(GstBuffer* buf);
 extern EXPORTDLL GstBuffer* _Gst_sample_get_buffer(GstSample* sample);
+extern EXPORTDLL GstEvent* _Gst_event_new_seek(gdouble rate, GstFormat format, GstSeekFlags flags, GstSeekType start_type, gint64 start,
+    GstSeekType stop_type, gint64 stop) G_GNUC_MALLOC;
+extern EXPORTDLL gboolean _Gst_element_send_event(GstElement* element, GstEvent* event);
+
