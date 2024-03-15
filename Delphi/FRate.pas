@@ -14,12 +14,12 @@ type
     { Private declarations }
     findex:integer;
     Arr:Array[-3..4] of double;
-    Procedure Loaded;override;
     function GetRate:double;
     procedure SetRate(v:double);
     procedure ShowRate;
   public
     { Public declarations }
+    Procedure Loaded;override;
     property rate:double read GetRate write SetRate;
     procedure Up;
     procedure Dn;
