@@ -240,3 +240,6 @@ GstEvent* _Gst_event_new_seek(gdouble rate, GstFormat format, GstSeekFlags flags
 gboolean _Gst_element_send_event(GstElement* element, GstEvent* event) {
     return gst_element_send_event(element, event);
 }
+GstElement* _Gst_parse_launch(const gchar* pipeline_description, GError** error) {
+    return gst_parse_launch(pipeline_description, error);
+}

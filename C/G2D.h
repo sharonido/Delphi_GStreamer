@@ -82,4 +82,6 @@ extern EXPORTDLL GstBuffer* _Gst_sample_get_buffer(GstSample* sample);
 extern EXPORTDLL GstEvent* _Gst_event_new_seek(gdouble rate, GstFormat format, GstSeekFlags flags, GstSeekType start_type, gint64 start,
     GstSeekType stop_type, gint64 stop) G_GNUC_MALLOC;
 extern EXPORTDLL gboolean _Gst_element_send_event(GstElement* element, GstEvent* event);
+extern EXPORTDLL GstElement* _Gst_parse_launch(const gchar* pipeline_description,
+    GError** error) G_GNUC_MALLOC;
 
