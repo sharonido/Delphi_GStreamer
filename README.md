@@ -16,11 +16,9 @@ You should download & read the word document [**Gstreamer for Delphi G2D.docx**]
 ## Be Aware
 This G2D framework is in new stages of construction!!!
 In this stage, it supports limited operation.
-Here is a partly list of limitations:
--	Support only windows (tested on windows 10 & 11 desktop only)
--	Support only programs compiled in 64 bit
--	Support only desktops that installed the full GStreamer for windows “x86_64” (the 64-bit version). In addition, did not customize any directory places etc.
-
+Here is a partly list of limitations:<br>
+-       Support only windows (tested on windows 10 & 11 desktop only)
+-       Support only programs compiled in 64 bit
 ## Installation
 If you only want to use the Basic you only need to
 Install the G2D that is the bridge between Delphi and GStreamer, that is here by:
