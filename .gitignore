@@ -15,6 +15,7 @@ Win32/
 Win64/
 Debug/
 Release/
+tmp/
 
 # Executables / binaries
 *.exe
