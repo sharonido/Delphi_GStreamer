@@ -1,0 +1,144 @@
+﻿<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+    <PropertyGroup>
+        <ProjectGuid>{31AD8FA9-BA22-4ED0-9B42-6B638FE8EA43}</ProjectGuid>
+    </PropertyGroup>
+    <ItemGroup>
+        <Projects Include="example1\PG2DExample1.dproj">
+            <Dependencies/>
+        </Projects>
+        <Projects Include="example2\PG2DExample2.dproj">
+            <Dependencies/>
+        </Projects>
+        <Projects Include="example2\PG2DExample2W.dproj">
+            <Dependencies/>
+        </Projects>
+        <Projects Include="example3\PG2DExample3.dproj">
+            <Dependencies/>
+        </Projects>
+        <Projects Include="example4\PG2DExample4.dproj">
+            <Dependencies/>
+        </Projects>
+        <Projects Include="example4\PG2DExample4W.dproj">
+            <Dependencies/>
+        </Projects>
+        <Projects Include="example5\PG2DExample5W.dproj">
+            <Dependencies/>
+        </Projects>
+        <Projects Include="example6\PG2DExample6W.dproj">
+            <Dependencies/>
+        </Projects>
+        <Projects Include="example7\PG2DExample7W.dproj">
+            <Dependencies/>
+        </Projects>
+        <Projects Include="example8\PG2DExample8W.dproj">
+            <Dependencies/>
+        </Projects>
+    </ItemGroup>
+    <ProjectExtensions>
+        <Borland.Personality>Default.Personality.12</Borland.Personality>
+        <Borland.ProjectType/>
+        <BorlandProject>
+            <Default.Personality/>
+        </BorlandProject>
+    </ProjectExtensions>
+    <Target Name="PG2DExample1">
+        <MSBuild Projects="example1\PG2DExample1.dproj"/>
+    </Target>
+    <Target Name="PG2DExample1:Clean">
+        <MSBuild Projects="example1\PG2DExample1.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="PG2DExample1:Make">
+        <MSBuild Projects="example1\PG2DExample1.dproj" Targets="Make"/>
+    </Target>
+    <Target Name="PG2DExample2">
+        <MSBuild Projects="example2\PG2DExample2.dproj"/>
+    </Target>
+    <Target Name="PG2DExample2:Clean">
+        <MSBuild Projects="example2\PG2DExample2.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="PG2DExample2:Make">
+        <MSBuild Projects="example2\PG2DExample2.dproj" Targets="Make"/>
+    </Target>
+    <Target Name="PG2DExample2W">
+        <MSBuild Projects="example2\PG2DExample2W.dproj"/>
+    </Target>
+    <Target Name="PG2DExample2W:Clean">
+        <MSBuild Projects="example2\PG2DExample2W.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="PG2DExample2W:Make">
+        <MSBuild Projects="example2\PG2DExample2W.dproj" Targets="Make"/>
+    </Target>
+    <Target Name="PG2DExample3">
+        <MSBuild Projects="example3\PG2DExample3.dproj"/>
+    </Target>
+    <Target Name="PG2DExample3:Clean">
+        <MSBuild Projects="example3\PG2DExample3.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="PG2DExample3:Make">
+        <MSBuild Projects="example3\PG2DExample3.dproj" Targets="Make"/>
+    </Target>
+    <Target Name="PG2DExample4">
+        <MSBuild Projects="example4\PG2DExample4.dproj"/>
+    </Target>
+    <Target Name="PG2DExample4:Clean">
+        <MSBuild Projects="example4\PG2DExample4.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="PG2DExample4:Make">
+        <MSBuild Projects="example4\PG2DExample4.dproj" Targets="Make"/>
+    </Target>
+    <Target Name="PG2DExample4W">
+        <MSBuild Projects="example4\PG2DExample4W.dproj"/>
+    </Target>
+    <Target Name="PG2DExample4W:Clean">
+        <MSBuild Projects="example4\PG2DExample4W.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="PG2DExample4W:Make">
+        <MSBuild Projects="example4\PG2DExample4W.dproj" Targets="Make"/>
+    </Target>
+    <Target Name="PG2DExample5W">
+        <MSBuild Projects="example5\PG2DExample5W.dproj"/>
+    </Target>
+    <Target Name="PG2DExample5W:Clean">
+        <MSBuild Projects="example5\PG2DExample5W.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="PG2DExample5W:Make">
+        <MSBuild Projects="example5\PG2DExample5W.dproj" Targets="Make"/>
+    </Target>
+    <Target Name="PG2DExample6W">
+        <MSBuild Projects="example6\PG2DExample6W.dproj"/>
+    </Target>
+    <Target Name="PG2DExample6W:Clean">
+        <MSBuild Projects="example6\PG2DExample6W.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="PG2DExample6W:Make">
+        <MSBuild Projects="example6\PG2DExample6W.dproj" Targets="Make"/>
+    </Target>
+    <Target Name="PG2DExample7W">
+        <MSBuild Projects="example7\PG2DExample7W.dproj"/>
+    </Target>
+    <Target Name="PG2DExample7W:Clean">
+        <MSBuild Projects="example7\PG2DExample7W.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="PG2DExample7W:Make">
+        <MSBuild Projects="example7\PG2DExample7W.dproj" Targets="Make"/>
+    </Target>
+    <Target Name="PG2DExample8W">
+        <MSBuild Projects="example8\PG2DExample8W.dproj"/>
+    </Target>
+    <Target Name="PG2DExample8W:Clean">
+        <MSBuild Projects="example8\PG2DExample8W.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="PG2DExample8W:Make">
+        <MSBuild Projects="example8\PG2DExample8W.dproj" Targets="Make"/>
+    </Target>
+    <Target Name="Build">
+        <CallTarget Targets="PG2DExample1;PG2DExample2;PG2DExample2W;PG2DExample3;PG2DExample4;PG2DExample4W;PG2DExample5W;PG2DExample6W;PG2DExample7W;PG2DExample8W"/>
+    </Target>
+    <Target Name="Clean">
+        <CallTarget Targets="PG2DExample1:Clean;PG2DExample2:Clean;PG2DExample2W:Clean;PG2DExample3:Clean;PG2DExample4:Clean;PG2DExample4W:Clean;PG2DExample5W:Clean;PG2DExample6W:Clean;PG2DExample7W:Clean;PG2DExample8W:Clean"/>
+    </Target>
+    <Target Name="Make">
+        <CallTarget Targets="PG2DExample1:Make;PG2DExample2:Make;PG2DExample2W:Make;PG2DExample3:Make;PG2DExample4:Make;PG2DExample4W:Make;PG2DExample5W:Make;PG2DExample6W:Make;PG2DExample7W:Make;PG2DExample8W:Make"/>
+    </Target>
+    <Import Project="$(BDS)\Bin\CodeGear.Group.Targets" Condition="Exists('$(BDS)\Bin\CodeGear.Group.Targets')"/>
+</Project>

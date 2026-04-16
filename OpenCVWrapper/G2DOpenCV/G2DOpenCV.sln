@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.14.36518.9 d17.14
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "G2DOpenCV", "G2DOpenCV.vcxproj", "{8A0A88F3-E701-44CD-A7CC-6386777B026B}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|x64 = Debug|x64
+		Debug|x86 = Debug|x86
+		Release|x64 = Release|x64
+		Release|x86 = Release|x86
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{8A0A88F3-E701-44CD-A7CC-6386777B026B}.Debug|x64.ActiveCfg = Debug|x64
+		{8A0A88F3-E701-44CD-A7CC-6386777B026B}.Debug|x64.Build.0 = Debug|x64
+		{8A0A88F3-E701-44CD-A7CC-6386777B026B}.Debug|x86.ActiveCfg = Debug|Win32
+		{8A0A88F3-E701-44CD-A7CC-6386777B026B}.Debug|x86.Build.0 = Debug|Win32
+		{8A0A88F3-E701-44CD-A7CC-6386777B026B}.Release|x64.ActiveCfg = Release|x64
+		{8A0A88F3-E701-44CD-A7CC-6386777B026B}.Release|x64.Build.0 = Release|x64
+		{8A0A88F3-E701-44CD-A7CC-6386777B026B}.Release|x86.ActiveCfg = Release|Win32
+		{8A0A88F3-E701-44CD-A7CC-6386777B026B}.Release|x86.Build.0 = Release|Win32
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {948F86A8-078F-4FC2-A0D1-F1D86E2727DC}
+	EndGlobalSection
+EndGlobal

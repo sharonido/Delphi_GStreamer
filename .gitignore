@@ -1,0 +1,33 @@
+# Delphi / RAD Studio
+__history/
+*.dcu
+*.dcp
+*.identcache
+*.local
+*.stat
+*.res
+*.dsk
+*.map
+*.rsm
+
+# Build folders
+Win32/
+Win64/
+Debug/
+Release/
+
+# Executables / binaries
+*.exe
+*.dll
+*.bpl
+
+# Backup files
+*.~*
+*.bak
+
+# Logs
+*.log
+
+# OS
+Thumbs.db
+.DS_Store
