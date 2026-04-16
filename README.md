@@ -49,8 +49,7 @@ This wrraper is made out of 4 Layers in 4 directories:<br>
 -       A Types layer in "G_Types" directory defines types used in GStreamer.<br>
 -       An API layer in "G_API" directory calls function in GStreamer DLLs.<br>
 -       A Base layer in "G_DBase" directory defines classes that wrap the C semi classes used in GStreamer.<br>
--       A Unit layer in "G_DUnit" directory defines classes that wrap the Framework itself and classes
-that you can build your own elements by inheriting from them as shown in Building new Elements directory.<br>
+-       A Unit layer in "G_DUnit" directory defines classes that wrap the Framework itself and classes that you can build your own elements by inheriting from them as shown in Building new Elements directory.<br>
 
 These files should be included in the uses of your project and in the units
 that use them like in the examples provided in the Tutorials directory.<br>
