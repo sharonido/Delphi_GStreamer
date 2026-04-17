@@ -122,7 +122,7 @@ procedure TRotateFilter.SetAngle(AAngle: Double);
 begin
   FLockAngle.Acquire;
   try
-    FAngle := AAngle;
+    FAngle := -AAngle;
   finally
     FLockAngle.Release;
   end;

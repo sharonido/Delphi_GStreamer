@@ -243,7 +243,8 @@ object Form1: TForm1
         Font.Style = []
         Lines.Strings = (
           'This is part of G2D GStreamer to delphi project'
-          'This is a simple video element that Rotates the Video.'#11
+          'This is a simple video element that Rotates the Video.'
+          ''
           ''
           'We used OpenCV so the computation is fast')
         ParentFont = False
