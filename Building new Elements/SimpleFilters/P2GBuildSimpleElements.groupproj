@@ -1,0 +1,84 @@
+﻿<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+    <PropertyGroup>
+        <ProjectGuid>{38E3771A-89FC-433A-8BF7-45822234AF55}</ProjectGuid>
+    </PropertyGroup>
+    <ItemGroup>
+        <Projects Include="VideoDoNothing\PG2DExampleDoNothingFilter.dproj">
+            <Dependencies/>
+        </Projects>
+        <Projects Include="VideoRed2Green\PG2DExampleR2GFilter.dproj">
+            <Dependencies/>
+        </Projects>
+        <Projects Include="VideoPutTextOnVideo\PG2DExTextFilter.dproj">
+            <Dependencies/>
+        </Projects>
+        <Projects Include="VideoRotateWithOpenCv\PG2RotateWOpenCV.dproj">
+            <Dependencies/>
+        </Projects>
+        <Projects Include="AudioEqualizer\PG2DAudioEqualizer.dproj">
+            <Dependencies/>
+        </Projects>
+    </ItemGroup>
+    <ProjectExtensions>
+        <Borland.Personality>Default.Personality.12</Borland.Personality>
+        <Borland.ProjectType/>
+        <BorlandProject>
+            <Default.Personality/>
+        </BorlandProject>
+    </ProjectExtensions>
+    <Target Name="PG2DExampleDoNothingFilter">
+        <MSBuild Projects="VideoDoNothing\PG2DExampleDoNothingFilter.dproj"/>
+    </Target>
+    <Target Name="PG2DExampleDoNothingFilter:Clean">
+        <MSBuild Projects="VideoDoNothing\PG2DExampleDoNothingFilter.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="PG2DExampleDoNothingFilter:Make">
+        <MSBuild Projects="VideoDoNothing\PG2DExampleDoNothingFilter.dproj" Targets="Make"/>
+    </Target>
+    <Target Name="PG2DExampleR2GFilter">
+        <MSBuild Projects="VideoRed2Green\PG2DExampleR2GFilter.dproj"/>
+    </Target>
+    <Target Name="PG2DExampleR2GFilter:Clean">
+        <MSBuild Projects="VideoRed2Green\PG2DExampleR2GFilter.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="PG2DExampleR2GFilter:Make">
+        <MSBuild Projects="VideoRed2Green\PG2DExampleR2GFilter.dproj" Targets="Make"/>
+    </Target>
+    <Target Name="PG2DExTextFilter">
+        <MSBuild Projects="VideoPutTextOnVideo\PG2DExTextFilter.dproj"/>
+    </Target>
+    <Target Name="PG2DExTextFilter:Clean">
+        <MSBuild Projects="VideoPutTextOnVideo\PG2DExTextFilter.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="PG2DExTextFilter:Make">
+        <MSBuild Projects="VideoPutTextOnVideo\PG2DExTextFilter.dproj" Targets="Make"/>
+    </Target>
+    <Target Name="PG2RotateWOpenCV">
+        <MSBuild Projects="VideoRotateWithOpenCv\PG2RotateWOpenCV.dproj"/>
+    </Target>
+    <Target Name="PG2RotateWOpenCV:Clean">
+        <MSBuild Projects="VideoRotateWithOpenCv\PG2RotateWOpenCV.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="PG2RotateWOpenCV:Make">
+        <MSBuild Projects="VideoRotateWithOpenCv\PG2RotateWOpenCV.dproj" Targets="Make"/>
+    </Target>
+    <Target Name="PG2DAudioEqualizer">
+        <MSBuild Projects="AudioEqualizer\PG2DAudioEqualizer.dproj"/>
+    </Target>
+    <Target Name="PG2DAudioEqualizer:Clean">
+        <MSBuild Projects="AudioEqualizer\PG2DAudioEqualizer.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="PG2DAudioEqualizer:Make">
+        <MSBuild Projects="AudioEqualizer\PG2DAudioEqualizer.dproj" Targets="Make"/>
+    </Target>
+    <Target Name="Build">
+        <CallTarget Targets="PG2DExampleDoNothingFilter;PG2DExampleR2GFilter;PG2DExTextFilter;PG2RotateWOpenCV;PG2DAudioEqualizer"/>
+    </Target>
+    <Target Name="Clean">
+        <CallTarget Targets="PG2DExampleDoNothingFilter:Clean;PG2DExampleR2GFilter:Clean;PG2DExTextFilter:Clean;PG2RotateWOpenCV:Clean;PG2DAudioEqualizer:Clean"/>
+    </Target>
+    <Target Name="Make">
+        <CallTarget Targets="PG2DExampleDoNothingFilter:Make;PG2DExampleR2GFilter:Make;PG2DExTextFilter:Make;PG2RotateWOpenCV:Make;PG2DAudioEqualizer:Make"/>
+    </Target>
+    <Import Project="$(BDS)\Bin\CodeGear.Group.Targets" Condition="Exists('$(BDS)\Bin\CodeGear.Group.Targets')"/>
+</Project>

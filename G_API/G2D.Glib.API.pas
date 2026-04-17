@@ -52,8 +52,8 @@ var
   { Tutorial 6 - Quark }
   _g_quark_to_string: function(quark: GQuark): Pgchar; cdecl = nil;
 
-
-function G2D_LoadDLLModule(const ADllPath: string): HMODULE;
+  NormalGstSearch:boolean=true;
+function G2D_LoadDLLModule(const ADllPath: string; GstModule:boolean=true): HMODULE;
 function G2D_LoadGlib: Boolean;
 procedure G2D_UnloadGlib;
 function G2D_GlibLoadedOK: Boolean;
@@ -184,11 +184,12 @@ begin
   end;
 end;
 
-function G2D_LoadDLLModule(const ADllPath: string): HMODULE;
+function G2D_LoadDLLModule(const ADllPath: string; GstModule:boolean=true): HMODULE;
 var
   LHandle  : HMODULE;
   LFound   : string;
   LDllName : string;
+  DllsDir  :string;
 begin
   if ADllPath = '' then
     raise EG2DAPILoaderError.Create('DLL name/path is empty');
@@ -202,7 +203,8 @@ begin
     Exit;
   end;
 
-  { Step 2: walk up from exe dir looking for a DLLs\ sibling folder }
+  { Step 2: If norma search failed
+    walk up from exe dir looking for a DLLs\ sibling folder }
   LDllName := ExtractFileName(ADllPath);
   LFound   := G2D_FindInDLLsFolder(LDllName);
   if LFound <> '' then
@@ -211,6 +213,12 @@ begin
     if LHandle <> 0 then
     begin
       Result := LHandle;
+      if GstModule then
+        begin
+          DLLsDir := ExcludeTrailingPathDelimiter(ExtractFilePath(LFound));
+          SetDllDirectory(PChar(DLLsDir));
+          NormalGstSearch:=false;
+        end;
       Exit;
     end;
   end;

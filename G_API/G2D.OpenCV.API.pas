@@ -124,7 +124,7 @@ begin
 
   _ResetOpenCVPointers;
 
-  G2D_OpenCVHandle := G2D_LoadDLLModule('G2DOpenCV.dll');
+  G2D_OpenCVHandle := G2D_LoadDLLModule('G2DOpenCV.dll', false);
 
   try
     _BindOpenCVFunctions;
