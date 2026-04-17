@@ -176,6 +176,25 @@ begin
   Result := Format('%d:%.2d:%.2d.%.3d', [Hours, Minutes, Seconds, Milisec]);
 end;
 
+{help for finding GST_PLUGIN_PATH}
+procedure ConfigureGStreamerPluginSearchPath;
+var
+  Dir, ParentDir, PluginDir: string;
+begin
+  Dir := ExcludeTrailingPathDelimiter(ExtractFilePath(GetModuleName(HInstance)));
+  repeat
+    PluginDir := Dir + '\DLLs\lib\gstreamer-1.0';
+    if DirectoryExists(PluginDir) then
+    begin
+      SetEnvironmentVariable('GST_PLUGIN_PATH', PChar(PluginDir));
+      Exit;
+    end;
+    ParentDir := ExcludeTrailingPathDelimiter(ExtractFilePath(Dir));
+    if ParentDir = Dir then
+      raise EG2DAPILoaderError.Create('GStreamer plugin path not found: lib\gstreamer-1.0 not found in any parent directory');
+    Dir := ParentDir;
+  until False;
+end;
 { TGstFramework }
 
 constructor TGstFramework.Create(WriteStateChange: Boolean = False);
@@ -205,6 +224,13 @@ begin
 
   if not G2D_LoadGst then
     raise EG2DGstFrameworkError.Create('GStreamer load failed');
+
+  If not NormalGstSearch then
+    ConfigureGStreamerPluginSearchPath;
+  {debug
+  SetEnvironmentVariable('GST_DEBUG', 'GST_PLUGIN_LOADING:5');
+  SetEnvironmentVariable('GST_DEBUG_FILE', 'C:\Temp\gst_debug.log');
+  {}
 
   _gst_init(nil, nil);
 
