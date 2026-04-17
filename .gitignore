@@ -19,7 +19,6 @@ tmp/
 
 # Executables / binaries
 *.exe
-*.dll
 *.bpl
 
 # Backup files
