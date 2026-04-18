@@ -70,9 +70,11 @@ type
 
     { Tutorial 6 - Factory access }
     function GetFactory: TGstElementFactoryRef;
+    function GetFactoryName: string;
 
     procedure SetWindowHandle(AHandle: NativeUInt);
 
+    property FactoryName: string read GetFactoryName;
   end;
 
 {==============================================================================
@@ -369,6 +371,20 @@ begin
 
   // Factory is owned by the class, so we add ref but don't take ownership
   Result := TGstElementFactoryRef.Wrap(LFactory, True, False);
+end;
+
+function TGstElementRef.GetFactoryName: string;
+var
+  LFactory: TGstElementFactoryRef;
+begin
+  LFactory := GetFactory;
+  if LFactory = nil then
+    Exit('');
+  try
+    Result := LFactory.Name;
+  finally
+    LFactory.Free;
+  end;
 end;
 
 

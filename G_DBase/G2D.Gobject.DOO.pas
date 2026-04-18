@@ -35,6 +35,9 @@ type
 
     function ConnectSignal(const ASignalName: string; ACallback: Pointer; AUserData: Pointer = nil): gulong;
 
+    function GetObjectName: string;
+    procedure SetObjectName(const AName: string);
+
     procedure SetPropertyInt(const AName: string; AValue: Integer);
     procedure SetPropertyBool(const AName: string; AValue: Boolean);
     procedure SetPropertyString(const AName, AValue: string);
@@ -52,6 +55,7 @@ type
     function GetPropertyString(const AName: string): string;
 
     property OwnsRef: Boolean read FOwnsRef write FOwnsRef;
+    property Name: string read GetObjectName write SetObjectName;
   end;
 
 function Utf8Pgchar(const S: string): Pgchar;
@@ -177,6 +181,18 @@ begin
               nil,
               0
             );
+end;
+
+function TGObjectRef.GetObjectName: string;
+begin
+  CheckHandle;
+  Result := GetPropertyString('name');
+end;
+
+procedure TGObjectRef.SetObjectName(const AName: string);
+begin
+  CheckHandle;
+  SetPropertyString('name', AName);
 end;
 
 // set Property in Object
