@@ -23,6 +23,7 @@ type
   TGstPipelineRef = class(TGstBinRef)
   private
     FElements: TObjectDictionary<string, TGstElementRef>;
+    FElementOrder: TList<string>;
     procedure ClearElements;
     procedure EnsureElements;
   protected
@@ -50,9 +51,11 @@ type
 
     function AddElement(const AName: string): Boolean;
     function AddElements(const ANames: array of string): Boolean;
+    function AddAllElements: Boolean;
 
     function LinkElements(const AFromName, AToName: string): Boolean;
     function LinkMany(const ANames: array of string): Boolean;
+    function LinkAllElements: Boolean;
 
     procedure SetPropertyString(const AElementName, APropName, AValue: string);
     procedure SetPropertyInt(const AElementName, APropName: string; AValue: Integer);
@@ -78,24 +81,30 @@ procedure TGstPipelineRef.EnsureElements;
 begin
   if FElements = nil then
     FElements := TObjectDictionary<string, TGstElementRef>.Create([doOwnsValues]);
+  if FElementOrder = nil then
+    FElementOrder := TList<string>.Create;
 end;
 
 procedure TGstPipelineRef.ClearElements;
 begin
   if FElements <> nil then
     FElements.Clear;
+  if FElementOrder <> nil then
+    FElementOrder.Clear;
 end;
 
 constructor TGstPipelineRef.Create(AHandle: PGstPipeline; AAddRef: Boolean; AOwnsRef: Boolean);
 begin
   inherited Create(PGstBin(AHandle), AAddRef, AOwnsRef);
   FElements := TObjectDictionary<string, TGstElementRef>.Create([doOwnsValues]);
+  FElementOrder := TList<string>.Create;
 end;
 
 destructor TGstPipelineRef.Destroy;
 begin
   ClearElements;
   FreeAndNil(FElements);
+  FreeAndNil(FElementOrder);
   inherited;
 end;
 
@@ -297,6 +306,7 @@ begin
     Exit(nil);
 
   FElements.Add(AName, LCreated);
+  FElementOrder.Add(AName);
   Result := TGstElementRef.Wrap(LCreated.ElementHandle, True, True);
 end;
 
@@ -366,6 +376,36 @@ begin
       Exit(False);
 end;
 
+function TGstPipelineRef.AddAllElements: Boolean;
+var
+  I: Integer;
+  LName: string;
+  LStored: TGstElementRef;
+  LCheck: TGstElementRef;
+begin
+  CheckPipelineHandle;
+  EnsureElements;
+
+  Result := True;
+  for I := 0 to FElementOrder.Count - 1 do
+  begin
+    LName := FElementOrder[I];
+    if not FElements.TryGetValue(LName, LStored) then
+      Continue;
+
+    { Skip if already in the pipeline }
+    LCheck := inherited GetByName(LName);
+    if LCheck <> nil then
+    begin
+      LCheck.Free;
+      Continue;
+    end;
+
+    if not inherited Add(LStored) then
+      Exit(False);
+  end;
+end;
+
 function TGstPipelineRef.LinkElements(const AFromName, AToName: string): Boolean;
 var
   LFromStored: TGstElementRef;
@@ -396,6 +436,20 @@ begin
 
   for I := Low(ANames) to High(ANames) - 1 do
     if not LinkElements(ANames[I], ANames[I + 1]) then
+      Exit(False);
+end;
+
+function TGstPipelineRef.LinkAllElements: Boolean;
+var
+  I: Integer;
+begin
+  Result := True;
+
+  if FElementOrder.Count < 2 then
+    Exit(True);
+
+  for I := 0 to FElementOrder.Count - 2 do
+    if not LinkElements(FElementOrder[I], FElementOrder[I + 1]) then
       Exit(False);
 end;
 
