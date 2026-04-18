@@ -33,11 +33,13 @@ begin
   //Example 2
   try
     GStreamer := TGstFramework.Create;
+    LogWriteln('Example 2');
     try
       if GStreamer.Started then
       begin
-        if not GStreamer.BuildAndPlay(
-          'videotestsrc name=src pattern=0 ! autovideosink'
+        if not GStreamer.NativeBuildAndPlay(
+          'videotestsrc name=src ! d3d11videosink'
+          //'videotestsrc name=src pattern=0 ! autovideosink'
          // 'videotestsrc name=src ! videoconvert ! d3d11videosink async=false'
         ) then
           Writeln('error in the prog')

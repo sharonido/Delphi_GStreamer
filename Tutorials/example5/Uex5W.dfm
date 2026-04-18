@@ -274,7 +274,7 @@ object Form1: TForm1
         ExplicitHeight = 15
       end
       object BtnLoad: TButton
-        Left = 848
+        Left = 828
         Top = 1
         Width = 55
         Height = 33
@@ -287,7 +287,7 @@ object Form1: TForm1
         AlignWithMargins = True
         Left = 85
         Top = 5
-        Width = 759
+        Width = 739
         Height = 23
         Margins.Left = 4
         Margins.Top = 4

@@ -148,7 +148,6 @@
         <DCCReference Include="..\..\G_Types\G2D.Gst.Types.pas"/>
         <DCCReference Include="..\WinConsoleFunction.pas"/>
         <DCCReference Include="..\..\G_DBase\G2D.GstApp.DOO.pas"/>
-        <DCCReference Include="..\..\G_DUnits\G2D.VideoCustomElement.pas"/>
         <BuildConfiguration Include="Base">
             <Key>Base</Key>
         </BuildConfiguration>

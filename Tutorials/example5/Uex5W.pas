@@ -97,7 +97,7 @@ end;
 procedure TForm1.PlayURI(const AURI: string);
 begin
   GStreamer.Close;
-  if not GStreamer.BuildAndPlay('playbin name=player uri=' + AURI) then
+  if not GStreamer.NativeBuildAndPlay('playbin name=player uri=' + AURI) then
     Writeln('error in BuildAndPlay')
   else if not GStreamer.SetVisualWindow('player', VideoPanel.Handle) then
     Writeln('error in SetVisualWindow');

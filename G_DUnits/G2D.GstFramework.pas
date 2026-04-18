@@ -71,10 +71,10 @@ type
     constructor Create(WriteStateChange: Boolean = False);
     destructor Destroy; override;
 
-    function BuildAndPlay(const APipelineDescription: string): Boolean;
-
-    function SimpleBuildAndPlay(const APipelineDescription: string;
+    function NativeBuildAndPlay(const APipelineDescription: string): Boolean;
+    function SimpleNativeBuildAndPlay(const APipelineDescription: string;
       ARunMode: TGstRunMode): Boolean;
+    function BuildAndPlay(const APipelineDescription: string): Boolean;
     function SetVisualWindow(const AElementName: string; AWnd: HWnd): Boolean;
 
     function RunFor(ATimeout: GstClockTime): Boolean;
@@ -508,6 +508,17 @@ var
 begin
   CheckStarted;
   ClearPipeline;
+  //MakeElements(APipelineDescription);         { TODO : open and build }
+  Result:=NativeBuildAndPlay(APipelineDescription);
+end;
+function TGstFramework.NativeBuildAndPlay(const APipelineDescription: string): Boolean;
+var
+  Pipeline: TGstPipelineRef;
+  Bus: TGstBusRef;
+  Ret: GstStateChangeReturn;
+begin
+  CheckStarted;
+  ClearPipeline;
 
   Pipeline := TGstPipelineRef.Parse(APipelineDescription);
   if Pipeline = nil then
@@ -549,15 +560,15 @@ begin
   end;
 end;
 
-function TGstFramework.SimpleBuildAndPlay(
+function TGstFramework.SimpleNativeBuildAndPlay(
   const APipelineDescription: string;
   ARunMode: TGstRunMode
 ): Boolean;
 begin
-  Result := BuildAndPlay(APipelineDescription);
+  Result := NativeBuildAndPlay(APipelineDescription);
 
   if not Result then
-    raise EG2DGstFrameworkError.Create('Failed to BuildAndPlay');
+    raise EG2DGstFrameworkError.Create('Failed to NativeBuildAndPlay');
 
   if ARunMode = DoOnce then
     Exit(True);

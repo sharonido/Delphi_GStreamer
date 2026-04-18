@@ -171,6 +171,12 @@ begin
             );
 end;
 
+Procedure GstDescriptionPasrer(const ADescription:string; var
+  LElements, LTokens, LPairs : TArray<string>);
+begin
+
+end;
+
 procedure TGstPipelineRef.MakeElements(const ADescription: string);
 var
   LElements      : TArray<string>;

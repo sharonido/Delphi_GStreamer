@@ -18,8 +18,8 @@ uses
   G2D.Gobject.Types in '..\..\G_Types\G2D.Gobject.Types.pas',
   G2D.Gst.Types in '..\..\G_Types\G2D.Gst.Types.pas',
   WinConsoleFunction in '..\WinConsoleFunction.pas',
-  G2D.GstApp.DOO in '..\..\G_DBase\G2D.GstApp.DOO.pas',
-  G2D.VideoCustomElement in '..\..\G_DUnits\G2D.VideoCustomElement.pas';
+  G2D.GstApp.DOO in '..\..\G_DBase\G2D.GstApp.DOO.pas';
+  //G2D.VideoCustomElement in '..\..\G_DUnits\G2D.VideoCustomElement.pas';
 
 //{$R *.res}
 
