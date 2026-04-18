@@ -135,6 +135,9 @@ var
     data: gpointer
   ); cdecl = nil;
 
+  _g_object_get_name: function(D_object: PGObject): Pgchar; cdecl = nil;
+  _g_object_set_name: procedure(D_object: PGObject; name: Pgchar); cdecl = nil;
+
   { Signals }
   _g_signal_connect_data: function(
     instance: gpointer;
@@ -249,6 +252,8 @@ begin
   _g_object_notify_by_pspec := nil;
   _g_object_weak_ref := nil;
   _g_object_weak_unref := nil;
+  _g_object_get_name := nil;
+  _g_object_set_name := nil;
 
   { Signals }
   _g_signal_connect_data := nil;
@@ -323,6 +328,8 @@ begin
   @_g_object_notify_by_pspec := _LoadProc('g_object_notify_by_pspec');
   @_g_object_weak_ref := _LoadProc('g_object_weak_ref');
   @_g_object_weak_unref := _LoadProc('g_object_weak_unref');
+  @_g_object_get_name := _LoadProc('g_object_get_name');
+  @_g_object_set_name := _LoadProc('g_object_set_name');
 
   { Signals }
   @_g_signal_connect_data := _LoadProc('g_signal_connect_data');
