@@ -74,6 +74,7 @@ type
     function NativeBuildAndPlay(const APipelineDescription: string): Boolean;
     function SimpleNativeBuildAndPlay(const APipelineDescription: string;
       ARunMode: TGstRunMode): Boolean;
+    Function Build(const APipelineDescription: string): Boolean;
     function BuildAndPlay(const APipelineDescription: string): Boolean;
     function SetVisualWindow(const AElementName: string; AWnd: HWnd): Boolean;
 
@@ -131,7 +132,7 @@ type
 function GstClockTimeToStr(ATime:int64):string;
 
 procedure stdWrite(st:string);
-procedure LogWriteln(st:string);
+procedure LogWriteln(st:string='');
 
 var
   LogWrite: procedure(st:string) = stdWrite;
@@ -148,7 +149,7 @@ TThread.Queue(nil,
     end);
 end;
 
-procedure LogWriteln(st:string);
+procedure LogWriteln(st:string='');
 begin
   if Assigned(LogWrite) then
     LogWrite(st + sLineBreak);
@@ -499,25 +500,30 @@ begin
             );
 end;
 
-function TGstFramework.BuildAndPlay(const APipelineDescription: string): Boolean;
-var
-  Ret: GstStateChangeReturn;
+function TGstFramework.Build(const APipelineDescription: string): Boolean;
 begin
   CheckStarted;
   ClearPipeline;
   FPipeline:=TGstPipelineRef.New('MainPipeline');
-  PipeLine.MakeElements(APipelineDescription);
-  if not (PipeLine.AddAllElements and
-          PipeLine.LinkAllElements) then
-          raise EG2DGstFrameworkError.Create('Failed to Add and Link Elements');
   FBus:=FPipeline.GetBus;
   If FBus = nil then raise EG2DGstFrameworkError.Create('Failed to get bus');
+  PipeLine.MakeElements(APipelineDescription);
+  if not PipeLine.AddAllElements  then
+        raise EG2DGstFrameworkError.Create('Failed to Add and Link Elements');
+  Result:=True;
+end;
+
+function TGstFramework.BuildAndPlay(const APipelineDescription: string): Boolean;
+var
+  Ret: GstStateChangeReturn;
+begin
+  Build(APipelineDescription);
+  if not PipeLine.LinkAllElements then
+          raise EG2DGstFrameworkError.Create('LinkAllElements');
   Ret := Pipeline.Play;
   if Ret = GST_STATE_CHANGE_FAILURE then
     raise EG2DGstFrameworkError.Create('Failed to set PLAYING');
-
   Result := True;
-  //Result:=NativeBuildAndPlay(APipelineDescription);
 end;
 
 function TGstFramework.NativeBuildAndPlay(const APipelineDescription: string): Boolean;
