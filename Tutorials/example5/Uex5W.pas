@@ -97,10 +97,11 @@ end;
 procedure TForm1.PlayURI(const AURI: string);
 begin
   GStreamer.Close;
-  if not GStreamer.NativeBuildAndPlay('playbin name=player uri=' + AURI) then
-    Writeln('error in BuildAndPlay')
+  logWriteLn('Playing '+ AURI);
+  if not GStreamer.BuildAndPlay('playbin name=player uri=' + AURI) then
+    logWriteln('error in BuildAndPlay')
   else if not GStreamer.SetVisualWindow('player', VideoPanel.Handle) then
-    Writeln('error in SetVisualWindow');
+    logWriteln('error in SetVisualWindow');
 end;
 
 procedure TForm1.FormCreate(Sender: TObject);
@@ -134,6 +135,8 @@ begin
   if GStreamer.Started then
   begin
     GStreamer.StringsLogger := Logger.Lines;
+    LogWriteln(GStreamer.Version);
+    LogWriteln('Example 5W');
     PlayURI(UriParameter);
   end;
 end;
@@ -207,12 +210,10 @@ begin
       TrackPos.Max := uint64(GStreamer.Duration) div GST_MSECOND;
       ThePos       := uint64(GStreamer.Position)  div GST_MSECOND;
       if ThePos > 0 then TrackPos.Position := ThePos;
+      LDuriation.Caption := GstClockTimeToStr(GStreamer.Duration);
+      LPosition.Caption := GstClockTimeToStr(GStreamer.Position);
     end;
   end;
-
-  LDuriation.Caption := GstClockTimeToStr(GStreamer.Duration);
-  if not StopTrackUpDate then
-    LPosition.Caption := GstClockTimeToStr(GStreamer.Position);
 end;
 
 { Seek on mouse-up after dragging }
