@@ -24,39 +24,23 @@ begin
   //Example 3
   GStreamer := TGstFramework.Create(True);
   try
-    if not GStreamer.NewPipeline('test-pipeline') then
-      raise Exception.Create('Failed to create pipeline');
-
-    if GStreamer.MakeElement('uridecodebin', 'source') = nil then
-      raise Exception.Create('Failed to create source');
-
-    if GStreamer.MakeElement('audioconvert', 'convert') = nil then
-      raise Exception.Create('Failed to create convert');
-
-    if GStreamer.MakeElement('audioresample', 'resample') = nil then
-      raise Exception.Create('Failed to create resample');
-
-    if GStreamer.MakeElement('autoaudiosink', 'sink') = nil then
-      raise Exception.Create('Failed to create sink');
-
-      writeln(ParamStr(1));
-    GStreamer.SetElementPropertyString('source', 'uri', UriParameter);
-
-    if not GStreamer.AddElements(['source', 'convert', 'resample', 'sink']) then
-      raise Exception.Create('Failed to add elements');
-
-    if not GStreamer.LinkMany(['convert', 'resample', 'sink']) then
+    LogWriteln(GStreamer.Version);
+    LogWriteln('Example 3');
+    GStreamer.Build('uridecodebin name=source ! audioconvert name=convert !'+
+                ' audioresample name=resample ! autoaudiosink name=audio_sink');
+    if not GStreamer.LinkMany(['convert', 'resample', 'audio_sink']) then
       raise Exception.Create('Failed to link static elements');
 
     if not GStreamer.ConnectDynamicPad('source', 'convert', 'sink') then
       raise Exception.Create('Failed to connect dynamic pad');
 
+    GStreamer.SetElementPropertyString('source', 'uri', UriParameter);
     if not GStreamer.Play then
       raise Exception.Create('Failed to play pipeline');
-
-    while GStreamer.RunFor(GST_CLOCK_TIME_NONE) do
-    begin
-    end;
+    logWriteLn('Playing '+ UriParameter);
+    while GStreamer.RunFor(GST_CLOCK_TIME_NONE) do; //run until End of stream
+    {begin
+    end; }
 
   finally
     GStreamer.Free;
