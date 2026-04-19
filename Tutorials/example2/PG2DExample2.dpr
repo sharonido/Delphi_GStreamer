@@ -33,16 +33,17 @@ begin
   //Example 2
   try
     GStreamer := TGstFramework.Create;
+    LogWriteln(DGstVersionString);
     LogWriteln('Example 2');
     try
       if GStreamer.Started then
       begin
-        if not GStreamer.NativeBuildAndPlay(
+        if not GStreamer.BuildAndPlay(
           'videotestsrc name=src ! d3d11videosink'
           //'videotestsrc name=src pattern=0 ! autovideosink'
          // 'videotestsrc name=src ! videoconvert ! d3d11videosink async=false'
         ) then
-          Writeln('error in the prog')
+          logWriteln('error in the prog')
         else
         begin
           Src := nil;
@@ -54,19 +55,16 @@ begin
             if Src = nil then
               raise Exception.Create('Could not find element "src"');
 
-            Writeln;
-            Writeln('To see the Video window move this terminal window');
-            Writeln('Mouse click on this window to focus it, so keyboard will be read');
-            Writeln;
+            logWriteln;
+            logWriteln('To see the Video window move this terminal window');
+            logWriteln('Mouse click on this window to focus it, so keyboard will be read');
+            logWriteln;
             repeat
               GStreamer.RunFor(100 * GST_MSECOND);
-
               if GStreamer.HasError then
                 Break;
-
               if GStreamer.HasEOS then
                 Break;
-
               if GStreamer.State = GST_STATE_PLAYING then
               begin
                 if DoOnce then
@@ -74,16 +72,12 @@ begin
                   DoOnce := False;
                   Write('Enter esc to exit or a number [0..24] as Pattern ');
                 end;
-
                 if StrEnter(EStr) then
                 begin
-                  Writeln;
-
+                  logWriteln;
                   if EStr = #27 then
                     Break;
-
                   PatternNum := -1;
-
                   if TryStrToInt(EStr, PatternNum) and
                      (PatternNum >= 0) and
                      (PatternNum <= 24) then
@@ -91,9 +85,9 @@ begin
                     Src.SetPropertyEnum('pattern', PatternNum);
                   end
                   else
-                    Writeln('pattern must be 0..24');
+                    logWriteln('pattern must be 0..24');
 
-                  Write('Enter esc to exit or a number [0..24] as Pattern ');
+                  logWrite('Enter esc to exit or a number [0..24] as Pattern ');
                   EStr := '';
                 end;
               end;
@@ -102,15 +96,15 @@ begin
 
             if GStreamer.HasError then
             begin
-              Writeln;
-              Writeln('Framework reported error: ', GStreamer.LastErrorText);
+              logWriteln;
+              logWriteln('Framework reported error: '+GStreamer.LastErrorText);
               if GStreamer.LastDebugText <> '' then
                 Writeln('Debug: ', GStreamer.LastDebugText);
             end
             else if GStreamer.HasEOS then
             begin
-              Writeln;
-              Writeln('End-Of-Stream reached');
+              logWriteln;
+              logWriteln('End-Of-Stream reached');
             end;
 
           finally

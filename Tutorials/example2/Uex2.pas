@@ -6,7 +6,7 @@ interface
 uses
   Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
   Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.ExtCtrls,
-  G2D.GstFramework, G2D.GstElement.DOO,
+  G2D.GstFramework, G2D.Gst.API, G2D.GstElement.DOO,
   Vcl.StdCtrls;
 
 type
@@ -45,18 +45,20 @@ implementation
 procedure TForm1.FormCreate(Sender: TObject);
 begin
 GStreamer:=TGstFrameWork.Create(true); //no parameters needed here
-  if GStreamer.Started then
-    //build a video test src and a video sink and link them together
-    if not GStreamer.BuildAndPlay(
-    'videotestsrc pattern=0 name=src ! d3d11videosink name=video_sink')
-    //autovideosink can't be set at SetVisualWindow
-      then writeln('error in the program (BuildAndPlay function)')
-      //set the Form1.VideoPanel(vcl TPanel) as a render pallet for the video sink
-      else if not GStreamer.SetVisualWindow('video_sink',VideoPanel.Handle)
-      then writeln('error in the program (SetVisualWindow function)');
-      Src := GStreamer.FindElement('src');
-      If Src=nil
-      then writeln('error in the program (FindElement function)');
+LogWriteln(DGstVersionString);
+LogWriteln('Example 2');
+if GStreamer.Started then
+  //build a video test src and a video sink and link them together
+  if not GStreamer.BuildAndPlay(
+  'videotestsrc pattern=0 name=src ! d3d11videosink name=video_sink')
+  //autovideosink can't be set at SetVisualWindow
+    then logwriteln('error in the program (BuildAndPlay function)')
+    //set the Form1.VideoPanel(vcl TPanel) as a render pallet for the video sink
+    else if not GStreamer.SetVisualWindow('video_sink',VideoPanel.Handle)
+    then logwriteln('error in the program (SetVisualWindow function)');
+    Src := GStreamer.FindElement('src');
+    If Src=nil
+    then logwriteln('error in the program (FindElement function)');
 end;
 
 procedure TForm1.FormDestroy(Sender: TObject);
@@ -66,6 +68,7 @@ end;
 
 procedure TForm1.RadioButton1Click(Sender: TObject);
 begin
-Src.SetPropertyEnum('pattern', (Sender as TRadioButton).Tag);
+If Src<>nil then
+  Src.SetPropertyEnum('pattern', (Sender as TRadioButton).Tag);
 end;
 end.
