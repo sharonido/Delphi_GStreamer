@@ -188,6 +188,7 @@ function G2D_GstLoadedOK: Boolean;
 procedure GstInit;
 
 { D-wrapper helper functions }
+function DGstVersionString: string;
 function DGstValueSerialize(AValue: PGValue): string;
 function DGstStaticPadTemplateGetCaps(ATemplate: PGstStaticPadTemplate): PGstCaps;
 procedure DGstObjectUnref(AObject: gpointer);
@@ -567,6 +568,17 @@ begin
 end;
 
 { D-wrapper helper functions }
+
+function DGstVersionString: string;
+var
+  P: Pgchar;
+begin
+  P := _gst_version_string;
+  if P = nil then
+    Exit('');
+  Result := string(UTF8String(AnsiString(P)));
+  _g_free(P);
+end;
 
 function DGstValueSerialize(AValue: PGValue): string;
 var
