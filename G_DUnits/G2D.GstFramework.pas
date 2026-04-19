@@ -203,6 +203,7 @@ end;
 constructor TGstFramework.Create(WriteStateChange: Boolean = False);
 begin
   inherited Create;
+  if GetConsoleWindow = 0 then LogWrite := nil;
   FWriteStateChange := WriteStateChange;
   FStarted := False;
   FTimer := TTimer.Create(nil);
