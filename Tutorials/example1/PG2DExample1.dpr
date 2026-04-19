@@ -39,11 +39,13 @@ begin
   try
     GStreamer := TGstFramework.Create(true);
     try
+    LogWriteln(GStreamer.Version);
     logWriteln('Example 1');
     if NormalGstSearch then
       begin
       if GStreamer.Started then
         begin
+        logwriteln('Playing '+ UriParameter);
         if not GStreamer.SimpleNativeBuildAndPlay('playbin uri='+UriParameter,
           DoForEver) then
           logWriteln('error in the prog');
@@ -52,8 +54,9 @@ begin
       else
       LogWriteln('This example works only if the full GStreamer Framework is downloaded from:'+sLineBreak+
                   'https://gstreamer.freedesktop.org/data/pkg/windows/1.28.2/msvc/gstreamer-1.0-msvc-x86_64-1.28.2.exe'+sLineBreak+
-                  'or you can go to the next example (all other examples should work with the G2D repository)'+sLineBreak+
-                  'It is provided only to be fully compatible with:' + sLineBreak+
+                  'or you can go to examples that can work with G2D repository'+sLineBreak+
+                  'Examples 2, 2W, 3, 6W, 7W, 8W and build elements examples'+sLineBreak+
+                  'It is fully compatible with:' + sLineBreak+
                   'https://gstreamer.freedesktop.org/documentation/tutorials/' );
 
     finally
