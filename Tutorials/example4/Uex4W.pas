@@ -87,14 +87,17 @@ if (UriParameter='') or not FileExists(UriParameter)
 
 //Example 4W
 GStreamer:=TGstFrameWork.Create(true);
+  LogWriteln(GStreamer.Version);
+  LogWriteln('Example 4W');
   if GStreamer.Started then
     begin
     GStreamer.StringsLogger:=Logger.Lines;
+    logWriteLn('Playing '+ UriParameter);
     if not GStreamer.BuildAndPlay('playbin name=player uri='+UriParameter)
       then writeln('error in the program (BuildAndPlay function)')
       //set the Form1.VideoPanel(vcl TPanel) as a render pallet for the video sink
       else if not GStreamer.SetVisualWindow('player',VideoPanel.Handle)
-      then writeln('error in the program (SetVisualWindow function)');
+      then logwriteln('error in the program (SetVisualWindow function)');
     end;
 end;
 

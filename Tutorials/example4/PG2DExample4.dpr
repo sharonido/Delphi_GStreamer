@@ -45,6 +45,9 @@ if (UriParameter='') or not FileExists(UriParameter)
 // example 4
   GStreamer := TGstFramework.Create;
   try
+    LogWriteln(GStreamer.Version);
+    LogWriteln('Example 4');
+    logWriteLn('Playing '+ UriParameter);
 
     if not GStreamer.BuildAndPlay('playbin uri=' + UriParameter) then
       raise Exception.Create('Failed to build pipeline');
@@ -53,7 +56,7 @@ if (UriParameter='') or not FileExists(UriParameter)
       if once and (GStreamer.State = GST_STATE_PLAYING) then
         begin
         once:=false;
-        Writeln('Enter ''p''-for Position, or ''d''-for Duration or'+
+        logWriteln('Enter ''p''-for Position, or ''d''-for Duration or'+
             ' ''s''-Seek to 20 sec or Esc to stop');
         if (HTerminal<>0) then SetForegroundWindow(HTerminal);
         end;
@@ -64,18 +67,18 @@ if (UriParameter='') or not FileExists(UriParameter)
           case key of
             'p','P': // Position
                 if GStreamer.QueryPosition(Position) then
-                  Writeln(' Position: ', Position div gint(GST_SECOND), ' sec');
+                  logWriteln(' Position: '+inttostr(Position div gint(GST_SECOND))+ ' sec');
             'd','D': // Duration
                 if GStreamer.QueryDuration(Duration) then
-                  Writeln(' Duration: ', Duration div gint(GST_SECOND), ' sec');
+                  logWriteln(' Duration: '+inttostr(Duration div gint(GST_SECOND))+' sec');
             's','S':// Seek
             if GStreamer.SeekSimple(20 * GST_SECOND,
                GST_FORMAT_TIME,
                GST_SEEK_FLAG_FLUSH or GST_SEEK_FLAG_KEY_UNIT
              ) then
-                  Writeln(' Seek to 20 sec position succeeded')
+                  logWriteln(' Seek to 20 sec position succeeded')
                 else
-                  Writeln(' Seek failed');
+                  logWriteln(' Seek failed');
             chr(VK_ESCAPE)://stop
               break;
             else  Writeln(key+
