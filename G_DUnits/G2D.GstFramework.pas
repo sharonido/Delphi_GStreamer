@@ -54,6 +54,7 @@ type
     class var fStringsLogger:TStrings;
 
     class procedure SetStringsLogger(m:TStrings);static;
+
     procedure ClearDynamicPadLinks;
     function AddDynamicPadLink(const ATargetElementName, ATargetPadName: string): Pointer;
     function LinkIncomingPadToElement(ANewPad: PGstPad;
@@ -66,6 +67,7 @@ type
 
     procedure AppIdle(Sender: TObject; var Done: Boolean);
     procedure FTimer100mSecOnPlay(Sender:TObject);
+    function GetVersionString: string;
 
   public
     constructor Create(WriteStateChange: Boolean = False);
@@ -116,6 +118,7 @@ type
       AFormat: GstFormat; ASeekFlags: GstSeekFlags): Boolean;
 
     property Started: Boolean read FStarted;
+    property Version: string read GetVersionString;
     property LastErrorText: string read FLastErrorText;
     property LastDebugText: string read FLastDebugText;
     property LastMessageType: GstMessageType read FLastMessageType;
@@ -261,6 +264,11 @@ begin
   end;
 end;
 
+function TGstFramework.GetVersionString: string;
+begin
+Result:=DGstVersionString;
+end;
+
 //writing to log in memo
 procedure GstWriteLog(st: string);
 begin
@@ -360,6 +368,7 @@ begin
   Result := TGstElementRef(FPipeline).GetState;
   FState := Result;
 end;
+
 
 { pipeline state control }
 
