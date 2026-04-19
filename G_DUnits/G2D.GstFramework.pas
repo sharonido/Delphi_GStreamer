@@ -92,7 +92,6 @@ type
 
     { additions / delegation to TGstPipelineRef }
     function NewPipeline(const AName: string): Boolean;
-    procedure MakeElements(const ADescription: string);
     function MakeElement(const AFactory, AName: string): TGstElementRef;
     function GetElement(const AName: string): TGstElementRef;
     function AddElement(const AName: string): Boolean;
@@ -502,15 +501,25 @@ end;
 
 function TGstFramework.BuildAndPlay(const APipelineDescription: string): Boolean;
 var
-  Pipeline: TGstPipelineRef;
-  Bus: TGstBusRef;
   Ret: GstStateChangeReturn;
 begin
   CheckStarted;
   ClearPipeline;
-  //MakeElements(APipelineDescription);         { TODO : open and build }
-  Result:=NativeBuildAndPlay(APipelineDescription);
+  FPipeline:=TGstPipelineRef.New('MainPipeline');
+  PipeLine.MakeElements(APipelineDescription);
+  if not (PipeLine.AddAllElements and
+          PipeLine.LinkAllElements) then
+          raise EG2DGstFrameworkError.Create('Failed to Add and Link Elements');
+  FBus:=FPipeline.GetBus;
+  If FBus = nil then raise EG2DGstFrameworkError.Create('Failed to get bus');
+  Ret := Pipeline.Play;
+  if Ret = GST_STATE_CHANGE_FAILURE then
+    raise EG2DGstFrameworkError.Create('Failed to set PLAYING');
+
+  Result := True;
+  //Result:=NativeBuildAndPlay(APipelineDescription);
 end;
+
 function TGstFramework.NativeBuildAndPlay(const APipelineDescription: string): Boolean;
 var
   Pipeline: TGstPipelineRef;
@@ -528,7 +537,7 @@ begin
   if Bus = nil then
   begin
     Pipeline.Free;
-    raise EG2DGstFrameworkError.Create('Failed to get bus');
+    raise EG2DGstFrameworkError.Create('Failed to get Native bus');
   end;
 
   FPipeline := Pipeline;
@@ -697,12 +706,6 @@ end;
 function TGstFramework.HasEOS: Boolean;
 begin
   Result := FReachedEOS;
-end;
-
-procedure TGstFramework.MakeElements(const ADescription: string);
-begin
-  if FPipeline <> nil then
-    FPipeline.MakeElements(ADescription);
 end;
 
 function TGstFramework.MakeElement(const AFactory, AName: string): TGstElementRef;
