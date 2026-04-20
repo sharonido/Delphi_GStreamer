@@ -215,11 +215,10 @@ object Form1: TForm1
       object Label2: TLabel
         Left = 1
         Top = 1
-        Width = 197
+        Width = 78
         Height = 15
         Align = alTop
         Caption = 'GStreamer Log'
-        ExplicitWidth = 78
       end
       object logger: TRichEdit
         Left = 1

@@ -100,6 +100,8 @@ procedure TForm1.FormCreate(Sender: TObject);
 begin
   FGStreamer := TGstFramework.Create(True);
   FGStreamer.StringsLogger:=logger.Lines;
+  LogWriteln(FGStreamer.Version);
+  LogWriteln('Example of simple filter That does nothing');
 
   if not FGStreamer.Started then
   begin
@@ -117,7 +119,7 @@ begin
   { 2. Make the standard elements using gst-launch style description.
     async=false on d3d11videosink skips preroll so READY->PAUSED completes
     without waiting for the first buffer (which only arrives after PLAYING). }
-  FGStreamer.MakeElements(
+  FGStreamer.PipeLine.MakeElements(
     'videotestsrc name=src !' +
     'd3d11videosink name=video_sink async=false !' +
     'videoconvert name=vconv');
