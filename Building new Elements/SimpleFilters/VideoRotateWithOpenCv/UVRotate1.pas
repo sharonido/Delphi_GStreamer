@@ -176,7 +176,7 @@ begin
     Exit;
   end;
 
-  FGStreamer.MakeElements(
+  FGStreamer.PipeLine.MakeElements(
     'videotestsrc name=src !' +
     'd3d11videosink name=video_sink async=false !' +
     'videoconvert name=vconv');
