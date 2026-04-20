@@ -283,7 +283,8 @@ procedure TForm1.FormCreate(Sender: TObject);
 begin
   FGStreamer := TGstFramework.Create(True);
   FGStreamer.StringsLogger := logger.Lines;
-
+  LogWriteln(FGStreamer.Version);
+  LogWriteln('Example of simple filter of Text over video');
   if not FGStreamer.Started then
   begin
     LogWriteln('GStreamer failed to start');
@@ -296,7 +297,7 @@ begin
     Exit;
   end;
 
-  FGStreamer.MakeElements(
+  FGStreamer.PipeLine.MakeElements(
     'videotestsrc name=src !' +
     'd3d11videosink name=video_sink async=false !' +
     'videoconvert name=vconv');
