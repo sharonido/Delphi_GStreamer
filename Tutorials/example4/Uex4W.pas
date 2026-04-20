@@ -4,7 +4,7 @@ interface
 
 uses
   Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes,
-  G2D.GstFramework, G2D.GstElement.DOO, G2D.Gst.Types, WinConsoleFunction,
+  G2D.GstFramework, G2D.GstElement.DOO, G2D.Gst.Types, G2D.Glib.API, WinConsoleFunction,
   Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.ExtCtrls,
   Vcl.StdCtrls, Vcl.ComCtrls;
 
@@ -87,17 +87,21 @@ if (UriParameter='') or not FileExists(UriParameter)
 
 //Example 4W
 GStreamer:=TGstFrameWork.Create(true);
-  LogWriteln(GStreamer.Version);
-  LogWriteln('Example 4W');
   if GStreamer.Started then
     begin
     GStreamer.StringsLogger:=Logger.Lines;
-    logWriteLn('Playing '+ UriParameter);
-    if not GStreamer.BuildAndPlay('playbin name=player uri='+UriParameter)
-      then writeln('error in the program (BuildAndPlay function)')
-      //set the Form1.VideoPanel(vcl TPanel) as a render pallet for the video sink
-      else if not GStreamer.SetVisualWindow('player',VideoPanel.Handle)
-      then logwriteln('error in the program (SetVisualWindow function)');
+    LogWriteln(GStreamer.Version);
+    LogWriteln('Example 4W');
+    if NormalGstSearch then
+      begin
+      logWriteLn('Playing '+ UriParameter);
+      if not GStreamer.BuildAndPlay('playbin name=player uri='+UriParameter)
+        then writeln('error in the program (BuildAndPlay function)')
+        //set the Form1.VideoPanel(vcl TPanel) as a render pallet for the video sink
+        else if not GStreamer.SetVisualWindow('player',VideoPanel.Handle)
+        then logwriteln('error in the program (SetVisualWindow function)');
+      end
+      else LogWriteln(GStreamer.NotNormalGstSearchMes);
     end;
 end;
 
@@ -155,7 +159,7 @@ end;
 procedure TForm1.TrackPosChange(Sender: TObject);
 begin
 If StopTrackUpDate then
-  LPosition.Caption:=GstClockTimeToStr(TrackPos.Position * GST_MSECOND);
+  LPosition.Caption:=GstClockTimeToStr(TrackPos.Position * int64(GST_MSECOND));
 end;
 
 

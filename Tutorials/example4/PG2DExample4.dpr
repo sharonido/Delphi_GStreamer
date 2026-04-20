@@ -47,46 +47,50 @@ if (UriParameter='') or not FileExists(UriParameter)
   try
     LogWriteln(GStreamer.Version);
     LogWriteln('Example 4');
-    logWriteLn('Playing '+ UriParameter);
+    if NormalGstSearch then
+      begin
+        logWriteLn('Playing '+ UriParameter);
 
-    if not GStreamer.BuildAndPlay('playbin uri=' + UriParameter) then
-      raise Exception.Create('Failed to build pipeline');
-    while GStreamer.RunFor(100*GST_MSECOND) do
-    begin
-      if once and (GStreamer.State = GST_STATE_PLAYING) then
+        if not GStreamer.BuildAndPlay('playbin uri=' + UriParameter) then
+          raise Exception.Create('Failed to build pipeline');
+        while GStreamer.RunFor(100*GST_MSECOND) do
         begin
-        once:=false;
-        logWriteln('Enter ''p''-for Position, or ''d''-for Duration or'+
-            ' ''s''-Seek to 20 sec or Esc to stop');
-        if (HTerminal<>0) then SetForegroundWindow(HTerminal);
-        end;
+          if once and (GStreamer.State = GST_STATE_PLAYING) then
+            begin
+            once:=false;
+            logWriteln('Enter ''p''-for Position, or ''d''-for Duration or'+
+                ' ''s''-Seek to 20 sec or Esc to stop');
+            if (HTerminal<>0) then SetForegroundWindow(HTerminal);
+            end;
 
-      if KeyPressed(Key) then
-        begin
-        Write(key);
-          case key of
-            'p','P': // Position
-                if GStreamer.QueryPosition(Position) then
-                  logWriteln(' Position: '+inttostr(Position div gint(GST_SECOND))+ ' sec');
-            'd','D': // Duration
-                if GStreamer.QueryDuration(Duration) then
-                  logWriteln(' Duration: '+inttostr(Duration div gint(GST_SECOND))+' sec');
-            's','S':// Seek
-            if GStreamer.SeekSimple(20 * GST_SECOND,
-               GST_FORMAT_TIME,
-               GST_SEEK_FLAG_FLUSH or GST_SEEK_FLAG_KEY_UNIT
-             ) then
-                  logWriteln(' Seek to 20 sec position succeeded')
-                else
-                  logWriteln(' Seek failed');
-            chr(VK_ESCAPE)://stop
-              break;
-            else  Writeln(key+
-              ' Must enter ''p''-for Position, or ''d''-for Duration or'+
-              ' ''s''-Seek to 20 sec or Esc to stop');
-          end;
+          if KeyPressed(Key) then
+            begin
+            Write(key);
+              case key of
+                'p','P': // Position
+                    if GStreamer.QueryPosition(Position) then
+                      logWriteln(' Position: '+inttostr(Position div gint(GST_SECOND))+ ' sec');
+                'd','D': // Duration
+                    if GStreamer.QueryDuration(Duration) then
+                      logWriteln(' Duration: '+inttostr(Duration div gint(GST_SECOND))+' sec');
+                's','S':// Seek
+                if GStreamer.SeekSimple(20 * GST_SECOND,
+                   GST_FORMAT_TIME,
+                   GST_SEEK_FLAG_FLUSH or GST_SEEK_FLAG_KEY_UNIT
+                 ) then
+                      logWriteln(' Seek to 20 sec position succeeded')
+                    else
+                      logWriteln(' Seek failed');
+                chr(VK_ESCAPE)://stop
+                  break;
+                else  Writeln(key+
+                  ' Must enter ''p''-for Position, or ''d''-for Duration or'+
+                  ' ''s''-Seek to 20 sec or Esc to stop');
+              end;
+            end;
         end;
-    end;
+      end
+      else LogWriteln(GStreamer.NotNormalGstSearchMes);
 
   finally
     GStreamer.Free;

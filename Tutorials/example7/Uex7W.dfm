@@ -1433,7 +1433,7 @@ object Form1: TForm1
         Min = 50
         ParentDoubleBuffered = False
         Frequency = 100
-        Position = 423
+        Position = 422
         TabOrder = 2
         ThumbLength = 18
         OnChange = TrackFreqChange

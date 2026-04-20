@@ -5,7 +5,7 @@ interface
 uses
   Winapi.Windows, Winapi.Messages, System.SysUtils,
   System.Variants, System.Classes,
-  G2D.GstFramework, G2D.GstElement.DOO, G2D.Gst.Types, WinConsoleFunction,
+  G2D.GstFramework, G2D.GstElement.DOO, G2D.Gst.Types, G2D.Glib.API, WinConsoleFunction,
   Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.ExtCtrls,
   Vcl.StdCtrls, Vcl.ComCtrls, Vcl.Buttons;
 
@@ -137,7 +137,9 @@ begin
     GStreamer.StringsLogger := Logger.Lines;
     LogWriteln(GStreamer.Version);
     LogWriteln('Example 5W');
-    PlayURI(UriParameter);
+
+    if NormalGstSearch then PlayURI(UriParameter)
+                       else LogWriteln(GStreamer.NotNormalGstSearchMes);
   end;
 end;
 

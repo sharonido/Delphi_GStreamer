@@ -5,12 +5,12 @@ interface
 uses
   Winapi.Windows, Winapi.Messages, System.SysUtils,
   System.Variants, System.Classes,
-  Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs,
+  Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.Imaging.pngimage,
   Vcl.ExtCtrls, Vcl.StdCtrls, Vcl.ComCtrls, Vcl.WinXCtrls,
   G2D.GstFramework,
   G2D.GstElement.DOO,
   G2D.GstPad.DOO,
-  G2D.Gst.Types, Vcl.Imaging.pngimage;
+  G2D.Gst.Types, G2D.Glib.API;
 
 type
   TForm1 = class(TForm)
@@ -77,20 +77,13 @@ var
   LLinkRes       : GstPadLinkReturn;
 begin
   // Create empty pipeline
-  if not GStreamer.NewPipeline('tut7') then
+  if not GStreamer.NewPipeline('MainPipeline') then
     raise Exception.Create('Failed to create pipeline');
-
-  // Make all elements
-  GStreamer.MakeElement('audiotestsrc',  'audio_source');
-  GStreamer.MakeElement('tee',           'tee');
-  GStreamer.MakeElement('queue',         'audio_queue');
-  GStreamer.MakeElement('audioconvert',  'audio_convert');
-  GStreamer.MakeElement('audioresample', 'audio_resample');
-  GStreamer.MakeElement('autoaudiosink', 'audio_sink');
-  GStreamer.MakeElement('queue',         'video_queue');
-  GStreamer.MakeElement('wavescope',     'visual');
-  GStreamer.MakeElement('videoconvert',  'video_convert');
-  GStreamer.MakeElement('d3d11videosink', 'video_sink');
+  GStreamer.PipeLine.MakeElements(
+    'audiotestsrc name=audio_source freq=422.0 ! tee name=tee ! queue name=audio_queue ! '+
+    'audioconvert name=audio_convert ! audioresample name=audio_resample ! autoaudiosink name=audio_sink ! '+
+    'queue name=video_queue ! wavescope name=visual shader=0 style=1 ! '+
+    'videoconvert name=video_convert ! d3d11videosink name=video_sink');
 
   // Add all elements to the pipeline
   GStreamer.AddElements([
@@ -98,11 +91,6 @@ begin
     'audio_queue',  'audio_convert', 'audio_resample', 'audio_sink',
     'video_queue',  'visual',        'video_convert',  'video_sink'
   ]);
-
-  // Configure audiotestsrc frequency and wavescope style
-  GStreamer.SetElementPropertyFloat('audio_source', 'freq', TrackFreq.Position);
-  GStreamer.SetElementPropertyInt('visual', 'shader', 0);
-  GStreamer.SetElementPropertyInt('visual', 'style',  1);
 
   // Link the Always-pad chains (tee not included yet)
   if not GStreamer.LinkElements('audio_source', 'tee') then
@@ -156,8 +144,10 @@ begin
 
   GStreamer := TGstFramework.Create(True);
   GStreamer.StringsLogger := Logger.Lines;
-  BuildPipeline;
+  LogWriteln(GStreamer.Version);
+  LogWriteln('Example 5W');
   UpdateFreqLabel;
+  BuildPipeline
 end;
 
 procedure TForm1.FormDestroy(Sender: TObject);

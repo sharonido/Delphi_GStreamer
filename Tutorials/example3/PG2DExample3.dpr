@@ -7,6 +7,7 @@ uses
   System.SysUtils,
   G2D.GstFramework,
   G2D.Gst.Types,
+  G2D.Glib.API,
   WinConsoleFunction in '..\WinConsoleFunction.pas';
 
 var
@@ -26,21 +27,25 @@ begin
   try
     LogWriteln(GStreamer.Version);
     LogWriteln('Example 3');
-    GStreamer.Build('uridecodebin name=source ! audioconvert name=convert !'+
-                ' audioresample name=resample ! autoaudiosink name=audio_sink');
-    if not GStreamer.LinkMany(['convert', 'resample', 'audio_sink']) then
-      raise Exception.Create('Failed to link static elements');
+    if NormalGstSearch then
+      begin
+      GStreamer.Build('uridecodebin name=source ! audioconvert name=convert !'+
+                  ' audioresample name=resample ! autoaudiosink name=audio_sink');
 
-    if not GStreamer.ConnectDynamicPad('source', 'convert', 'sink') then
-      raise Exception.Create('Failed to connect dynamic pad');
+      if not GStreamer.LinkMany(['convert', 'resample', 'audio_sink']) then
+        raise Exception.Create('Failed to link static elements');
 
-    GStreamer.SetElementPropertyString('source', 'uri', UriParameter);
-    if not GStreamer.Play then
-      raise Exception.Create('Failed to play pipeline');
-    logWriteLn('Playing '+ UriParameter);
-    while GStreamer.RunFor(GST_CLOCK_TIME_NONE) do; //run until End of stream
-    {begin
-    end; }
+      if not GStreamer.ConnectDynamicPad('source', 'convert', 'sink') then
+        raise Exception.Create('Failed to connect dynamic pad');
+
+      GStreamer.SetElementPropertyString('source', 'uri', UriParameter);
+      if not GStreamer.Play then
+        raise Exception.Create('Failed to play pipeline');
+
+      logWriteLn('Playing '+ UriParameter);
+      while GStreamer.RunFor(GST_CLOCK_TIME_NONE) do; //run until End of stream
+      end
+      else LogWriteln(GStreamer.NotNormalGstSearchMes);
 
   finally
     GStreamer.Free;

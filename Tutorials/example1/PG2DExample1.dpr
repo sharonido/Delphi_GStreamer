@@ -52,12 +52,7 @@ begin
         end;
       end
       else
-      LogWriteln('This example works only if the full GStreamer Framework is downloaded from:'+sLineBreak+
-                  'https://gstreamer.freedesktop.org/data/pkg/windows/1.28.2/msvc/gstreamer-1.0-msvc-x86_64-1.28.2.exe'+sLineBreak+
-                  'or you can go to examples that can work with G2D repository'+sLineBreak+
-                  'Examples 2, 2W, 3, 6W, 7W, 8W and build elements examples'+sLineBreak+
-                  'It is fully compatible with:' + sLineBreak+
-                  'https://gstreamer.freedesktop.org/documentation/tutorials/' );
+      LogWriteln(GStreamer.NotNormalGstSearchMes);
 
     finally
       GStreamer.Free;
