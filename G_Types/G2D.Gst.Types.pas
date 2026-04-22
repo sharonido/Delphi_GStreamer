@@ -1043,6 +1043,15 @@ const
 
 function GstPadLinkReturn2Str(Res :GstPadLinkReturn) :string;
 
+type
+  { gulong - unsigned native int, used as probe ID }
+  gulong = NativeUInt;
+
+  { Probe callback - must be cdecl, called on streaming thread }
+  TGstPadProbeCallback = function(pad: PGstPad;
+    info: PGstPadProbeInfo;
+    user_data: gpointer): GstPadProbeReturn; cdecl;
+
 implementation
 
 function GstPadLinkReturn2Str(Res :GstPadLinkReturn) :string;
