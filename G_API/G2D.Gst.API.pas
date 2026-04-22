@@ -141,7 +141,16 @@ var
   _gst_caps_get_size: function(caps: PGstCaps): guint; cdecl = nil;
   _gst_caps_get_structure: function(caps: PGstCaps; index: guint): PGstStructure; cdecl = nil;
   _gst_caps_unref: procedure(caps: PGstCaps); cdecl = nil;
-  _gst_caps_to_string: function(caps: PGstCaps): Pgchar; cdecl = nil;
+  _gst_caps_to_string      : function(caps: PGstCaps): Pgchar; cdecl = nil;
+  _gst_pad_add_probe       : function(pad: PGstPad;
+    mask: GstPadProbeType;
+    callback: TGstPadProbeCallback;
+    user_data: gpointer;
+    destroy_data: gpointer): gulong; cdecl = nil;
+  _gst_pad_remove_probe    : procedure(pad: PGstPad;
+    id: gulong); cdecl = nil;
+  _gst_event_get_type      : function(event: gpointer): gint; cdecl = nil;
+  _gst_event_type_get_name : function(etype: gint): Pgchar; cdecl = nil;
 
   { Tutorial 6 - Structure }
   _gst_structure_get_name: function(structure: PGstStructure): Pgchar; cdecl = nil;
@@ -326,7 +335,11 @@ begin
   _gst_caps_get_size := nil;
   _gst_caps_get_structure := nil;
   _gst_caps_unref := nil;
-  _gst_caps_to_string := nil;
+  _gst_caps_to_string       := nil;
+  _gst_pad_add_probe        := nil;
+  _gst_pad_remove_probe     := nil;
+  _gst_event_get_type       := nil;
+  _gst_event_type_get_name  := nil;
 
   _gst_structure_get_name := nil;
   _gst_structure_foreach := nil;
@@ -450,7 +463,11 @@ begin
   @_gst_caps_get_size := _LoadProcGst('gst_caps_get_size');
   @_gst_caps_get_structure := _LoadProcGst('gst_caps_get_structure');
   @_gst_caps_unref := _LoadProcGst('gst_caps_unref');
-  @_gst_caps_to_string := _LoadProcGst('gst_caps_to_string');
+  @_gst_caps_to_string       := _LoadProcGst('gst_caps_to_string');
+  @_gst_pad_add_probe        := _LoadProcGst('gst_pad_add_probe');
+  @_gst_pad_remove_probe     := _LoadProcGst('gst_pad_remove_probe');
+  @_gst_event_get_type       := _LoadProcGst('gst_event_get_type');
+  @_gst_event_type_get_name  := _LoadProcGst('gst_event_type_get_name');
 
   { Tutorial 6 - Structure }
   @_gst_structure_get_name := _LoadProcGst('gst_structure_get_name');
