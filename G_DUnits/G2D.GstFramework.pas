@@ -638,7 +638,8 @@ begin
              LTimeout,
              GST_MESSAGE_ERROR or
              GST_MESSAGE_EOS or
-             GST_MESSAGE_STATE_CHANGED
+             GST_MESSAGE_STATE_CHANGED or
+             GST_MESSAGE_LATENCY
            );
     LTimeout := 0;  { non-blocking for all subsequent iterations }
 
@@ -682,6 +683,12 @@ begin
       Result := False;
       Exit;
     end;
+
+    { Latency changed - recalculate so PAUSED->PLAYING can complete
+      when appsrc is is-live=True }
+    if Msg.MessageType = GST_MESSAGE_LATENCY then
+      if FPipeline <> nil then
+        _gst_bin_recalculate_latency(PGstBin(FPipeline.PipelineHandle));
 
   finally
     Msg.Free;
