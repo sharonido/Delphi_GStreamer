@@ -39,6 +39,7 @@ var
 
   { Element / Pipeline / Bin }
   _gst_pipeline_new: function(name: Pgchar): PGstElement; cdecl = nil;
+  _gst_bin_new: function(name: Pgchar): PGstElement; cdecl = nil;
   _gst_element_factory_make: function(factoryname: Pgchar; name: Pgchar): PGstElement; cdecl = nil;
   _gst_element_factory_find: function(name: Pgchar): PGstElementFactory; cdecl = nil;
 
@@ -60,8 +61,10 @@ var
 
   _gst_element_get_bus: function(element: PGstElement): PGstBus; cdecl = nil;
   _gst_element_get_static_pad: function(element: PGstElement; name: Pgchar): PGstPad; cdecl = nil;
+  _gst_element_add_pad: function(element: PGstElement; pad: PGstPad): gboolean; cdecl = nil;
 
   { Pad }
+  _gst_ghost_pad_new: function(name: Pgchar; target: PGstPad): PGstPad; cdecl = nil;
   _gst_pad_link: function(srcpad: PGstPad; sinkpad: PGstPad): GstPadLinkReturn; cdecl = nil;
   _gst_pad_unlink: function(srcpad: PGstPad; sinkpad: PGstPad): gboolean; cdecl = nil;
   _gst_pad_is_linked: function(pad: PGstPad): gboolean; cdecl = nil;
@@ -266,6 +269,7 @@ begin
 
   { Element / Pipeline / Bin }
   _gst_pipeline_new := nil;
+  _gst_bin_new := nil;
   _gst_element_factory_make := nil;
   _gst_element_factory_find := nil;
 
@@ -282,8 +286,10 @@ begin
 
   _gst_element_get_bus := nil;
   _gst_element_get_static_pad := nil;
+  _gst_element_add_pad := nil;
 
   { Pad }
+  _gst_ghost_pad_new := nil;
   _gst_pad_link := nil;
   _gst_pad_unlink := nil;
   _gst_pad_is_linked := nil;
@@ -392,6 +398,7 @@ begin
 
   { Element / Pipeline / Bin }
   @_gst_pipeline_new := _LoadProcGst('gst_pipeline_new');
+  @_gst_bin_new := _LoadProcGst('gst_bin_new');
   @_gst_element_factory_make := _LoadProcGst('gst_element_factory_make');
   @_gst_element_factory_find := _LoadProcGst('gst_element_factory_find');
 
@@ -408,8 +415,10 @@ begin
 
   @_gst_element_get_bus := _LoadProcGst('gst_element_get_bus');
   @_gst_element_get_static_pad := _LoadProcGst('gst_element_get_static_pad');
+  @_gst_element_add_pad := _LoadProcGst('gst_element_add_pad');
 
   { Pad }
+  @_gst_ghost_pad_new := _LoadProcGst('gst_ghost_pad_new');
   @_gst_pad_link := _LoadProcGst('gst_pad_link');
   @_gst_pad_unlink := _LoadProcGst('gst_pad_unlink');
   @_gst_pad_is_linked := _LoadProcGst('gst_pad_is_linked');

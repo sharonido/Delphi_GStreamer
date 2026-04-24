@@ -30,7 +30,9 @@ uses
   System.SysUtils,
   System.SyncObjs,
   G2D.Glib.Types,
+  G2D.Glib.API,
   G2D.Gobject.Types,
+  G2D.Gobject.DOO,
   G2D.Gst.Types,
   G2D.Gst.API,
   G2D.GstApp.DOO,
@@ -51,12 +53,14 @@ type
 ==============================================================================}
   TGstSimpleBase = class
   private
-    FFramework  : TGstFramework;
+    FFramework       : TGstFramework;
+    FLock            : TCriticalSection;
+    FInstanceID      : Integer;
+    FLastCaps        : PGstCaps;  { last seen caps pointer - detects format changes }
+  protected
     FSink       : TGstAppSinkRef;
     FSrc        : TGstAppSrcRef;
-    FLock       : TCriticalSection;
-    FInstanceID : Integer;
-    FLastCaps   : PGstCaps;  { last seen caps pointer - detects format changes }
+    property Framework: TGstFramework read FFramework;
 
     class function NewSampleCallback(sink: PGstElement;
       data: gpointer): GstFlowReturn; cdecl; static;
@@ -73,6 +77,14 @@ type
       format change). Override to allocate format-specific resources. }
     procedure OnCapsChanged(ACaps: PGstCaps); virtual;
 
+    { Override to configure appsrc differently (e.g. audio vs video).
+      Called from constructor after FSrc is created. }
+    procedure ConfigureSrc; virtual;
+
+    { Returns True if it is safe to push a buffer to appsrc right now.
+      Default (video): always True. Audio overrides to check FNeedData. }
+    function CanPushBuffer: Boolean; virtual;
+
     { THE override point. Called on the streaming thread for every buffer.
       AMapIn  : mapped input  buffer (GST_MAP_READ)  - read from AMapIn.data
       AMapOut : mapped output buffer (GST_MAP_WRITE) - write to AMapOut.data
@@ -87,16 +99,16 @@ type
 
     { Add both internal elements to the framework pipeline.
       Call this before setting the pipeline to PLAYING. }
-    procedure AddToPipeline;
+    procedure AddToPipeline; virtual;
 
     { AddToPipeline + link upstream -> appsink and appsrc -> downstream
       in one call. AUpstream and ADownstream are element names already
       registered in the framework (via MakeElements/AddElements). }
-    procedure AddAndLink(const AUpstream, ADownstream: string);
+    procedure AddAndLink(const AUpstream, ADownstream: string); virtual;
 
     { Unblocks the streaming thread and stops the elements.
       Called automatically from Destroy - no manual call needed. }
-    procedure Shutdown;
+    procedure Shutdown; virtual;
 
     { Set fixed caps on both appsink and appsrc from a caps string. }
     procedure SetFixedCaps(const ACapsStr: string);
@@ -162,22 +174,19 @@ begin
     if LCaps <> nil then
     begin
       FSink.SetCaps(LCaps);
+      { Constrain the appsink side immediately, but let appsrc wait for the
+        first real sample before advertising downstream caps. With audio,
+        appsrc is configured as live, so PAUSED can still complete without
+        preroll. Advertising broad startup caps here can cause downstream to
+        negotiate against an under-specified format before real caps arrive. }
       _gst_caps_unref(LCaps);
     end;
   end;
 
-  { Configure src.
-    is-live=True: appsrc behaves as a live source so it does not
-    participate in preroll - prevents deadlock where appsrc blocks
-    waiting for our callback which never fires until PLAYING.
-    block=True + max-buffers=1: once PLAYING, push_buffer blocks until
-    downstream consumes each buffer - natural backpressure, flat memory. }
-  FSrc.SetFormat(GST_FORMAT_TIME);
-  FSrc.SetIsLive(True);
-  FSrc.SetBlockOnFull(True);
-  FSrc.SetPropertyInt('max-buffers', 1);
+  { Configure src via virtual method - subclasses can override }
+  ConfigureSrc;
 
-  FLastCaps := nil;
+  FLastCaps         := nil;
   FSink.ConnectNewSample(NewSampleCallback, Self);
 end;
 
@@ -230,6 +239,9 @@ begin
 end;
 
 procedure TGstSimpleBase.Shutdown;
+var
+  LState   : GstState;
+  LPending : GstState;
 begin
   if Assigned(FSink) and (FSink.ElementHandle <> nil) then
     FSink.SetEmitSignals(False);
@@ -237,10 +249,16 @@ begin
   { Set appsrc to READY - flushes its queue and unblocks any thread
     blocked in gst_app_src_push_buffer immediately. }
   if Assigned(FSrc) and (FSrc.ElementHandle <> nil) then
+  begin
     _gst_element_set_state(FSrc.ElementHandle, GST_STATE_READY);
+    _gst_element_get_state(FSrc.ElementHandle, @LState, @LPending, GST_SECOND);
+  end;
 
   if Assigned(FSink) and (FSink.ElementHandle <> nil) then
+  begin
     _gst_element_set_state(FSink.ElementHandle, GST_STATE_READY);
+    _gst_element_get_state(FSink.ElementHandle, @LState, @LPending, GST_SECOND);
+  end;
 end;
 
 procedure TGstSimpleBase.SetFixedCaps(const ACapsStr: string);
@@ -263,6 +281,22 @@ begin
 end;
 
 { --- Protected virtuals ---------------------------------------------------- }
+
+function TGstSimpleBase.CanPushBuffer: Boolean;
+begin
+  Result := True;
+end;
+
+procedure TGstSimpleBase.ConfigureSrc;
+begin
+  { Default: video-friendly config.
+    block=True + max-buffers=1: push_buffer blocks until downstream
+    consumes each buffer - natural backpressure, flat memory. }
+  FSrc.SetFormat(GST_FORMAT_TIME);
+  FSrc.SetIsLive(False);
+  FSrc.SetBlockOnFull(True);
+  FSrc.SetPropertyInt('max-buffers', 1);
+end;
 
 function TGstSimpleBase.GetSinkCaps: string;
 begin
@@ -348,6 +382,14 @@ begin
           if ProcessBuffer(LMapIn, LMapOut) then
           begin
             _gst_buffer_unmap(LOutBuffer, @LMapOut);
+            if not CanPushBuffer then
+            begin
+              { appsrc not ready - drop buffer silently }
+              _gst_buffer_unref(LOutBuffer);
+              LOutBuffer := nil;
+              Result := GST_FLOW_OK;
+              Exit;
+            end;
             { gst_app_src_push_buffer takes ownership - do NOT unref }
             Result := _gst_app_src_push_buffer(FSrc.ElementHandle, LOutBuffer);
             LOutBuffer := nil;

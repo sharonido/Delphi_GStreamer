@@ -2,12 +2,10 @@ unit UAEqualizer1;
 
 {------------------------------------------------------------------------------
   PG2DExampleAudioEqualizer
-  8-band audio equalizer using biquad IIR filters via TGstAudioSimple.
+  8-band audio equalizer using biquad IIR filters via TGstAudioSimpleFilter.
 
   Pipeline:
-    uridecodebin --> audioconvert --> audioresample -->
-    appsink --> [ProcessAudio/EQ] --> appsrc -->
-    audioconvert --> autoaudiosink
+    uridecodebin --> TGstAudioSimpleFilter --> autoaudiosink
 
   Each of the 8 bands uses a peaking EQ biquad filter:
     Band 1:  100 Hz
@@ -37,6 +35,7 @@ uses
   G2D.GstElement.DOO,
   G2D.CustomSimpleAudioElement,
   G2D.Gst.API,
+  G2D.Glib.API,
   Vcl.Mask;
 
 const
@@ -86,7 +85,7 @@ type
   TEqualizerFilter
   8-band peaking EQ audio filter. Thread-safe gain updates via FLockBands.
 ------------------------------------------------------------------------------}
-  TEqualizerFilter = class(TGstAudioSimple)
+  TEqualizerFilter = class(TGstAudioSimpleFilter)
   private
     FLockBands : TCriticalSection;
     FBands     : TBands;
@@ -201,6 +200,33 @@ uses
   System.StrUtils;
 
 { ============================================================================
+  Pad probe - logs caps on appsrc src pad every event
+  Called on GStreamer streaming thread - LogWriteln is thread-safe
+  ============================================================================ }
+function AppsrcProbeCallback(pad: PGstPad; info: PGstPadProbeInfo;
+  user_data: gpointer): GstPadProbeReturn; cdecl;
+var
+  LCaps    : PGstCaps;
+  LCapsStr : Pgchar;
+begin
+  Result := GST_PAD_PROBE_OK;
+  LCaps := _gst_pad_get_current_caps(pad);
+  if LCaps <> nil then
+  begin
+    LCapsStr := _gst_caps_to_string(LCaps);
+    if LCapsStr <> nil then
+    begin
+      LogWriteln('appsrc src caps: ' +
+        string(UTF8String(AnsiString(LCapsStr))));
+      _g_free(LCapsStr);
+    end;
+    _gst_caps_unref(LCaps);
+  end
+  else
+    LogWriteln('appsrc src caps: nil (not negotiated)');
+end;
+
+{ ============================================================================
   TEqualizerFilter
   ============================================================================ }
 
@@ -230,9 +256,8 @@ end;
 
 function TEqualizerFilter.GetSinkCaps: string;
 begin
-  { F32LE: 32-bit float, interleaved, stereo, 44100Hz
-    Float arithmetic avoids integer overflow in the biquad math. }
-  Result := 'audio/x-raw,format=F32LE,rate=44100,channels=2,layout=interleaved';
+  { Request float PCM but let rate/channel count negotiate from the stream. }
+  Result := 'audio/x-raw,format=F32LE,layout=interleaved';
 end;
 
 procedure TEqualizerFilter.OnAudioInfoChanged(const AInfo: GstAudioInfo);
@@ -332,6 +357,12 @@ var
   LBands    : TBands;
 begin
   Result := True;
+
+  if (AInfo.channels <= 0) or (AInfo.channels > Length(FBands[0].State)) then
+  begin
+    Move(AMapIn.data^, AMapOut.data^, AMapIn.size);
+    Exit;
+  end;
 
   PSrc   := PSingleArray(AMapIn.data);
   PDst   := PSingleArray(AMapOut.data);
@@ -456,18 +487,21 @@ end;
 
 procedure TForm1.FormDestroy(Sender: TObject);
 begin
+  if Assigned(FFilter) then
+    FFilter.Shutdown;
   FreeAndNil(FFilter);
+  if Assigned(FGStreamer) then
+    FGStreamer.Close;
   FreeAndNil(FGStreamer);
 end;
 
 procedure TForm1.BuildPipeline(const AURI: string);
-var
-  I: Integer;
 begin
-  { Tear down any existing pipeline }
   if Assigned(FFilter) then
+  begin
+    FFilter.Shutdown;
     FreeAndNil(FFilter);
-  FGStreamer.Null;
+  end;
   FGStreamer.Close;
 
   if not FGStreamer.NewPipeline('eq1') then
@@ -476,52 +510,35 @@ begin
     Exit;
   end;
 
-  { STEP 2 - filter inserted as passthrough (EQ disabled) }
-  FGStreamer.MakeElements(
+  FGStreamer.PipeLine.MakeElements(
     'uridecodebin name=source !' +
-    'audioconvert name=convert !' +
-    'audioresample name=resample !' +
-    'audioconvert name=convert2 !' +
     'autoaudiosink name=sink');
 
   FGStreamer.SetElementPropertyString('source', 'uri', AURI);
 
   FFilter := TEqualizerFilter.Create(FGStreamer);
-  { Partial caps on appsrc - format only, no rate/channels.
-    convert2 negotiates rate/channels with autoaudiosink at runtime. }
-  FFilter.SrcElement.SetCaps(
-    _gst_caps_from_string(Pgchar(pansichar('audio/x-raw,format=F32LE,layout=interleaved'))));
-  FFilter.SetEnabled(False);  { passthrough for now }
+  FFilter.SetEnabled(ToggleSwitch1.State = tssOn);
+  FFilter.AddToPipeline;
 
-  FGStreamer.AddElements(['source', 'convert', 'resample', 'convert2', 'sink']);
+  FGStreamer.AddElements(['source', 'sink']);
 
-  if not FGStreamer.LinkElements('convert', 'resample') then
+  if not FGStreamer.LinkElements(FFilter.BinName, 'sink') then
   begin
-    LogWriteln('Failed to link convert -> resample');
+    LogWriteln('Failed to link filter -> autoaudiosink');
     Exit;
   end;
+  LogWriteln('filter -> autoaudiosink linked');
 
-  FFilter.AddAndLink('resample', 'convert2');
-
-  if not FGStreamer.LinkElements('convert2', 'sink') then
+  if not FGStreamer.ConnectDynamicPad('source', FFilter.BinName, 'sink') then
   begin
-    LogWriteln('Failed to link convert2 -> sink');
+    LogWriteln('Failed to connect dynamic pad to filter');
     Exit;
   end;
-
-  if not FGStreamer.ConnectDynamicPad('source', 'convert', 'sink') then
-  begin
-    LogWriteln('Failed to connect dynamic pad');
-    Exit;
-  end;
-
-  { Apply current trackbar gains }
-  for I := 0 to EQ_BANDS - 1 do
-    FFilter.SetBandGain(I, GetTrackBar(I).Position);
 
   if not FGStreamer.Play then
     LogWriteln('Failed to set pipeline to PLAYING');
 end;
+
 procedure TForm1.Button1Click(Sender: TObject);
 begin
   if FOpenDialog.Execute then
@@ -556,11 +573,11 @@ var
 begin
   LTB   := Sender as TTrackBar;
   LBand := LTB.Tag;
-  LGain := LTB.Position;
+  LGain := -LTB.Position;
 
   LLabel := GetDBLabel(LBand);
   if Assigned(LLabel) then
-    LLabel.Caption := Format('%+3d dB', [LGain]);
+    LLabel.Caption := Format('%3d dB', [LGain]);
 
   if Assigned(FFilter) then
     FFilter.SetBandGain(LBand, LGain);
