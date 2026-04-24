@@ -1,57 +1,176 @@
-﻿#### Contributor:
-ido@pitaron.info
+# Delphi GStreamer (G2D)
 
-## Before you start
-For manipulate media there are a number of open source frameworks, each with his own advantages. They also overlap one another. The three that I would recommend (With Delphi wrappers) are:   
-- ***FFMPEG*** – best for understanding and unwrapping, wrapping media streams and files from one hand and decoding encoding the streams. (Also used in all kinds of GStreamer plugins).  
-- ***OpenCV*** – best for unveiling what reality is actually in the media (Also used here in GStreamer plugins, filters).
-- **GStreamer – what is explained here,** best for stream routing & filtering of media.    
-In my opinion, GStreamer is more complicated to master, if you can work with the above two you may be better off.
+G2D is a Delphi / Object Pascal bridge for [GStreamer](https://gstreamer.freedesktop.org/).
 
-## G2D 
-G2D is a bridge between GStreamer framework and Pascal. This Is Version 3.0 of G2D
-G2D would enable Delphi (object pascal) developers to use the GStreamer framework in their pascal program. By doing so G2D enables endless manipulation and uses of multimedia on Windows, Linux, Mac, ios and Android systems. Because GStreamer was unavailable for Delphi developers many professional multimedia project development used C, C++, Python and Java (that do have bridges to GStreamer) although in all other aspects Delphi would be their preferred choice.
-You should download & read the word document [**Gstreamer for Delphi G2D.docx**](https://github.com/sharonido/Delphi_GStreamer/blob/master/G2D.docx) that is provided here.
-  
-## Be Aware
-This G2D framework is in stages of construction!!!
-In this stage, it supports limited operation.
-Here is a partly list of limitations:<br>
-- Support only windows (tested on windows 10 & 11 desktop only)
-- Support only programs compiled in 64 bit
-## Installation
-If you only want to use the Basic you only need to
-Install the G2D that is the bridge between Delphi and GStreamer, that is here by:
-#### Installing GStreamer G2D
-Open: https://github.com/sharonido/Delphi_GStreamer you should download the whole repository by the green download button, or if you have git installed in your system then from cmd line enter the command:
-> git clone https://<i></i>github.com/sharonido/Delphi_GStreamer.git
-It is important to maintain the G2D internal structure (that we have here). It does not matter where you decide to put this directory structure in your system.
+Its goal is to let Delphi developers build multimedia applications and custom media pipelines without dropping down to C, C++, Python, or Java. This repository contains:
 
-But to use all GStreamer capabilities you must install the GStreamer framework:
-#### Installing GStreamer framework
-Download from https://gstreamer.freedesktop.org/data/pkg/windows/1.28.2/msvc/gstreamer-1.0-msvc-x86_64-1.28.2.exe
-run it and follow the instructions:)
+- Delphi wrappers around GStreamer types, APIs, and objects
+- a higher-level framework layer for building pipelines from Delphi
+- tutorial ports and examples
+- examples of building custom audio and video filters in Delphi
 
-Note: G2D should work with any pascal compiler but was not tested for that, only Delphi 10 and above was tested.
+The project currently focuses on practical Windows desktop development with 64-bit Delphi.
 
+## Current Status
 
-## Explanation
-#### Tutorials
-In the **Tutorials** directory there are sub-directories that follow the tutorials of GStreamer.<br>
-The sub-directories follows these directories in:<br>
-https://gstreamer.freedesktop.org/documentation/tutorials/index.html?gi-language=c<br>
-Each sub-directory follows a tutorial. That is, example1 directory follows tutorial 1,
-example2 follows tutorial 2, and so on. In some sub-directories there are more then one
-example. Some examples use a console program. Some examples (with a "W" in their name)
-use VCL with a delphi Tpanel as an output for rendering the video.<br>
-#### This wrapper
-The G2D is wrapper made out of 4 Layers in 4 directories:<br>
-- A Types layer in "G_Types" directory defines types used in GStreamer.<br>
-- An API layer in "G_API" directory calls function in GStreamer DLLs.<br>
-- A Base layer in "G_DBase" directory defines classes that wrap the C semi classes used in GStreamer.<br>
-- A Unit layer in "G_DUnit" directory defines classes that wrap the Framework itself and classes that you can build your own elements by inheriting from them as shown in Building new Elements directory.<br>
+This project is still evolving and should be treated as work in progress.
 
-These files should be included in the uses of your project and in the units
-that use them like in the examples provided in the Tutorials directory.<br>
+What works well today:
 
+- using GStreamer from Delphi code
+- building pipelines from Delphi
+- following the GStreamer tutorials in Delphi form
+- experimenting with custom audio and video filters
 
+Current limitations:
+
+- mainly tested on Windows 10/11
+- mainly tested with 64-bit builds
+- not all of GStreamer is wrapped yet
+- some parts are still low-level and improving over time
+
+## Who This Is For
+
+This repository is useful if you want to:
+
+- inspect, and route audio/video streams from Delphi
+- learn GStreamer through Delphi examples
+- build your own GStreamer-backed tools or applications
+- create custom filters in Delphi
+
+If you are looking for the companion written guide, see:
+
+- [G2D.docx](./G2D.docx)
+
+## Quick Start
+
+### 1. Clone the repository
+
+```bash
+git clone https://github.com/sharonido/Delphi_GStreamer.git
+```
+
+Keep the repository folder structure intact.
+
+### 2. Install GStreamer
+
+Install the official 64-bit Windows GStreamer runtime/development package.
+
+Example download page:
+
+- [GStreamer Windows downloads](https://gstreamer.freedesktop.org/data/pkg/windows/)
+
+This project has been tested with the MSVC 64-bit Windows build of GStreamer.
+
+### 3. Open the Delphi projects
+
+You can start with:
+
+- the tutorial projects under [Tutorials](./Tutorials)
+- the custom filter examples under [Building new Elements](./Building%20new%20Elements)
+
+### 4. Build for Win64
+
+The current project setup is primarily intended for 64-bit Delphi builds.
+
+## Repository Layout
+
+### Core wrapper layers
+
+- [G_Types](./G_Types)
+  GStreamer-related Pascal types and records
+- [G_API](./G_API)
+  Low-level bindings to GStreamer DLL functions
+- [G_DBase](./G_DBase)
+  Base Delphi wrapper classes over GStreamer objects
+- [G_DUnits](./G_DUnits)
+  Higher-level framework classes and helper abstractions
+
+### Learning and examples
+
+- [Tutorials](./Tutorials)
+  Delphi versions of the official GStreamer tutorials
+- [Building new Elements](./Building%20new%20Elements)
+  Examples of custom filters/elements written in Delphi
+- [Uni-Tests](./Uni-Tests)
+  Unit tests and validation work
+
+### Other folders
+
+- [DLLs](./DLLs)
+  Local DLL-related material used by the project
+- [OpenCVWrapper](./OpenCVWrapper)
+  OpenCV-related wrapper/helper code used by some examples
+
+## Tutorials
+
+The [Tutorials](./Tutorials) folder follows the structure of the official GStreamer tutorials:
+
+- [GStreamer tutorials](https://gstreamer.freedesktop.org/documentation/tutorials/)
+
+In general:
+
+- `example1`, `example2`, ... map to the corresponding tutorial topics
+- console and VCL examples are both included
+- files with `W` in the name are typically VCL / windowed examples
+
+If you are new to G2D, this is the best place to start.
+
+## Custom Filters
+
+The [Building new Elements](./Building%20new%20Elements) folder shows how to build custom filters in Delphi.
+
+Recent work in this repository includes safer audio-filter building blocks, including a managed audio filter chain that wraps:
+
+```text
+audioconvert -> audioresample -> appsink -> Delphi filter -> appsrc -> audioconvert -> audioresample
+```
+
+This makes it easier to build practical Delphi-side audio filters without manually wiring the full normalization chain each time.
+
+## Design Overview
+
+G2D is organized in layers so you can work at the level you need:
+
+1. `G_Types`
+   Raw type definitions
+2. `G_API`
+   Raw imported GStreamer functions
+3. `G_DBase`
+   Delphi wrappers around GStreamer objects
+4. `G_DUnits`
+   Higher-level framework and custom-element helpers
+
+That means you can either:
+
+- stay close to the C/GStreamer model when needed
+- or use higher-level Delphi abstractions for faster application work
+
+## Recommended Companion Technologies
+
+If your work goes beyond stream routing and playback, the following libraries often fit well alongside GStreamer:
+
+- FFmpeg
+  Great for container/codec-oriented media work
+- OpenCV
+  Great for image/video analysis and computer vision
+- GStreamer
+  Great for media pipelines, routing, playback, capture, and filtering
+
+They overlap, but each has a different sweet spot.
+
+## Notes
+
+- The project has mainly been exercised with Delphi 10+.
+- The code may work with other Pascal compilers, but that is not the main tested path today.
+- The focus of the examples is practical usage, not full wrapper completeness.
+
+## Contributing
+
+Issues, improvements, fixes, and wrapper extensions are welcome.
+
+If you improve an example, add a missing wrapper, or make pipeline building easier for Delphi users, that is valuable work for this project.
+
+## Author
+
+- ido@pitaron.info
