@@ -111,8 +111,6 @@ object Form1: TForm1
       BevelOuter = bvNone
       ShowCaption = False
       TabOrder = 1
-      ExplicitTop = 203
-      ExplicitHeight = 497
       object LblLogger: TLabel
         Left = 0
         Top = 0
@@ -137,7 +135,6 @@ object Form1: TForm1
         ScrollBars = ssBoth
         TabOrder = 0
         WordWrap = False
-        ExplicitHeight = 482
       end
     end
   end

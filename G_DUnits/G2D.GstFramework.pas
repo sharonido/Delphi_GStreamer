@@ -3,7 +3,7 @@ unit G2D.GstFramework;
 interface
 
 uses
-  System.SysUtils, Winapi.Windows, System.Classes,
+  System.SysUtils, Winapi.Windows, System.Classes, System.Generics.Collections,
   Vcl.Forms, Vcl.AppEvnts, Vcl.ExtCtrls, Vcl.ComCtrls, Vcl.StdCtrls,
 
   G2D.Glib.API,
@@ -20,6 +20,10 @@ uses
   G2D.GstBus.DOO;
 
 type
+  TGstFramework = class;
+  TG2DManagedFactoryCreate = function(AFramework: TGstFramework;
+    const AName: string): TObject;
+
   EG2DGstFrameWork = class(Exception);
 
   TGstRunMode = (DoOnce, DoForEver);
@@ -50,12 +54,14 @@ type
     FLastDebugText: string;
     FReachedEOS: Boolean;
     FDynamicPadLinks: array of TG2DDynamicPadLinkData;
+    FManagedObjects: TObjectDictionary<string, TObject>;
 
     class var fStringsLogger:TStrings;
-
     class procedure SetStringsLogger(m:TStrings);static;
 
     procedure ClearDynamicPadLinks;
+    procedure ClearManagedObjects;
+    procedure RegisterManagedObject(const AName: string; AObject: TObject);
     function AddDynamicPadLink(const ATargetElementName, ATargetPadName: string): Pointer;
     function LinkIncomingPadToElement(ANewPad: PGstPad;
       const ATargetElementName: string; const ATargetPadName: string = 'sink'): Boolean;
@@ -84,6 +90,7 @@ type
 
     function RunFor(ATimeout: GstClockTime): Boolean;
     function FindElement(const AName: string): TGstElementRef;
+    function FindManagedObject(const AName: string): TObject;
 
     function HasError: Boolean;
     function HasEOS: Boolean;
@@ -138,12 +145,35 @@ function GstClockTimeToStr(ATime:int64):string;
 
 procedure stdWrite(st:string);
 procedure LogWriteln(st:string='');
+procedure RegisterManagedFactory(const AFactoryName: string;
+  ACreate: TG2DManagedFactoryCreate);
+procedure UnregisterManagedFactory(const AFactoryName: string);
 
 var
   LogWrite: procedure(st:string) = stdWrite;
 
 //=============================================================================
 implementation
+
+var
+  GManagedFactories: TDictionary<string, TG2DManagedFactoryCreate>;
+
+procedure RegisterManagedFactory(const AFactoryName: string;
+  ACreate: TG2DManagedFactoryCreate);
+begin
+  if (AFactoryName = '') or not Assigned(ACreate) then
+    Exit;
+  if GManagedFactories = nil then
+    GManagedFactories := TDictionary<string, TG2DManagedFactoryCreate>.Create;
+  GManagedFactories.AddOrSetValue(AFactoryName.ToLower, ACreate);
+end;
+
+procedure UnregisterManagedFactory(const AFactoryName: string);
+begin
+  if (GManagedFactories = nil) or (AFactoryName = '') then
+    Exit;
+  GManagedFactories.Remove(AFactoryName.ToLower);
+end;
 
 procedure stdWrite(st:string);
 begin   //needs to be called not only from main thread
@@ -221,6 +251,7 @@ begin
   FLastErrorText := '';
   FLastDebugText := '';
   FReachedEOS := False;
+  FManagedObjects := TObjectDictionary<string, TObject>.Create([doOwnsValues]);
 
   if not G2D_LoadGlib then
     raise EG2DGstFrameworkError.Create('GLib load failed');
@@ -263,6 +294,7 @@ begin
   try
     Close;
   finally
+    FreeAndNil(FManagedObjects);
     inherited;
   end;
 end;
@@ -348,8 +380,23 @@ begin
   SetLength(FDynamicPadLinks, 0);
 end;
 
+procedure TGstFramework.ClearManagedObjects;
+begin
+  if FManagedObjects <> nil then
+    FManagedObjects.Clear;
+end;
+
+procedure TGstFramework.RegisterManagedObject(const AName: string; AObject: TObject);
+begin
+  if (AName = '') or (AObject = nil) then
+    Exit;
+  FManagedObjects.AddOrSetValue(AName, AObject);
+end;
+
 procedure TGstFramework.ClearPipeline;
 begin
+  ClearManagedObjects;
+
   if FBus <> nil then
   begin
     FBus.Free;
@@ -524,13 +571,122 @@ begin
 end;
 
 function TGstFramework.Build(const APipelineDescription: string): Boolean;
+var
+  LElements      : TArray<string>;
+  LTokens        : TArray<string>;
+  LPairs         : TArray<string>;
+  LFactory       : string;
+  LName          : string;
+  LPair          : string;
+  LKey           : string;
+  LValue         : string;
+  LElem          : TGstElementRef;
+  I, J           : Integer;
+  LAutoVideo     : Integer;
+  LAutoAudio     : Integer;
+  LKeyUtf8       : UTF8String;
+  LValueUtf8     : UTF8String;
+  LManagedObject : TObject;
+  LManagedCreate : TG2DManagedFactoryCreate;
 begin
   CheckStarted;
   ClearPipeline;
   FPipeline:=TGstPipelineRef.New('MainPipeline');
   FBus:=FPipeline.GetBus;
   If FBus = nil then raise EG2DGstFrameworkError.Create('Failed to get bus');
-  PipeLine.MakeElements(APipelineDescription);
+
+  LElements := APipelineDescription.Split(['!']);
+  LAutoVideo := 0;
+  LAutoAudio := 0;
+
+  for I := 0 to High(LElements) do
+  begin
+    LTokens := LElements[I].Trim.Split([' ', #9], TStringSplitOptions.ExcludeEmpty);
+    if Length(LTokens) = 0 then
+      Continue;
+
+    LFactory := LTokens[0].Trim;
+    if LFactory = '' then
+      Continue;
+
+    LName := '';
+    for J := 1 to High(LTokens) do
+    begin
+      LPairs := LTokens[J].Split(['=']);
+      if (Length(LPairs) = 2) and SameText(LPairs[0].Trim, 'name') then
+      begin
+        LName := LPairs[1].Trim;
+        Break;
+      end;
+    end;
+
+    if (GManagedFactories <> nil) and
+       GManagedFactories.TryGetValue(LFactory.ToLower, LManagedCreate) then
+    begin
+      if LName = '' then
+      begin
+        if SameText(LFactory, 'G2DVideoFilter') then
+        begin
+          LName := Format('G2DVideoFilter%d', [LAutoVideo]);
+          Inc(LAutoVideo);
+        end
+        else if SameText(LFactory, 'G2DAudioFilter') then
+        begin
+          LName := Format('G2DAudioFilter%d', [LAutoAudio]);
+          Inc(LAutoAudio);
+        end
+        else
+          LName := Format('%s_%d', [LFactory, I]);
+      end;
+
+      LManagedObject := LManagedCreate(Self, LName);
+      if LManagedObject = nil then
+        raise EG2DGstFrameworkError.CreateFmt(
+          'Build: failed to create managed element "%s" (factory "%s")',
+          [LName, LFactory]);
+
+      RegisterManagedObject(LName, LManagedObject);
+      Pipeline.RegisterExistingElement(LName);
+      Continue;
+    end;
+
+    if LName = '' then
+      LName := Format('%s_%d', [LFactory, I]);
+
+    LElem := Pipeline.MakeElement(LFactory, LName);
+    if LElem = nil then
+      raise EG2DGstFrameworkError.CreateFmt(
+        'Build: failed to create element "%s" (factory "%s")',
+        [LName, LFactory]);
+    LElem.Free;
+
+    for J := 1 to High(LTokens) do
+    begin
+      LPair := LTokens[J].Trim;
+      LPairs := LPair.Split(['=']);
+      if Length(LPairs) <> 2 then
+        Continue;
+      LKey := LPairs[0].Trim;
+      LValue := LPairs[1].Trim;
+      if SameText(LKey, 'name') then
+        Continue;
+
+      LElem := Pipeline.GetElement(LName);
+      if LElem <> nil then
+      try
+        LKeyUtf8 := UTF8String(LKey);
+        LValueUtf8 := UTF8String(LValue);
+        _gst_util_set_object_arg(
+          gpointer(LElem.ElementHandle),
+          Pgchar(PAnsiChar(LKeyUtf8)),
+          Pgchar(PAnsiChar(LValueUtf8))
+        );
+      finally
+        LElem.Free;
+      end;
+    end;
+  end;
+
   if not PipeLine.AddAllElements  then
         raise EG2DGstFrameworkError.Create('Failed to Add and Link Elements');
   Result:=True;
@@ -705,6 +861,14 @@ begin
     Result := TGstElementRef.Wrap(PGstElement(FPipeline.PipelineHandle),
                 True,   // addref - because caller will Free this wrapper
                 True);
+end;
+
+function TGstFramework.FindManagedObject(const AName: string): TObject;
+begin
+  Result := nil;
+  if FManagedObjects = nil then
+    Exit;
+  FManagedObjects.TryGetValue(AName, Result);
 end;
 
 var
@@ -889,5 +1053,10 @@ begin
               ASeekPos
             ) <> 0;
 end;
+
+initialization
+
+finalization
+  FreeAndNil(GManagedFactories);
 
 end.

@@ -5,10 +5,10 @@ unit UVRotate1;
   Demonstrates frame rotation using OpenCV via G2DOpenCV.dll.
 
   Pipeline (logical):
-    videotestsrc pattern=N --> TRotateFilter --> d3d11videosink
+    videotestsrc pattern=N --> G2DVideoFilter --> d3d11videosink
 
   Pipeline (actual GStreamer elements):
-    videotestsrc --> appsink --> [ProcessFrame] --> appsrc --> videoconvert --> d3d11videosink
+    videotestsrc --> G2DVideoFilter bin --> d3d11videosink
 
   TrackBar1 controls the rotation angle (-180..+180 degrees).
   LDegree shows the current angle.
@@ -28,28 +28,6 @@ uses
   G2D.CustomSimpleVideoElement;
 
 type
-
-{------------------------------------------------------------------------------
-  TRotateFilter
-  Rotates each BGRx video frame by a runtime-configurable angle using
-  OpenCV's warpAffine. The angle is set from the main thread via SetAngle
-  and read from the streaming thread in ProcessFrame.
-------------------------------------------------------------------------------}
-  TRotateFilter = class(TGstVideoSimple)
-  private
-    FLockAngle : TCriticalSection;
-    FAngle     : Double;
-  protected
-    function GetSinkCaps: string; override;
-    function ProcessFrame(const AIn: GstVideoFrame;
-      const AInfo: GstVideoInfo;
-      var AOut: GstVideoFrame): Boolean; override;
-  public
-    constructor Create(AFramework: TGstFramework);
-    destructor Destroy; override;
-    procedure SetAngle(AAngle: Double);
-  end;
-
 {------------------------------------------------------------------------------
   TForm1
 ------------------------------------------------------------------------------}
@@ -85,8 +63,13 @@ type
     procedure TrackBar1Change(Sender: TObject);
   private
     FGStreamer : TGstFramework;
-    FFilter   : TRotateFilter;
+    FFilter   : TG2DVideoFilterRef;
     FSrc      : TGstElementRef;
+    FLockAngle: TCriticalSection;
+    FAngle    : Double;
+    function FilterGetSinkCaps(Sender: TObject): string;
+    function FilterProcessFrame(Sender: TObject; const AIn: GstVideoFrame;
+      const AInfo: GstVideoInfo; var AOut: GstVideoFrame): Boolean;
   end;
 
 var
@@ -96,39 +79,12 @@ implementation
 
 {$R *.dfm}
 
-{------------------------------------------------------------------------------
-  TRotateFilter
-------------------------------------------------------------------------------}
-
-constructor TRotateFilter.Create(AFramework: TGstFramework);
-begin
-  inherited Create(AFramework);
-  FLockAngle := TCriticalSection.Create;
-  FAngle     := 0.0;
-end;
-
-destructor TRotateFilter.Destroy;
-begin
-  FreeAndNil(FLockAngle);
-  inherited;
-end;
-
-function TRotateFilter.GetSinkCaps: string;
+function TForm1.FilterGetSinkCaps(Sender: TObject): string;
 begin
   Result := 'video/x-raw,format=BGRx';
 end;
 
-procedure TRotateFilter.SetAngle(AAngle: Double);
-begin
-  FLockAngle.Acquire;
-  try
-    FAngle := -AAngle;
-  finally
-    FLockAngle.Release;
-  end;
-end;
-
-function TRotateFilter.ProcessFrame(const AIn: GstVideoFrame;
+function TForm1.FilterProcessFrame(Sender: TObject; const AIn: GstVideoFrame;
   const AInfo: GstVideoInfo; var AOut: GstVideoFrame): Boolean;
 var
   LAngle : Double;
@@ -162,7 +118,10 @@ begin
 
   FGStreamer := TGstFramework.Create(True);
   FGStreamer.StringsLogger := logger.Lines;
+  LogWriteln(FGStreamer.Version);
   LogWriteln('OpenCV version: ' + G2DCV_Version);
+  FLockAngle := TCriticalSection.Create;
+  FAngle := 0.0;
 
   if not FGStreamer.Started then
   begin
@@ -170,25 +129,27 @@ begin
     Exit;
   end;
 
-  if not FGStreamer.NewPipeline('rotate1') then
+  if not FGStreamer.Build(
+    'videotestsrc name=src ! ' +
+    'G2DVideoFilter name=VF1 ! ' +
+    'd3d11videosink name=video_sink async=false') then
   begin
-    LogWriteln('Failed to create pipeline');
+    LogWriteln('Failed to build pipeline');
     Exit;
   end;
 
-  FGStreamer.PipeLine.MakeElements(
-    'videotestsrc name=src !' +
-    'd3d11videosink name=video_sink async=false !' +
-    'videoconvert name=vconv');
-
-  FFilter := TRotateFilter.Create(FGStreamer);
-
-  FGStreamer.AddElements(['src', 'vconv', 'video_sink']);
-  FFilter.AddAndLink('src', 'vconv');
-
-  if not FGStreamer.LinkElements('vconv', 'video_sink') then
+  FFilter := FGStreamer.FindVideoFilter('VF1');
+  if FFilter = nil then
   begin
-    LogWriteln('Failed to link vconv -> video_sink');
+    LogWriteln('Failed to find video filter VF1');
+    Exit;
+  end;
+  FFilter.OnGetSinkCaps := FilterGetSinkCaps;
+  FFilter.OnProcessFrame := FilterProcessFrame;
+
+  if not FGStreamer.Pipeline.LinkAllElements then
+  begin
+    LogWriteln('Failed to link built pipeline');
     Exit;
   end;
 
@@ -205,7 +166,14 @@ end;
 procedure TForm1.FormDestroy(Sender: TObject);
 begin
   FreeAndNil(FSrc);
-  FreeAndNil(FFilter);
+  if Assigned(FFilter) then
+  begin
+    FFilter.OnProcessFrame := nil;
+    FFilter.OnGetSinkCaps := nil;
+    FFilter.Shutdown;
+  end;
+  FFilter := nil;
+  FreeAndNil(FLockAngle);
   FreeAndNil(FGStreamer);
 end;
 
@@ -221,8 +189,12 @@ var
 begin
   LAngle := TrackBar1.Position;
   LDegree.Caption := Format('%4d', [LAngle]) + #176;
-  if Assigned(FFilter) then
-    FFilter.SetAngle(LAngle);
+  FLockAngle.Acquire;
+  try
+    FAngle := -LAngle;
+  finally
+    FLockAngle.Release;
+  end;
 end;
 
 end.

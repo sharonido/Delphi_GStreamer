@@ -61,7 +61,7 @@ type
     property HasAudioInfo: Boolean read FHasAudioInfo;
   end;
 
-  TGstAudioSimpleFilter = class(TGstAudioSimple)
+  TG2DAudioFilterRef = class(TGstAudioSimple)
   private
     FBin             : TGstBinRef;
     FPreConvert      : TGstElementRef;
@@ -77,7 +77,7 @@ type
     procedure CreateGhostPads;
 
   public
-    constructor Create(AFramework: TGstFramework);
+    constructor Create(AFramework: TGstFramework; const AName: string = '');
     destructor Destroy; override;
 
     procedure AddToPipeline; override;
@@ -85,6 +85,13 @@ type
     procedure Shutdown; override;
 
     property BinName: string read FBinName;
+  end;
+
+  TGstAudioSimpleFilter = class(TG2DAudioFilterRef)
+  end;
+
+  TGstFrameworkAudioFilterHelper = class helper for TGstFramework
+    function FindAudioFilter(const AName: string): TG2DAudioFilterRef;
   end;
 
 implementation
@@ -108,7 +115,14 @@ begin
 end;
 
 var
-  GAudioSimpleFilterCounter: Integer = 0;
+  GAudioFilterCounter: Integer = -1;
+
+function CreateManagedAudioFilter(AFramework: TGstFramework;
+  const AName: string): TObject;
+begin
+  Result := TG2DAudioFilterRef.Create(AFramework, AName);
+  TG2DAudioFilterRef(Result).AddToPipeline;
+end;
 
 constructor TGstAudioSimple.Create(AFramework: TGstFramework);
 begin
@@ -213,17 +227,17 @@ begin
   Result        := True;
 end;
 
-{ TGstAudioSimpleFilter }
+{ TG2DAudioFilterRef }
 
-class function TGstAudioSimpleFilter.NextFilterName: string;
+class function TG2DAudioFilterRef.NextFilterName: string;
 var
   LID: Integer;
 begin
-  LID := TInterlocked.Increment(GAudioSimpleFilterCounter);
-  Result := Format('g2d_audio_filter_%d', [LID]);
+  LID := TInterlocked.Increment(GAudioFilterCounter);
+  Result := Format('G2DAudioFilter%d', [LID]);
 end;
 
-class function TGstAudioSimpleFilter.MakeManagedElement(const AFactory,
+class function TG2DAudioFilterRef.MakeManagedElement(const AFactory,
   AName: string): TGstElementRef;
 begin
   Result := TGstElementRef.FactoryMake(AFactory, AName);
@@ -233,14 +247,17 @@ begin
       [AName, AFactory]);
 end;
 
-constructor TGstAudioSimpleFilter.Create(AFramework: TGstFramework);
+constructor TG2DAudioFilterRef.Create(AFramework: TGstFramework; const AName: string);
 begin
   inherited Create(AFramework);
-  FBinName := NextFilterName;
+  if AName <> '' then
+    FBinName := AName
+  else
+    FBinName := NextFilterName;
   BuildManagedChain;
 end;
 
-destructor TGstAudioSimpleFilter.Destroy;
+destructor TG2DAudioFilterRef.Destroy;
 begin
   FreeAndNil(FPostResample);
   FreeAndNil(FPostConvert);
@@ -250,7 +267,7 @@ begin
   inherited;
 end;
 
-procedure TGstAudioSimpleFilter.BuildManagedChain;
+procedure TG2DAudioFilterRef.BuildManagedChain;
 var
   LNameUtf8 : UTF8String;
   LBinHandle: PGstElement;
@@ -281,6 +298,16 @@ begin
   if not FBin.Add(FPostResample) then
     raise EG2DAudioSimpleError.Create('Failed to add post-resample to managed audio filter bin');
 
+  { Ownership transfers to the bin once the elements are successfully added.
+    Keep Delphi wrappers as non-owning references so teardown does not unref
+    the same GStreamer objects twice. }
+  FPreConvert.OwnsRef := False;
+  FPreResample.OwnsRef := False;
+  FSink.OwnsRef := False;
+  FSrc.OwnsRef := False;
+  FPostConvert.OwnsRef := False;
+  FPostResample.OwnsRef := False;
+
   if not FPreConvert.Link(FPreResample) then
     raise EG2DAudioSimpleError.Create('Failed to link pre-convert -> pre-resample');
   if not FPreResample.Link(FSink.ElementHandle) then
@@ -293,7 +320,7 @@ begin
   CreateGhostPads;
 end;
 
-procedure TGstAudioSimpleFilter.CreateGhostPads;
+procedure TG2DAudioFilterRef.CreateGhostPads;
 var
   LTargetPad : PGstPad;
   LGhostPad  : PGstPad;
@@ -328,7 +355,7 @@ begin
   end;
 end;
 
-procedure TGstAudioSimpleFilter.AddToPipeline;
+procedure TG2DAudioFilterRef.AddToPipeline;
 var
   LPipelineBin : PGstBin;
   LCached      : TGstElementRef;
@@ -338,15 +365,16 @@ begin
 
   if (Framework = nil) or (Framework.Pipeline = nil) then
     raise EG2DAudioSimpleError.Create(
-      'TGstAudioSimpleFilter.AddToPipeline: framework pipeline is nil');
+      'TG2DAudioFilterRef.AddToPipeline: framework pipeline is nil');
 
   LPipelineBin := PGstBin(Framework.Pipeline.PipelineHandle);
   if _gst_bin_add(LPipelineBin, FBin.ElementHandle) = 0 then
     raise EG2DAudioSimpleError.CreateFmt(
-      'TGstAudioSimpleFilter.AddToPipeline: failed to add filter bin "%s"',
+      'TG2DAudioFilterRef.AddToPipeline: failed to add filter bin "%s"',
       [FBinName]);
 
   FAddedToPipeline := True;
+  FBin.OwnsRef := False;
 
   { Cache the bin by name in the pipeline element dictionary so framework
     helpers such as LinkElements can address it like a normal element. }
@@ -355,22 +383,22 @@ begin
     LCached.Free;
 end;
 
-procedure TGstAudioSimpleFilter.AddAndLink(const AUpstream, ADownstream: string);
+procedure TG2DAudioFilterRef.AddAndLink(const AUpstream, ADownstream: string);
 begin
   AddToPipeline;
 
   if not Framework.LinkElements(AUpstream, FBinName) then
     raise EG2DAudioSimpleError.CreateFmt(
-      'TGstAudioSimpleFilter.AddAndLink: failed to link "%s" -> "%s"',
+      'TG2DAudioFilterRef.AddAndLink: failed to link "%s" -> "%s"',
       [AUpstream, FBinName]);
 
   if not Framework.LinkElements(FBinName, ADownstream) then
     raise EG2DAudioSimpleError.CreateFmt(
-      'TGstAudioSimpleFilter.AddAndLink: failed to link "%s" -> "%s"',
+      'TG2DAudioFilterRef.AddAndLink: failed to link "%s" -> "%s"',
       [FBinName, ADownstream]);
 end;
 
-procedure TGstAudioSimpleFilter.Shutdown;
+procedure TG2DAudioFilterRef.Shutdown;
 var
   LState   : GstState;
   LPending : GstState;
@@ -382,5 +410,19 @@ begin
   end;
   inherited Shutdown;
 end;
+
+function TGstFrameworkAudioFilterHelper.FindAudioFilter(
+  const AName: string): TG2DAudioFilterRef;
+begin
+  Result := TG2DAudioFilterRef(Self.FindManagedObject(AName));
+  if (Result <> nil) and not (Result is TG2DAudioFilterRef) then
+    Result := nil;
+end;
+
+initialization
+  RegisterManagedFactory('G2DAudioFilter', CreateManagedAudioFilter);
+
+finalization
+  UnregisterManagedFactory('G2DAudioFilter');
 
 end.

@@ -162,20 +162,22 @@ object Form1: TForm1
         Left = 4
         Top = 16
         Width = 34
-        Height = 15
+        Height = 21
         Margins.Top = 15
         Align = alLeft
         Caption = 'Angle:'
+        ExplicitHeight = 15
       end
       object LDegree: TLabel
         AlignWithMargins = True
         Left = 616
         Top = 16
         Width = 25
-        Height = 15
+        Height = 21
         Margins.Top = 15
         Align = alRight
         Caption = '----'#176
+        ExplicitHeight = 15
       end
       object TrackBar1: TTrackBar
         Left = 41
@@ -264,10 +266,11 @@ object Form1: TForm1
       object Label2: TLabel
         Left = 1
         Top = 1
-        Width = 78
+        Width = 181
         Height = 15
         Align = alTop
         Caption = 'GStreamer Log'
+        ExplicitWidth = 78
       end
       object logger: TRichEdit
         Left = 1

@@ -2,13 +2,13 @@ unit UexTxtF1;
 
 {------------------------------------------------------------------------------
   PG2DExampleTextFilter
-  Demonstrates a text overlay filter using TGstVideoSimple.
+  Demonstrates a text overlay filter using TGstVideoSimpleFilter.
 
   Pipeline (logical):
     videotestsrc pattern=N --> TTextOverlayFilter --> d3d11videosink
 
   Pipeline (actual GStreamer elements):
-    videotestsrc --> appsink --> [ProcessFrame] --> appsrc --> videoconvert --> d3d11videosink
+    videotestsrc --> TGstVideoSimpleFilter bin --> d3d11videosink
 
   Filter: when the toggle switch is on, draws the text from EditText onto
   each video frame at the bottom-left corner. Format is pinned to BGRx.
@@ -30,41 +30,6 @@ uses
   G2D.CustomSimpleVideoElement;
 
 type
-
-{------------------------------------------------------------------------------
-  TTextOverlayFilter
-  Draws text onto BGRx video frames.
-
-  - OnVideoInfoChanged: allocates FOverlay bitmap matching frame size,
-    calls RenderOverlay to draw the current text.
-  - RenderOverlay: redraws text onto FOverlay (call when text changes).
-  - ProcessFrame: if enabled, blends FOverlay pixels onto output frame.
-
-  Thread safety: FEnabled and FOverlay are accessed from the streaming
-  thread. FLockOverlay protects FOverlay during rebuild.
-------------------------------------------------------------------------------}
-  TTextOverlayFilter = class(TGstVideoSimple)
-  private
-    FLockOverlay : TCriticalSection;
-    FOverlay     : TBitmap;       { pre-rendered text, BGRx-sized }
-    FText        : string;        { current overlay text }
-    FEnabled     : Boolean;       { whether overlay is drawn }
-
-  protected
-    function GetSinkCaps: string; override;
-    procedure OnVideoInfoChanged(const AInfo: GstVideoInfo); override;
-    function ProcessFrame(const AIn: GstVideoFrame;
-      const AInfo: GstVideoInfo;
-      var AOut: GstVideoFrame): Boolean; override;
-
-  public
-    constructor Create(AFramework: TGstFramework);
-    destructor Destroy; override;
-
-    { Call from main thread when text or enabled state changes.
-      Rebuilds the overlay bitmap with the current text. }
-    procedure RenderOverlay(const AText: string; AEnabled: Boolean);
-  end;
 
 {------------------------------------------------------------------------------
   TForm1
@@ -103,8 +68,16 @@ type
     procedure Edit1Change(Sender: TObject);
   private
     FGStreamer : TGstFramework;
-    FFilter   : TTextOverlayFilter;
-    FSrc      : TGstElementRef;
+    FFilter    : TG2DVideoFilterRef;
+    FSrc       : TGstElementRef;
+    FLockOverlay: TCriticalSection;
+    FOverlay   : TBitmap;
+    FText      : string;
+    FEnabled   : Boolean;
+    function FilterGetSinkCaps(Sender: TObject): string;
+    function FilterProcessFrame(Sender: TObject; const AIn: GstVideoFrame;
+      const AInfo: GstVideoInfo; var AOut: GstVideoFrame): Boolean;
+    procedure RenderOverlay(const AText: string; AEnabled: Boolean);
     procedure UpdateOverlay;
   end;
 
@@ -115,44 +88,7 @@ implementation
 
 {$R *.dfm}
 
-{------------------------------------------------------------------------------
-  TTextOverlayFilter
-------------------------------------------------------------------------------}
-
-constructor TTextOverlayFilter.Create(AFramework: TGstFramework);
-begin
-  inherited Create(AFramework);
-  FLockOverlay := TCriticalSection.Create;
-  FOverlay     := nil;
-  FText        := '';
-  FEnabled     := False;
-end;
-
-destructor TTextOverlayFilter.Destroy;
-begin
-  FLockOverlay.Acquire;
-  try
-    FreeAndNil(FOverlay);
-  finally
-    FLockOverlay.Release;
-  end;
-  FreeAndNil(FLockOverlay);
-  inherited;
-end;
-
-function TTextOverlayFilter.GetSinkCaps: string;
-begin
-  Result := 'video/x-raw,format=BGRx';
-end;
-
-procedure TTextOverlayFilter.OnVideoInfoChanged(const AInfo: GstVideoInfo);
-begin
-  { Rebuild the overlay bitmap at the new frame size.
-    Called on the streaming thread - RenderOverlay acquires FLockOverlay. }
-  RenderOverlay(FText, FEnabled);
-end;
-
-procedure TTextOverlayFilter.RenderOverlay(const AText: string;
+procedure TForm1.RenderOverlay(const AText: string;
   AEnabled: Boolean);
 var
   LBmp    : TBitmap;
@@ -160,7 +96,7 @@ var
   LHeight : Integer;
 begin
   { Snapshot video dimensions - HasVideoInfo may be false before first frame }
-  if not HasVideoInfo then
+  if not Assigned(FFilter) or not FFilter.HasVideoInfo then
   begin
     FLockOverlay.Acquire;
     try
@@ -172,8 +108,8 @@ begin
     Exit;
   end;
 
-  LWidth  := VideoInfo.width;
-  LHeight := VideoInfo.height;
+  LWidth  := FFilter.VideoInfo.width;
+  LHeight := FFilter.VideoInfo.height;
 
   LBmp := TBitmap.Create;
   try
@@ -212,7 +148,12 @@ begin
   end;
 end;
 
-function TTextOverlayFilter.ProcessFrame(const AIn: GstVideoFrame;
+function TForm1.FilterGetSinkCaps(Sender: TObject): string;
+begin
+  Result := 'video/x-raw,format=BGRx';
+end;
+
+function TForm1.FilterProcessFrame(Sender: TObject; const AIn: GstVideoFrame;
   const AInfo: GstVideoInfo; var AOut: GstVideoFrame): Boolean;
 var
   LRow     : Integer;
@@ -223,6 +164,9 @@ var
   LOvPix   : PByte;
   LDstPix  : PByte;
   LSrcPix  : PByte;
+  LNeedRebuild: Boolean;
+  LCurrentText: string;
+  LCurrentEnabled: Boolean;
 begin
   { Always copy input to output first }
   if (AIn.map[0].data <> nil) and (AOut.map[0].data <> nil)
@@ -230,6 +174,26 @@ begin
     Move(AIn.map[0].data^, AOut.map[0].data^, AIn.map[0].size);
 
   LStride := AInfo.stride[0];
+  LNeedRebuild := False;
+
+  FLockOverlay.Acquire;
+  try
+    LCurrentText := FText;
+    LCurrentEnabled := FEnabled;
+    if (FOverlay = nil) or (FOverlay.Width <> AInfo.width) or
+       (FOverlay.Height <> AInfo.height) then
+      LNeedRebuild := True;
+
+    if not FEnabled or (FOverlay = nil) then
+    begin
+      { Let the lazy rebuild happen below if dimensions just became known. }
+    end;
+  finally
+    FLockOverlay.Release;
+  end;
+
+  if LNeedRebuild then
+    RenderOverlay(LCurrentText, LCurrentEnabled);
 
   FLockOverlay.Acquire;
   try
@@ -285,31 +249,40 @@ begin
   FGStreamer.StringsLogger := logger.Lines;
   LogWriteln(FGStreamer.Version);
   LogWriteln('Example of simple filter of Text over video');
+
+  FLockOverlay := TCriticalSection.Create;
+  FOverlay     := nil;
+  FText        := '';
+  FEnabled     := False;
+
   if not FGStreamer.Started then
   begin
     LogWriteln('GStreamer failed to start');
     Exit;
   end;
 
-  if not FGStreamer.NewPipeline('txtf1') then
+  if not FGStreamer.Build(
+    'videotestsrc name=src ! ' +
+    'G2DVideoFilter name=VF1 ! ' +
+    'd3d11videosink name=video_sink async=false') then
   begin
-    LogWriteln('Failed to create pipeline');
+    LogWriteln('Failed to build pipeline');
     Exit;
   end;
 
-  FGStreamer.PipeLine.MakeElements(
-    'videotestsrc name=src !' +
-    'd3d11videosink name=video_sink async=false !' +
-    'videoconvert name=vconv');
-
-  FFilter := TTextOverlayFilter.Create(FGStreamer);
-
-  FGStreamer.AddElements(['src', 'vconv', 'video_sink']);
-  FFilter.AddAndLink('src', 'vconv');
-
-  if not FGStreamer.LinkElements('vconv', 'video_sink') then
+  FFilter := FGStreamer.FindVideoFilter('VF1');
+  if FFilter = nil then
   begin
-    LogWriteln('Failed to link vconv -> video_sink');
+    LogWriteln('Failed to find video filter VF1');
+    Exit;
+  end;
+
+  FFilter.OnGetSinkCaps := FilterGetSinkCaps;
+  FFilter.OnProcessFrame := FilterProcessFrame;
+
+  if not FGStreamer.Pipeline.LinkAllElements then
+  begin
+    LogWriteln('Failed to link built pipeline');
     Exit;
   end;
 
@@ -324,14 +297,30 @@ end;
 procedure TForm1.FormDestroy(Sender: TObject);
 begin
   FreeAndNil(FSrc);
-  FreeAndNil(FFilter);
+  if Assigned(FFilter) then
+  begin
+    FFilter.OnProcessFrame := nil;
+    FFilter.OnGetSinkCaps  := nil;
+    FFilter.Shutdown;
+  end;
+  FFilter := nil;
+  if Assigned(FLockOverlay) then
+  begin
+    FLockOverlay.Acquire;
+    try
+      FreeAndNil(FOverlay);
+    finally
+      FLockOverlay.Release;
+    end;
+  end;
+  FreeAndNil(FLockOverlay);
   FreeAndNil(FGStreamer);
 end;
 
 procedure TForm1.UpdateOverlay;
 begin
   if Assigned(FFilter) then
-    FFilter.RenderOverlay(Edit1.Text, ToggleSwitch1.State = tssOn);
+    RenderOverlay(Edit1.Text, ToggleSwitch1.State = tssOn);
 end;
 
 procedure TForm1.RadioButtonClick(Sender: TObject);

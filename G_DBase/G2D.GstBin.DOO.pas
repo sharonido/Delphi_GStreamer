@@ -66,6 +66,8 @@ begin
     raise EG2DGstBinDOOError.Create('Add element is nil');
 
   Result := Add(AElement.ElementHandle);
+  if Result then
+    AElement.OwnsRef := False;
 end;
 
 function TGstBinRef.Add(const AElement: PGstElement): Boolean;
@@ -84,6 +86,8 @@ begin
     raise EG2DGstBinDOOError.Create('Remove element is nil');
 
   Result := Remove(AElement.ElementHandle);
+  if Result then
+    AElement.OwnsRef := True;
 end;
 
 function TGstBinRef.Remove(const AElement: PGstElement): Boolean;

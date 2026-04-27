@@ -48,6 +48,7 @@ type
     function GetElement(const AName: string): TGstElementRef;
     function GetByName(const AName: string): TGstElementRef; reintroduce;
     function HasElement(const AName: string): Boolean;
+    procedure RegisterExistingElement(const AName: string);
 
     function AddElement(const AName: string): Boolean;
     function AddElements(const ANames: array of string): Boolean;
@@ -347,6 +348,33 @@ begin
   LElement := GetElement(AName);
   try
     Result := LElement <> nil;
+  finally
+    LElement.Free;
+  end;
+end;
+
+procedure TGstPipelineRef.RegisterExistingElement(const AName: string);
+var
+  LElement: TGstElementRef;
+begin
+  CheckPipelineHandle;
+  EnsureElements;
+
+  if FElements.ContainsKey(AName) then
+  begin
+    if FElementOrder.IndexOf(AName) < 0 then
+      FElementOrder.Add(AName);
+    Exit;
+  end;
+
+  LElement := inherited GetByName(AName);
+  if LElement = nil then
+    raise EG2DGstPipelineDOOError.CreateFmt(
+      'RegisterExistingElement: element "%s" not found in pipeline',
+      [AName]);
+  try
+    FElements.Add(AName, TGstElementRef.Wrap(LElement.ElementHandle, True, True));
+    FElementOrder.Add(AName);
   finally
     LElement.Free;
   end;

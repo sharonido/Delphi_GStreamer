@@ -1,8 +1,8 @@
-program PG2RotateWOpenCV;
+program PG2DRealVideoTextFilter;
 //{$APPTYPE CONSOLE} //use the console for loging events
 uses
   Vcl.Forms,
-  UVRotate1 in 'UVRotate1.pas' {Form1},
+  URealTxtF1 in 'URealTxtF1.pas' {Form1},
   G2D.GstFramework in '..\..\..\G_DUnits\G2D.GstFramework.pas',
   G2D.Glib.API in '..\..\..\G_API\G2D.Glib.API.pas',
   G2D.Gobject.API in '..\..\..\G_API\G2D.Gobject.API.pas',
@@ -18,11 +18,10 @@ uses
   G2D.Glib.Types in '..\..\..\G_Types\G2D.Glib.Types.pas',
   G2D.Gobject.Types in '..\..\..\G_Types\G2D.Gobject.Types.pas',
   G2D.Gst.Types in '..\..\..\G_Types\G2D.Gst.Types.pas',
+  WinConsoleFunction in '..\..\..\Tutorials\WinConsoleFunction.pas',
   G2D.GstApp.DOO in '..\..\..\G_DBase\G2D.GstApp.DOO.pas',
   G2D.CustomSimpleBaseElement in '..\..\..\G_DUnits\G2D.CustomSimpleBaseElement.pas',
-  G2D.CustomSimpleVideoElement in '..\..\..\G_DUnits\G2D.CustomSimpleVideoElement.pas',
-  G2D.OpenCV.API in '..\..\..\G_API\G2D.OpenCV.API.pas',
-  G2D.CustomSimpleAudioElement in '..\..\..\G_DUnits\G2D.CustomSimpleAudioElement.pas';
+  G2D.CustomSimpleVideoElement in '..\..\..\G_DUnits\G2D.CustomSimpleVideoElement.pas';
 
 //{$R *.res}
 

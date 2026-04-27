@@ -342,6 +342,8 @@ begin
 
   GStreamer := TGstFramework.Create(True);
   GStreamer.StringsLogger := Logger.Lines;
+  LogWriteln(GStreamer.Version);
+  LogWriteln('Example 8W');
 
   RBPsych.Checked := True;
 

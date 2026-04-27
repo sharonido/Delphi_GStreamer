@@ -2,13 +2,13 @@ unit UexR2GF1;
 
 {------------------------------------------------------------------------------
   PG2DExampleR2GFilter
-  Demonstrates a real pixel-manipulation filter using TGstVideoSimple.
+  Demonstrates a real pixel-manipulation filter using G2DVideoFilter.
 
   Pipeline (logical):
-    videotestsrc pattern=N --> TRedToGreenFilter --> d3d11videosink
+    videotestsrc pattern=N --> G2DVideoFilter --> d3d11videosink
 
   Pipeline (actual GStreamer elements):
-    videotestsrc --> appsink --> [ProcessFrame] --> appsrc --> videoconvert --> d3d11videosink
+    videotestsrc --> G2DVideoFilter bin --> d3d11videosink
 
   Filter: replaces fully-saturated red pixels (R=255, G=0, B=0) with green
   (R=0, G=255, B=0). Format is pinned to BGRx so the byte layout is known.
@@ -29,20 +29,6 @@ uses
   G2D.CustomSimpleVideoElement, Vcl.WinXCtrls;
 
 type
-
-{------------------------------------------------------------------------------
-  TRedToGreenFilter
-  Replaces fully-saturated red pixels with green in BGRx format.
-  BGRx byte order: [0]=B [1]=G [2]=R [3]=x (padding, ignored)
-------------------------------------------------------------------------------}
-  TRedToGreenFilter = class(TGstVideoSimple)
-  protected
-    function GetSinkCaps: string; override;
-    function ProcessFrame(const AIn: GstVideoFrame;
-      const AInfo: GstVideoInfo;
-      var AOut: GstVideoFrame): Boolean; override;
-  end;
-
 {------------------------------------------------------------------------------
   TForm1
 ------------------------------------------------------------------------------}
@@ -73,8 +59,11 @@ type
     procedure RadioButtonClick(Sender: TObject);
   private
     FGStreamer : TGstFramework;
-    FFilter   : TRedToGreenFilter;
+    FFilter   : TG2DVideoFilterRef;
     FSrc      : TGstElementRef;
+    function FilterGetSinkCaps(Sender: TObject): string;
+    function FilterProcessFrame(Sender: TObject; const AIn: GstVideoFrame;
+      const AInfo: GstVideoInfo; var AOut: GstVideoFrame): Boolean;
   end;
 
 var
@@ -84,18 +73,14 @@ implementation
 
 {$R *.dfm}
 
-{------------------------------------------------------------------------------
-  TRedToGreenFilter
-------------------------------------------------------------------------------}
-
-function TRedToGreenFilter.GetSinkCaps: string;
+function TForm1.FilterGetSinkCaps(Sender: TObject): string;
 begin
   { Pin to BGRx so ProcessFrame knows the exact byte layout:
     byte 0=B, 1=G, 2=R, 3=x (padding). }
   Result := 'video/x-raw,format=BGRx';
 end;
 
-function TRedToGreenFilter.ProcessFrame(const AIn: GstVideoFrame;
+function TForm1.FilterProcessFrame(Sender: TObject; const AIn: GstVideoFrame;
   const AInfo: GstVideoInfo; var AOut: GstVideoFrame): Boolean;
 var
   LRow        : Integer;
@@ -152,6 +137,8 @@ procedure TForm1.FormCreate(Sender: TObject);
 begin
   FGStreamer := TGstFramework.Create(True);
   FGStreamer.StringsLogger := logger.Lines;
+  LogWriteln(FGStreamer.Version);
+  LogWriteln('Example of simple filter Switch pure Red 2 Green');
 
   if not FGStreamer.Started then
   begin
@@ -159,25 +146,27 @@ begin
     Exit;
   end;
 
-  if not FGStreamer.NewPipeline('r2gf1') then
+  if not FGStreamer.Build(
+    'videotestsrc name=src ! ' +
+    'G2DVideoFilter name=VF1 ! ' +
+    'd3d11videosink name=video_sink async=false') then
   begin
-    LogWriteln('Failed to create pipeline');
+    LogWriteln('Failed to build pipeline');
     Exit;
   end;
 
-  FGStreamer.MakeElements(
-    'videotestsrc name=src !' +
-    'd3d11videosink name=video_sink async=false !' +
-    'videoconvert name=vconv');
-
-  FFilter := TRedToGreenFilter.Create(FGStreamer);
-
-  FGStreamer.AddElements(['src', 'vconv', 'video_sink']);
-  FFilter.AddAndLink('src', 'vconv');
-
-  if not FGStreamer.LinkElements('vconv', 'video_sink') then
+  FFilter := FGStreamer.FindVideoFilter('VF1');
+  if FFilter = nil then
   begin
-    LogWriteln('Failed to link vconv -> video_sink');
+    LogWriteln('Failed to find video filter VF1');
+    Exit;
+  end;
+  FFilter.OnGetSinkCaps := FilterGetSinkCaps;
+  FFilter.OnProcessFrame := FilterProcessFrame;
+
+  if not FGStreamer.Pipeline.LinkAllElements then
+  begin
+    LogWriteln('Failed to link built pipeline');
     Exit;
   end;
 
@@ -191,7 +180,13 @@ end;
 procedure TForm1.FormDestroy(Sender: TObject);
 begin
   FreeAndNil(FSrc);
-  FreeAndNil(FFilter);
+  if Assigned(FFilter) then
+  begin
+    FFilter.OnProcessFrame := nil;
+    FFilter.OnGetSinkCaps := nil;
+    FFilter.Shutdown;
+  end;
+  FFilter := nil;
   FreeAndNil(FGStreamer);
 end;
 

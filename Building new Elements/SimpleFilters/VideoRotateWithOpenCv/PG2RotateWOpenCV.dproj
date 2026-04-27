@@ -146,7 +146,6 @@
         <DCCReference Include="..\..\..\G_Types\G2D.Glib.Types.pas"/>
         <DCCReference Include="..\..\..\G_Types\G2D.Gobject.Types.pas"/>
         <DCCReference Include="..\..\..\G_Types\G2D.Gst.Types.pas"/>
-        <DCCReference Include="..\..\..\Tutorials\WinConsoleFunction.pas"/>
         <DCCReference Include="..\..\..\G_DBase\G2D.GstApp.DOO.pas"/>
         <DCCReference Include="..\..\..\G_DUnits\G2D.CustomSimpleBaseElement.pas"/>
         <DCCReference Include="..\..\..\G_DUnits\G2D.CustomSimpleVideoElement.pas"/>

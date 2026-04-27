@@ -39,6 +39,8 @@ type
     procedure SetObjectName(const AName: string);
 
     procedure SetPropertyInt(const AName: string; AValue: Integer);
+    procedure SetPropertyInt64(const AName: string; AValue: Int64);
+    procedure SetPropertyUInt64(const AName: string; AValue: UInt64);
     procedure SetPropertyBool(const AName: string; AValue: Boolean);
     procedure SetPropertyString(const AName, AValue: string);
     procedure SetPropertyDouble(const AName: string; AValue: Double);
@@ -210,6 +212,46 @@ begin
   _g_value_init(@V, G_TYPE_INT);
   try
     _g_value_set_int(@V, AValue);
+    _g_object_set_property(PGObject(FHandle), Pgchar(PAnsiChar(LName)), @V);
+  finally
+    _g_value_unset(@V);
+  end;
+end;
+
+procedure TGObjectRef.SetPropertyInt64(const AName: string; AValue: Int64);
+var
+  V: GValue;
+  LName: UTF8String;
+begin
+  if FHandle = nil then
+    raise EG2DGobjectOOError.Create('SetPropertyInt64: FHandle is nil');
+
+  FillChar(V, SizeOf(V), 0);
+  LName := UTF8String(AName);
+
+  _g_value_init(@V, G_TYPE_INT64);
+  try
+    _g_value_set_int64(@V, AValue);
+    _g_object_set_property(PGObject(FHandle), Pgchar(PAnsiChar(LName)), @V);
+  finally
+    _g_value_unset(@V);
+  end;
+end;
+
+procedure TGObjectRef.SetPropertyUInt64(const AName: string; AValue: UInt64);
+var
+  V: GValue;
+  LName: UTF8String;
+begin
+  if FHandle = nil then
+    raise EG2DGobjectOOError.Create('SetPropertyUInt64: FHandle is nil');
+
+  FillChar(V, SizeOf(V), 0);
+  LName := UTF8String(AName);
+
+  _g_value_init(@V, G_TYPE_UINT64);
+  try
+    _g_value_set_uint64(@V, AValue);
     _g_object_set_property(PGObject(FHandle), Pgchar(PAnsiChar(LName)), @V);
   finally
     _g_value_unset(@V);

@@ -157,18 +157,17 @@ end;
 
 procedure TGstAppSrcRef.SetMinLatency(AValue: gint64);
 begin
-  // min-latency is a int64 property
-  SetPropertyInt('min-latency', AValue);
+  SetPropertyInt64('min-latency', AValue);
 end;
 
 procedure TGstAppSrcRef.SetMaxLatency(AValue: gint64);
 begin
-  SetPropertyInt('max-latency', AValue);
+  SetPropertyInt64('max-latency', AValue);
 end;
 
 procedure TGstAppSrcRef.SetMaxBytes(AValue: guint64);
 begin
-  SetPropertyInt('max-bytes', AValue);
+  SetPropertyUInt64('max-bytes', AValue);
 end;
 
 procedure TGstAppSrcRef.SetBlockOnFull(AValue: Boolean);

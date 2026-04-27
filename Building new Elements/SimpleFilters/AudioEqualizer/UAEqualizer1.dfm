@@ -2,7 +2,7 @@ object Form1: TForm1
   Left = 0
   Top = 0
   Caption = 'Example simple Audio Equalizer'
-  ClientHeight = 494
+  ClientHeight = 353
   ClientWidth = 728
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
@@ -17,33 +17,21 @@ object Form1: TForm1
     Left = 277
     Top = 41
     Width = 451
-    Height = 453
+    Height = 312
     Align = alRight
     Caption = 'Panel4'
     TabOrder = 1
-    object Panel5: TPanel
-      Left = 1
-      Top = 1
-      Width = 449
-      Height = 145
-      Align = alClient
-      Caption = 'Panel5'
-      ShowCaption = False
-      TabOrder = 0
-      ExplicitWidth = 392
-      ExplicitHeight = 192
-    end
+    ExplicitHeight = 579
     object Panel6: TPanel
       Left = 1
-      Top = 146
+      Top = 5
       Width = 449
       Height = 306
       Align = alBottom
       Caption = 'Panel6'
       ShowCaption = False
-      TabOrder = 1
-      ExplicitTop = 144
-      ExplicitWidth = 505
+      TabOrder = 0
+      ExplicitTop = 272
       object Label3: TLabel
         Left = 1
         Top = 1
@@ -52,8 +40,6 @@ object Form1: TForm1
         Align = alTop
         Alignment = taCenter
         Caption = 'Equalizer '
-        ExplicitLeft = 208
-        ExplicitTop = 80
         ExplicitWidth = 50
       end
       object Panel8: TPanel
@@ -74,8 +60,6 @@ object Form1: TForm1
           Align = alBottom
           Alignment = taCenter
           Caption = '100Hz'
-          ExplicitLeft = 1
-          ExplicitTop = 273
           ExplicitWidth = 32
         end
         object Label5: TLabel
@@ -100,10 +84,6 @@ object Form1: TForm1
           Orientation = trVertical
           TabOrder = 0
           OnChange = TrackBarChange
-          ExplicitLeft = 2
-          ExplicitTop = 69
-          ExplicitWidth = 63
-          ExplicitHeight = 203
         end
       end
       object Panel9: TPanel
@@ -116,9 +96,6 @@ object Form1: TForm1
         Caption = 'Panel8'
         ShowCaption = False
         TabOrder = 1
-        ExplicitLeft = 0
-        ExplicitTop = 17
-        ExplicitHeight = 255
         object Label6: TLabel
           Left = 2
           Top = 272
@@ -163,9 +140,6 @@ object Form1: TForm1
         Caption = 'Panel8'
         ShowCaption = False
         TabOrder = 2
-        ExplicitLeft = 0
-        ExplicitTop = 17
-        ExplicitHeight = 255
         object Label8: TLabel
           Left = 2
           Top = 272
@@ -210,9 +184,6 @@ object Form1: TForm1
         Caption = 'Panel8'
         ShowCaption = False
         TabOrder = 3
-        ExplicitLeft = 0
-        ExplicitTop = 17
-        ExplicitHeight = 255
         object Label10: TLabel
           Left = 2
           Top = 272
@@ -257,9 +228,6 @@ object Form1: TForm1
         Caption = 'Panel8'
         ShowCaption = False
         TabOrder = 4
-        ExplicitLeft = 0
-        ExplicitTop = 17
-        ExplicitHeight = 255
         object Label12: TLabel
           Left = 2
           Top = 272
@@ -304,9 +272,6 @@ object Form1: TForm1
         Caption = 'Panel8'
         ShowCaption = False
         TabOrder = 5
-        ExplicitLeft = 0
-        ExplicitTop = 17
-        ExplicitHeight = 255
         object Label14: TLabel
           Left = 2
           Top = 272
@@ -351,9 +316,6 @@ object Form1: TForm1
         Caption = 'Panel8'
         ShowCaption = False
         TabOrder = 6
-        ExplicitLeft = 0
-        ExplicitTop = 17
-        ExplicitHeight = 255
         object Label16: TLabel
           Left = 2
           Top = 272
@@ -386,8 +348,6 @@ object Form1: TForm1
           Orientation = trVertical
           TabOrder = 0
           OnChange = TrackBarChange
-          ExplicitLeft = 16
-          ExplicitTop = 17
         end
       end
       object Panel16: TPanel
@@ -400,9 +360,6 @@ object Form1: TForm1
         Caption = 'Panel8'
         ShowCaption = False
         TabOrder = 7
-        ExplicitLeft = 0
-        ExplicitTop = 17
-        ExplicitHeight = 255
         object Label18: TLabel
           Left = 2
           Top = 272
@@ -443,14 +400,12 @@ object Form1: TForm1
     Left = 0
     Top = 41
     Width = 244
-    Height = 453
+    Height = 312
     Align = alClient
     Caption = 'Panel1'
     ShowCaption = False
     TabOrder = 0
-    ExplicitTop = 0
-    ExplicitWidth = 185
-    ExplicitHeight = 451
+    ExplicitHeight = 579
     object Splitter2: TSplitter
       Left = 1
       Top = 210
@@ -469,7 +424,6 @@ object Form1: TForm1
       Align = alTop
       Caption = 'Panel2'
       TabOrder = 0
-      ExplicitWidth = 183
       object Label1: TLabel
         Left = 1
         Top = 1
@@ -499,25 +453,23 @@ object Form1: TForm1
         ScrollBars = ssBoth
         TabOrder = 0
         WordWrap = False
-        ExplicitWidth = 187
       end
     end
     object Panel3: TPanel
       Left = 1
       Top = 213
       Width = 242
-      Height = 239
+      Height = 98
       Align = alClient
       Caption = 'Panel3'
       ShowCaption = False
       TabOrder = 1
-      ExplicitWidth = 183
-      ExplicitHeight = 237
+      ExplicitHeight = 365
       object logger: TRichEdit
         Left = 1
         Top = 1
         Width = 240
-        Height = 237
+        Height = 96
         Align = alClient
         Font.Charset = ANSI_CHARSET
         Font.Color = clWindowText
@@ -526,11 +478,10 @@ object Form1: TForm1
         Font.Style = []
         ParentFont = False
         ReadOnly = True
+        ScrollBars = ssBoth
         TabOrder = 0
         WordWrap = False
-        ExplicitTop = 16
-        ExplicitWidth = 181
-        ExplicitHeight = 220
+        ExplicitHeight = 363
       end
     end
   end
@@ -538,14 +489,12 @@ object Form1: TForm1
     Left = 244
     Top = 41
     Width = 33
-    Height = 453
+    Height = 312
     Align = alRight
     Caption = 'Panel7'
     ShowCaption = False
     TabOrder = 2
-    ExplicitLeft = 256
-    ExplicitTop = 232
-    ExplicitHeight = 41
+    ExplicitHeight = 579
   end
   object Panel15: TPanel
     Left = 0
@@ -556,9 +505,6 @@ object Form1: TForm1
     Caption = 'Panel15'
     ShowCaption = False
     TabOrder = 3
-    ExplicitLeft = 9
-    ExplicitTop = 9
-    ExplicitWidth = 398
     DesignSize = (
       728
       41)

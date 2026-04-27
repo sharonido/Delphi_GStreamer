@@ -36,7 +36,7 @@ uses
   G2D.CustomSimpleAudioElement,
   G2D.Gst.API,
   G2D.Glib.API,
-  Vcl.Mask;
+  Vcl.Mask, VCLTee.Series, VCLTee.TeEngine, VCLTee.TeeProcs, VCLTee.Chart;
 
 const
   EQ_BANDS = 8;
@@ -121,7 +121,6 @@ type
 ------------------------------------------------------------------------------}
   TForm1 = class(TForm)
     Panel4        : TPanel;
-    Panel5        : TPanel;
     Panel6        : TPanel;
     Label3        : TLabel;
     Panel8        : TPanel;
@@ -163,13 +162,17 @@ type
     RichEdit1     : TRichEdit;
     Panel3        : TPanel;
     logger        : TRichEdit;
-    Panel7        : TPanel;
     Panel15       : TPanel;
     Label2        : TLabel;
     LabeledEdit1  : TLabeledEdit;
     Button1       : TButton;
     ToggleSwitch1 : TToggleSwitch;
     Button2       : TButton;
+    Chart1: TChart;
+    Series1: TFastLineSeries;
+    Chart2: TChart;
+    Splitter3: TSplitter;
+    Series2: TBarSeries;
     procedure FormCreate(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
     procedure Button1Click(Sender: TObject);
@@ -307,7 +310,7 @@ end;
 procedure TEqualizerFilter.CalcPeakingEQ(var ACoeffs: TBiquadCoeffs;
   AFreq, AGainDB, AQ: Double; ASampleRate: Integer);
 var
-  A, W0, Alpha, CosW0: Double;
+  A, W0, Alpha, CosW0, a0: Double;
 begin
   { Peaking EQ biquad coefficients - Audio EQ Cookbook (R. Bristow-Johnson) }
   A     := Power(10.0, AGainDB / 40.0);
@@ -316,7 +319,7 @@ begin
   CosW0 := Cos(W0);
 
   { Normalise by a0 = 1 + alpha/A }
-  var a0 := 1.0 + Alpha / A;
+  a0 := 1.0 + Alpha / A;
 
   ACoeffs.b0 := (1.0 + Alpha * A) / a0;
   ACoeffs.b1 := (-2.0 * CosW0)    / a0;
@@ -471,6 +474,7 @@ procedure TForm1.FormCreate(Sender: TObject);
 begin
   FGStreamer := TGstFramework.Create(True);
   FGStreamer.StringsLogger := logger.Lines;
+  LogWriteln(FGStreamer.Version);
 
   FOpenDialog := TOpenDialog.Create(Self);
   FOpenDialog.Filter :=

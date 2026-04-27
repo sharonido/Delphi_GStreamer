@@ -2,14 +2,14 @@ unit UexSVE1;
 
 {------------------------------------------------------------------------------
   PG2DExampleSimpleVideoElement
-  Demonstrates inserting a TGstVideoSimple subclass between
+  Demonstrates using a managed G2DVideoFilter between
   videotestsrc and d3d11videosink.
 
   Pipeline (logical):
-    videotestsrc pattern=N --> TMyPassthroughFilter --> d3d11videosink
+    videotestsrc pattern=N --> G2DVideoFilter --> d3d11videosink
 
   Pipeline (actual GStreamer elements):
-    videotestsrc --> appsink --> [Delphi ProcessFrame] --> appsrc --> videoconvert --> d3d11videosink
+    videotestsrc --> G2DVideoFilter bin --> d3d11videosink
 
   The filter is a passthrough (default ProcessFrame - memcopy).
   Use the radio buttons to change the videotestsrc pattern while running.
@@ -26,17 +26,6 @@ uses
   G2D.CustomSimpleVideoElement, Vcl.ComCtrls;
 
 type
-
-{------------------------------------------------------------------------------
-  TMyPassthroughFilter
-  Minimal subclass - relies on the default ProcessFrame (memcopy passthrough).
-  Override ProcessFrame here to do real processing.
-------------------------------------------------------------------------------}
-  TMyPassthroughFilter = class(TGstVideoSimple)
-  protected
-    function GetSinkCaps: string; override;
-  end;
-
 {------------------------------------------------------------------------------
   TForm1
 ------------------------------------------------------------------------------}
@@ -67,8 +56,9 @@ type
     procedure RadioButtonClick(Sender: TObject);
   private
     FGStreamer   : TGstFramework;
-    FFilter      : TMyPassthroughFilter;
+    FFilter      : TG2DVideoFilterRef;
     FSrc         : TGstElementRef;
+    function FilterGetSinkCaps(Sender: TObject): string;
   end;
 
 var
@@ -78,11 +68,7 @@ implementation
 
 {$R *.dfm}
 
-{------------------------------------------------------------------------------
-  TMyPassthroughFilter
-------------------------------------------------------------------------------}
-
-function TMyPassthroughFilter.GetSinkCaps: string;
+function TForm1.FilterGetSinkCaps(Sender: TObject): string;
 begin
   { Let GStreamer negotiate the format freely between videotestsrc and
     d3d11videosink. Specifying a format like BGR here would cause a
@@ -110,33 +96,26 @@ begin
   end;
 
   { 1. Create the pipeline }
-  if not FGStreamer.NewPipeline('sve1') then
+  if not FGStreamer.Build(
+    'videotestsrc name=src ! ' +
+    'G2DVideoFilter name=VF1 ! ' +
+    'd3d11videosink name=video_sink async=false') then
   begin
-    logwriteln('Failed to create pipeline');
+    LogWriteln('Failed to build pipeline');
     Exit;
   end;
 
-  { 2. Make the standard elements using gst-launch style description.
-    async=false on d3d11videosink skips preroll so READY->PAUSED completes
-    without waiting for the first buffer (which only arrives after PLAYING). }
-  FGStreamer.PipeLine.MakeElements(
-    'videotestsrc name=src !' +
-    'd3d11videosink name=video_sink async=false !' +
-    'videoconvert name=vconv');
-
-  { 3. Create our custom filter - this creates appsink + appsrc internally }
-  FFilter := TMyPassthroughFilter.Create(FGStreamer);
-
-  { 4. Add standard elements to the bin }
-  FGStreamer.AddElements(['src', 'vconv', 'video_sink']);
-
-  { 5. Add filter to pipeline and link: src -> appsink -> appsrc -> vconv }
-  FFilter.AddAndLink('src', 'vconv');
-
-  { 6. Link the remaining standard chain }
-  if not FGStreamer.LinkElements('vconv', 'video_sink') then
+  FFilter := FGStreamer.FindVideoFilter('VF1');
+  if FFilter = nil then
   begin
-    logwriteln('Failed to link vconv -> video_sink');
+    LogWriteln('Failed to find video filter VF1');
+    Exit;
+  end;
+  FFilter.OnGetSinkCaps := FilterGetSinkCaps;
+
+  if not FGStreamer.Pipeline.LinkAllElements then
+  begin
+    LogWriteln('Failed to link built pipeline');
     Exit;
   end;
 
@@ -152,7 +131,12 @@ end;
 procedure TForm1.FormDestroy(Sender: TObject);
 begin
   FreeAndNil(FSrc);
-  FreeAndNil(FFilter);
+  if Assigned(FFilter) then
+  begin
+    FFilter.OnGetSinkCaps := nil;
+    FFilter.Shutdown;
+  end;
+  FFilter := nil;
   FreeAndNil(FGStreamer);
 end;
 
