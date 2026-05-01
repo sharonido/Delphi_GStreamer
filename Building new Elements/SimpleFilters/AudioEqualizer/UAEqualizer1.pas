@@ -190,6 +190,7 @@ type
     function GetTrackBar(AIndex: Integer): TTrackBar;
     procedure InitTrackBars;
     procedure BuildPipeline(const AURI: string);
+    procedure StartDefaultMedia;
   end;
 
 var
@@ -487,6 +488,8 @@ begin
     LogWriteln('GStreamer failed to start');
     Exit;
   end;
+
+  StartDefaultMedia;
 end;
 
 procedure TForm1.FormDestroy(Sender: TObject);
@@ -547,6 +550,19 @@ procedure TForm1.Button1Click(Sender: TObject);
 begin
   if FOpenDialog.Execute then
     LabeledEdit1.Text := FOpenDialog.FileName;
+end;
+
+procedure TForm1.StartDefaultMedia;
+var
+  LPath: string;
+begin
+  LPath := ExpandFileName(ExtractFilePath(ParamStr(0)) +
+    '..\..\..\..\..\Tutorials\MediaFiles\test.mp3');
+  if not FileExists(LPath) then
+    Exit;
+
+  LabeledEdit1.Text := LPath;
+  BuildPipeline('file:///' + StringReplace(LPath, '\', '/', [rfReplaceAll]));
 end;
 
 procedure TForm1.Button2Click(Sender: TObject);

@@ -21,7 +21,6 @@ object Form1: TForm1
     Align = alRight
     Caption = 'Panel4'
     TabOrder = 1
-    ExplicitHeight = 579
     object Panel6: TPanel
       Left = 1
       Top = 5
@@ -31,7 +30,6 @@ object Form1: TForm1
       Caption = 'Panel6'
       ShowCaption = False
       TabOrder = 0
-      ExplicitTop = 272
       object Label3: TLabel
         Left = 1
         Top = 1
@@ -405,10 +403,9 @@ object Form1: TForm1
     Caption = 'Panel1'
     ShowCaption = False
     TabOrder = 0
-    ExplicitHeight = 579
     object Splitter2: TSplitter
       Left = 1
-      Top = 210
+      Top = 89
       Width = 242
       Height = 3
       Cursor = crVSplit
@@ -420,7 +417,7 @@ object Form1: TForm1
       Left = 1
       Top = 1
       Width = 242
-      Height = 209
+      Height = 88
       Align = alTop
       Caption = 'Panel2'
       TabOrder = 0
@@ -437,7 +434,7 @@ object Form1: TForm1
         Left = 1
         Top = 16
         Width = 240
-        Height = 192
+        Height = 71
         Align = alClient
         Font.Charset = ANSI_CHARSET
         Font.Color = clWindowText
@@ -446,30 +443,31 @@ object Form1: TForm1
         Font.Style = []
         Lines.Strings = (
           'This is part of G2D GStreamer to Delphi (Pascal) project'
-          'This is a simple Audio element that is used as an Equalizer'
-          'It uses OpenCV so the computation is fast')
+          'This is a simple Audio element that is used as an Equalizer')
         ParentFont = False
         ReadOnly = True
         ScrollBars = ssBoth
         TabOrder = 0
         WordWrap = False
+        ExplicitHeight = 63
       end
     end
     object Panel3: TPanel
       Left = 1
-      Top = 213
+      Top = 92
       Width = 242
-      Height = 98
+      Height = 219
       Align = alClient
       Caption = 'Panel3'
       ShowCaption = False
       TabOrder = 1
-      ExplicitHeight = 365
+      ExplicitTop = 213
+      ExplicitHeight = 98
       object logger: TRichEdit
         Left = 1
         Top = 1
         Width = 240
-        Height = 96
+        Height = 217
         Align = alClient
         Font.Charset = ANSI_CHARSET
         Font.Color = clWindowText
@@ -481,7 +479,7 @@ object Form1: TForm1
         ScrollBars = ssBoth
         TabOrder = 0
         WordWrap = False
-        ExplicitHeight = 363
+        ExplicitHeight = 96
       end
     end
   end
@@ -494,7 +492,6 @@ object Form1: TForm1
     Caption = 'Panel7'
     ShowCaption = False
     TabOrder = 2
-    ExplicitHeight = 579
   end
   object Panel15: TPanel
     Left = 0
