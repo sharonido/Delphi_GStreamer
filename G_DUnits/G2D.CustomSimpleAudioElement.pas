@@ -148,7 +148,7 @@ begin
   FSrc.SetFormat(GST_FORMAT_TIME);
   FSrc.SetIsLive(True);
   FSrc.SetBlockOnFull(True);
-  FSrc.SetPropertyInt('max-buffers', 1);
+  FSrc.SetPropertyInt('max-buffers', 4);
   FSrc.ConnectNeedData(NeedDataCallback, Self);
 end;
 

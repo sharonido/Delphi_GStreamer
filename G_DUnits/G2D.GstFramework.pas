@@ -235,6 +235,11 @@ end;
 constructor TGstFramework.Create(WriteStateChange: Boolean = False);
 begin
   inherited Create;
+  { GStreamer invokes Delphi callbacks from native worker threads.
+    The Delphi RTL does not know about those threads.
+    so IsMultiThread forces Delphi RTL/memory manager into thread-safe mode,
+    before gst_init. }
+  System.IsMultiThread := True;
   if GetConsoleWindow = 0 then LogWrite := nil;
   FWriteStateChange := WriteStateChange;
   FStarted := False;

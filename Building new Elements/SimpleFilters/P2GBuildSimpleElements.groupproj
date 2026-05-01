@@ -18,6 +18,9 @@
         <Projects Include="AudioEqualizer\PG2DAudioEqualizer.dproj">
             <Dependencies/>
         </Projects>
+        <Projects Include="AudioAnalyzer\PG2DAudioAnalyzer.dproj">
+            <Dependencies/>
+        </Projects>
     </ItemGroup>
     <ProjectExtensions>
         <Borland.Personality>Default.Personality.12</Borland.Personality>
@@ -71,14 +74,23 @@
     <Target Name="PG2DAudioEqualizer:Make">
         <MSBuild Projects="AudioEqualizer\PG2DAudioEqualizer.dproj" Targets="Make"/>
     </Target>
+    <Target Name="PG2DAudioAnalyzer">
+        <MSBuild Projects="AudioAnalyzer\PG2DAudioAnalyzer.dproj"/>
+    </Target>
+    <Target Name="PG2DAudioAnalyzer:Clean">
+        <MSBuild Projects="AudioAnalyzer\PG2DAudioAnalyzer.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="PG2DAudioAnalyzer:Make">
+        <MSBuild Projects="AudioAnalyzer\PG2DAudioAnalyzer.dproj" Targets="Make"/>
+    </Target>
     <Target Name="Build">
-        <CallTarget Targets="PG2DExampleDoNothingFilter;PG2DExampleR2GFilter;PG2DExTextFilter;PG2RotateWOpenCV;PG2DAudioEqualizer"/>
+        <CallTarget Targets="PG2DExampleDoNothingFilter;PG2DExampleR2GFilter;PG2DExTextFilter;PG2RotateWOpenCV;PG2DAudioEqualizer;PG2DAudioAnalyzer"/>
     </Target>
     <Target Name="Clean">
-        <CallTarget Targets="PG2DExampleDoNothingFilter:Clean;PG2DExampleR2GFilter:Clean;PG2DExTextFilter:Clean;PG2RotateWOpenCV:Clean;PG2DAudioEqualizer:Clean"/>
+        <CallTarget Targets="PG2DExampleDoNothingFilter:Clean;PG2DExampleR2GFilter:Clean;PG2DExTextFilter:Clean;PG2RotateWOpenCV:Clean;PG2DAudioEqualizer:Clean;PG2DAudioAnalyzer:Clean"/>
     </Target>
     <Target Name="Make">
-        <CallTarget Targets="PG2DExampleDoNothingFilter:Make;PG2DExampleR2GFilter:Make;PG2DExTextFilter:Make;PG2RotateWOpenCV:Make;PG2DAudioEqualizer:Make"/>
+        <CallTarget Targets="PG2DExampleDoNothingFilter:Make;PG2DExampleR2GFilter:Make;PG2DExTextFilter:Make;PG2RotateWOpenCV:Make;PG2DAudioEqualizer:Make;PG2DAudioAnalyzer:Make"/>
     </Target>
     <Import Project="$(BDS)\Bin\CodeGear.Group.Targets" Condition="Exists('$(BDS)\Bin\CodeGear.Group.Targets')"/>
 </Project>

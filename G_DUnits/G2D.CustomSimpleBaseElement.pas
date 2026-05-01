@@ -156,8 +156,9 @@ begin
 
   { Configure sink }
   FSink.SetEmitSignals(True);
-  FSink.SetMaxBuffers(1);
-  FSink.SetDrop(True);
+  FSink.SetMaxBuffers(3);  { Allow queuing for chained filter pipelines }
+  FSink.SetDrop(False);  { Must be False when chaining filters - drop=True
+                          can free a sample while HandleNewSample holds it }
   FSink.SetSync(False);
   FSink.SetPropertyBool('wait-on-eos', False);
   { async=False: appsink does not participate in preroll. Without this
@@ -322,6 +323,8 @@ end;
 class function TGstSimpleBase.NewSampleCallback(sink: PGstElement;
   data: gpointer): GstFlowReturn; cdecl;
 begin
+  if data = nil then
+    Exit(GST_FLOW_OK);
   Result := TGstSimpleBase(data).HandleNewSample;
 end;
 
@@ -338,6 +341,7 @@ begin
   Result := GST_FLOW_OK;
 
   LRawSample := _gst_app_sink_pull_sample(FSink.ElementHandle);
+
   if LRawSample = nil then
     Exit;
 
@@ -384,13 +388,11 @@ begin
             _gst_buffer_unmap(LOutBuffer, @LMapOut);
             if not CanPushBuffer then
             begin
-              { appsrc not ready - drop buffer silently }
               _gst_buffer_unref(LOutBuffer);
               LOutBuffer := nil;
               Result := GST_FLOW_OK;
               Exit;
             end;
-            { gst_app_src_push_buffer takes ownership - do NOT unref }
             Result := _gst_app_src_push_buffer(FSrc.ElementHandle, LOutBuffer);
             LOutBuffer := nil;
             if Result = GST_FLOW_FLUSHING then
