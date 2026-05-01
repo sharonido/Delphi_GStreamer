@@ -608,12 +608,12 @@ type
   { GST_VIDEO_MAX_PLANES = 4 }
 
   GstMapInfo = record
-    memory: PGstMemory;
-    flags: GstMapFlags;
-    data: Pguint8;
-    size: gsize;
-    maxsize: gsize;
-    user_data: array[0..3] of gpointer;
+    memory      : PGstMemory;
+    flags       : GstMapFlags;
+    data        : Pguint8;
+    size        : gsize;
+    maxsize     : gsize;
+    user_data   : array[0..3] of gpointer;
     _gst_reserved: array[0..GST_PADDING - 1] of gpointer;
   end;
 
@@ -751,15 +751,15 @@ type
 ==============================================================================}
 
   GstMiniObject = record
-    D_type: GType;
-    refcount: gint;
-    lockstate: gint;
-    flags: guint;
-    copy: GstMiniObjectCopyFunction;
-    dispose: GstMiniObjectDisposeFunction;
-    free: GstMiniObjectFreeFunction;
-    n_qdata: guint;
-    qdata: gpointer;
+    D_type    : GType;
+    refcount  : gint;
+    lockstate : gint;
+    flags     : guint;
+    copy      : GstMiniObjectCopyFunction;
+    dispose   : GstMiniObjectDisposeFunction;
+    free      : GstMiniObjectFreeFunction;
+    n_qdata   : guint;
+    qdata     : gpointer;
   end;
 
   GstObject = record

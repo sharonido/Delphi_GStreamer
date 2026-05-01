@@ -176,6 +176,7 @@ var
   _gst_sample_get_buffer: function(sample: gpointer): PGstBuffer; cdecl = nil;
   _gst_sample_get_caps  : function(sample: gpointer): PGstCaps; cdecl = nil;
   _gst_sample_unref     : procedure(sample: gpointer); cdecl = nil;
+  _gst_sample_ref       : function(sample: gpointer): gpointer; cdecl = nil;
 
   { Tutorial 8 - Audio Info / Caps }
   _gst_audio_info_set_format: procedure(info: PGstAudioInfo; format: GstAudioFormat;
@@ -365,6 +366,7 @@ begin
   _gst_sample_get_buffer := nil;
   _gst_sample_get_caps   := nil;
   _gst_sample_unref      := nil;
+  _gst_sample_ref        := nil;
 
   _gst_audio_info_set_format := nil;
   _gst_audio_info_to_caps    := nil;
@@ -499,6 +501,7 @@ begin
   @_gst_sample_get_buffer := _LoadProcGst('gst_sample_get_buffer');
   @_gst_sample_get_caps   := _LoadProcGst('gst_sample_get_caps');
   @_gst_sample_unref      := _LoadProcGst('gst_sample_unref');
+  @_gst_sample_ref        := _LoadProcGst('gst_sample_ref');
 
   { Tutorial 8 - Audio Info / Caps }
   @_gst_audio_info_set_format := _LoadProcGstAudio('gst_audio_info_set_format');

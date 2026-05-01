@@ -359,6 +359,8 @@ end;
 constructor TGstSampleRef.Create(AHandle: gpointer);
 begin
   inherited Create;
+  { gst_app_sink_pull_sample gives us ownership (transfer:full = one ref).
+    We store it as-is. Destroy unrefs exactly once. }
   FHandle := AHandle;
 end;
 
