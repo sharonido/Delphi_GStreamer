@@ -58,7 +58,9 @@ implementation
 procedure TForm1.AddLocalPluginPath;
 var
   LExePath: string;
+  LWin64Path: string;
   LReleasePath: string;
+  LPluginPath: string;
   LOldPath: string;
   procedure AddPath(const APath: string);
   begin
@@ -72,11 +74,14 @@ var
   end;
 begin
   LExePath := ExcludeTrailingPathDelimiter(ExtractFilePath(ParamStr(0)));
-  LReleasePath := IncludeTrailingPathDelimiter(ExtractFilePath(LExePath)) + 'Release';
+  LWin64Path := ExcludeTrailingPathDelimiter(ExtractFilePath(LExePath));
+  LReleasePath := IncludeTrailingPathDelimiter(LWin64Path) + 'Release';
+  LPluginPath := ExcludeTrailingPathDelimiter(ExtractFilePath(LWin64Path));
   LOldPath := GetEnvironmentVariable('GST_PLUGIN_PATH');
 
   AddPath(LExePath);
   AddPath(LReleasePath);
+  AddPath(LPluginPath);
 
   SetEnvironmentVariable('GST_PLUGIN_PATH', PChar(LOldPath));
 end;
