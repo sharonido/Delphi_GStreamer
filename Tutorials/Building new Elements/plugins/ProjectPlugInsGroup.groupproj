@@ -1,0 +1,72 @@
+﻿<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+    <PropertyGroup>
+        <ProjectGuid>{3B9B87B9-18CE-449C-8083-6BAEC05E8C9C}</ProjectGuid>
+    </PropertyGroup>
+    <ItemGroup>
+        <Projects Include="VideoInvert\PG2DVideoInvertDemo.dproj">
+            <Dependencies/>
+        </Projects>
+        <Projects Include="VideoInvert\gstG2Dvideoinvert.dproj">
+            <Dependencies/>
+        </Projects>
+        <Projects Include="VideoRotate\PG2DVideoRotateDemo.dproj">
+            <Dependencies/>
+        </Projects>
+        <Projects Include="VideoRotate\gstG2Dvideorotate.dproj">
+            <Dependencies/>
+        </Projects>
+    </ItemGroup>
+    <ProjectExtensions>
+        <Borland.Personality>Default.Personality.12</Borland.Personality>
+        <Borland.ProjectType/>
+        <BorlandProject>
+            <Default.Personality/>
+        </BorlandProject>
+    </ProjectExtensions>
+    <Target Name="PG2DVideoInvertDemo">
+        <MSBuild Projects="VideoInvert\PG2DVideoInvertDemo.dproj"/>
+    </Target>
+    <Target Name="PG2DVideoInvertDemo:Clean">
+        <MSBuild Projects="VideoInvert\PG2DVideoInvertDemo.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="PG2DVideoInvertDemo:Make">
+        <MSBuild Projects="VideoInvert\PG2DVideoInvertDemo.dproj" Targets="Make"/>
+    </Target>
+    <Target Name="gstG2Dvideoinvert">
+        <MSBuild Projects="VideoInvert\gstG2Dvideoinvert.dproj"/>
+    </Target>
+    <Target Name="gstG2Dvideoinvert:Clean">
+        <MSBuild Projects="VideoInvert\gstG2Dvideoinvert.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="gstG2Dvideoinvert:Make">
+        <MSBuild Projects="VideoInvert\gstG2Dvideoinvert.dproj" Targets="Make"/>
+    </Target>
+    <Target Name="PG2DVideoRotateDemo">
+        <MSBuild Projects="VideoRotate\PG2DVideoRotateDemo.dproj"/>
+    </Target>
+    <Target Name="PG2DVideoRotateDemo:Clean">
+        <MSBuild Projects="VideoRotate\PG2DVideoRotateDemo.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="PG2DVideoRotateDemo:Make">
+        <MSBuild Projects="VideoRotate\PG2DVideoRotateDemo.dproj" Targets="Make"/>
+    </Target>
+    <Target Name="gstG2Dvideorotate">
+        <MSBuild Projects="VideoRotate\gstG2Dvideorotate.dproj"/>
+    </Target>
+    <Target Name="gstG2Dvideorotate:Clean">
+        <MSBuild Projects="VideoRotate\gstG2Dvideorotate.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="gstG2Dvideorotate:Make">
+        <MSBuild Projects="VideoRotate\gstG2Dvideorotate.dproj" Targets="Make"/>
+    </Target>
+    <Target Name="Build">
+        <CallTarget Targets="PG2DVideoInvertDemo;gstG2Dvideoinvert;PG2DVideoRotateDemo;gstG2Dvideorotate"/>
+    </Target>
+    <Target Name="Clean">
+        <CallTarget Targets="PG2DVideoInvertDemo:Clean;gstG2Dvideoinvert:Clean;PG2DVideoRotateDemo:Clean;gstG2Dvideorotate:Clean"/>
+    </Target>
+    <Target Name="Make">
+        <CallTarget Targets="PG2DVideoInvertDemo:Make;gstG2Dvideoinvert:Make;PG2DVideoRotateDemo:Make;gstG2Dvideorotate:Make"/>
+    </Target>
+    <Import Project="$(BDS)\Bin\CodeGear.Group.Targets" Condition="Exists('$(BDS)\Bin\CodeGear.Group.Targets')"/>
+</Project>
