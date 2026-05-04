@@ -85,6 +85,8 @@ The current project setup is primarily intended for 64-bit Delphi builds.
   Base Delphi wrapper classes over GStreamer objects
 - [G_DUnits](./G_DUnits)
   Higher-level framework classes and helper abstractions
+- [G_DPlugin](./G_DPlugin)
+  Reusable base classes and helpers for real GStreamer plugin elements
 
 ### Learning and examples
 
@@ -120,6 +122,11 @@ If you are new to G2D, this is the best place to start.
 
 The [Building new Elements](./Tutorials/Building%20new%20Elements) folder shows how to build custom filters in Delphi.
 
+There are two custom-filter styles in the repository:
+
+- simple Delphi-side filters built with `appsink` / `appsrc`
+- real GStreamer plugin DLLs that can be loaded by GStreamer like ordinary elements
+
 Recent work in this repository includes safer audio-filter building blocks, including a managed audio filter chain that wraps:
 
 ```text
@@ -127,6 +134,39 @@ audioconvert -> audioresample -> appsink -> Delphi filter -> appsrc -> audioconv
 ```
 
 This makes it easier to build practical Delphi-side audio filters without manually wiring the full normalization chain each time.
+
+### Real plugin DLLs
+
+The plugin framework lives in [G_DPlugin](./G_DPlugin). It is intended to make a real GStreamer plugin element feel like ordinary Delphi inheritance work.
+
+For a first video filter, the usual path is:
+
+1. Create a subclass of `TG2DVideoFilter`.
+2. Override `ProcessVideoFrame` for the actual frame operation.
+3. Add any element properties by overriding `SetProperty` / `GetProperty`.
+4. Create a small plugin `.dpr` that registers the element type and metadata.
+5. Build the project as a Win64 DLL.
+
+For non-video filters, start from `TG2DBaseFilter`. It already provides the common element behavior:
+
+- sink/src pads
+- chain, event, and query forwarding
+- `debug`, `debugfile`, and `filter` properties
+- bypass support when `filter=false`
+
+The current full-plugin examples are:
+
+- [VideoInvert](./Tutorials/Building%20new%20Elements/plugins/VideoInvert)
+  Builds `g2dinvert`, a simple RGB video invert filter.
+- [VideoRotate](./Tutorials/Building%20new%20Elements/plugins/VideoRotate)
+  Builds `g2drotate`, a BGRx video rotate filter using the OpenCV helper DLL.
+
+Each folder contains:
+
+- the plugin element source unit
+- the plugin DLL project
+- a VCL demo project
+- a prebuilt plugin DLL in the folder root so the demo can run without rebuilding the plugin first
 
 ## Design Overview
 
@@ -140,6 +180,8 @@ G2D is organized in layers so you can work at the level you need:
    Delphi wrappers around GStreamer objects
 4. `G_DUnits`
    Higher-level framework and custom-element helpers
+5. `G_DPlugin`
+   Base classes and helpers for real plugin DLL elements
 
 That means you can either:
 
