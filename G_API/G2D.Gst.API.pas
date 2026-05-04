@@ -27,6 +27,18 @@ var
   _gst_is_initialized: function: gboolean; cdecl = nil;
   _gst_version_string: function: Pgchar; cdecl = nil;
   _gst_parse_launch: function(pipeline_description: Pgchar; error: PPGError): PGstElement; cdecl = nil;
+  _gst_plugin_register_static: function(
+    major_version: gint;
+    minor_version: gint;
+    name: Pgchar;
+    description: Pgchar;
+    init_func: GstPluginInitFunc;
+    version: Pgchar;
+    license: Pgchar;
+    source: Pgchar;
+    package: Pgchar;
+    origin: Pgchar
+  ): gboolean; cdecl = nil;
 
   { MiniObject / Object }
   _gst_mini_object_ref: function(mini_object: PGstMiniObject): PGstMiniObject; cdecl = nil;
@@ -42,6 +54,24 @@ var
   _gst_bin_new: function(name: Pgchar): PGstElement; cdecl = nil;
   _gst_element_factory_make: function(factoryname: Pgchar; name: Pgchar): PGstElement; cdecl = nil;
   _gst_element_factory_find: function(name: Pgchar): PGstElementFactory; cdecl = nil;
+  _gst_element_get_type: function: GType; cdecl = nil;
+  _gst_element_register: function(
+    plugin: PGstPlugin;
+    name: Pgchar;
+    rank: guint;
+    D_type: GType
+  ): gboolean; cdecl = nil;
+  _gst_element_class_set_static_metadata: procedure(
+    klass: PGstElementClass;
+    longname: Pgchar;
+    classification: Pgchar;
+    description: Pgchar;
+    author: Pgchar
+  ); cdecl = nil;
+  _gst_element_class_add_static_pad_template: procedure(
+    klass: PGstElementClass;
+    templ: PGstStaticPadTemplate
+  ); cdecl = nil;
 
   _gst_bin_add: function(bin: PGstBin; element: PGstElement): gboolean; cdecl = nil;
   _gst_bin_remove: function(bin: PGstBin; element: PGstElement): gboolean; cdecl = nil;
@@ -65,6 +95,36 @@ var
 
   { Pad }
   _gst_ghost_pad_new: function(name: Pgchar; target: PGstPad): PGstPad; cdecl = nil;
+  _gst_pad_new_from_static_template: function(
+    templ: PGstStaticPadTemplate;
+    name: Pgchar
+  ): PGstPad; cdecl = nil;
+  _gst_pad_set_chain_function_full: procedure(
+    pad: PGstPad;
+    chain: GstPadChainFunction;
+    user_data: gpointer;
+    notify: GDestroyNotify
+  ); cdecl = nil;
+  _gst_pad_set_event_function_full: procedure(
+    pad: PGstPad;
+    event: GstPadEventFunction;
+    user_data: gpointer;
+    notify: GDestroyNotify
+  ); cdecl = nil;
+  _gst_pad_set_query_function_full: procedure(
+    pad: PGstPad;
+    query: GstPadQueryFunction;
+    user_data: gpointer;
+    notify: GDestroyNotify
+  ); cdecl = nil;
+  _gst_pad_push: function(pad: PGstPad; buffer: PGstBuffer): GstFlowReturn; cdecl = nil;
+  _gst_pad_push_event: function(pad: PGstPad; event: PGstEvent): gboolean; cdecl = nil;
+  _gst_pad_peer_query: function(pad: PGstPad; query: PGstQuery): gboolean; cdecl = nil;
+  _gst_pad_query_default: function(
+    pad: PGstPad;
+    parent: PGstObject;
+    query: PGstQuery
+  ): gboolean; cdecl = nil;
   _gst_pad_link: function(srcpad: PGstPad; sinkpad: PGstPad): GstPadLinkReturn; cdecl = nil;
   _gst_pad_unlink: function(srcpad: PGstPad; sinkpad: PGstPad): gboolean; cdecl = nil;
   _gst_pad_is_linked: function(pad: PGstPad): gboolean; cdecl = nil;
@@ -145,6 +205,7 @@ var
   _gst_caps_get_structure: function(caps: PGstCaps; index: guint): PGstStructure; cdecl = nil;
   _gst_caps_unref: procedure(caps: PGstCaps); cdecl = nil;
   _gst_caps_to_string      : function(caps: PGstCaps): Pgchar; cdecl = nil;
+  _gst_buffer_get_size     : function(buffer: PGstBuffer): gsize; cdecl = nil;
   _gst_pad_add_probe       : function(pad: PGstPad;
     mask: GstPadProbeType;
     callback: TGstPadProbeCallback;
@@ -154,6 +215,25 @@ var
     id: gulong); cdecl = nil;
   _gst_event_get_type      : function(event: gpointer): gint; cdecl = nil;
   _gst_event_type_get_name : function(etype: gint): Pgchar; cdecl = nil;
+  _gst_event_parse_caps    : procedure(event: PGstEvent; caps: PPGstCaps); cdecl = nil;
+  _gst_query_type_get_name : function(qtype: guint): Pgchar; cdecl = nil;
+  _gst_query_parse_position: procedure(query: PGstQuery; format: PGstFormat;
+    cur: Pgint64); cdecl = nil;
+  _gst_query_parse_duration: procedure(query: PGstQuery; format: PGstFormat;
+    duration: Pgint64); cdecl = nil;
+  _gst_query_parse_latency: procedure(query: PGstQuery; live: Pgboolean;
+    min_latency: PGstClockTime; max_latency: PGstClockTime); cdecl = nil;
+  _gst_query_parse_allocation: procedure(query: PGstQuery; caps: PPGstCaps;
+    need_pool: Pgboolean); cdecl = nil;
+  _gst_query_get_n_allocation_pools: function(query: PGstQuery): guint; cdecl = nil;
+  _gst_query_get_n_allocation_params: function(query: PGstQuery): guint; cdecl = nil;
+  _gst_query_get_n_allocation_metas: function(query: PGstQuery): guint; cdecl = nil;
+  _gst_query_parse_accept_caps: procedure(query: PGstQuery; caps: PPGstCaps); cdecl = nil;
+  _gst_query_parse_accept_caps_result: procedure(query: PGstQuery;
+    result: Pgboolean); cdecl = nil;
+  _gst_query_parse_caps: procedure(query: PGstQuery; filter: PPGstCaps); cdecl = nil;
+  _gst_query_parse_caps_result: procedure(query: PGstQuery; caps: PPGstCaps); cdecl = nil;
+  _gst_format_get_name: function(format: GstFormat): Pgchar; cdecl = nil;
 
   { Tutorial 6 - Structure }
   _gst_structure_get_name: function(structure: PGstStructure): Pgchar; cdecl = nil;
@@ -258,6 +338,7 @@ begin
   _gst_is_initialized := nil;
   _gst_version_string := nil;
   _gst_parse_launch := nil;
+  _gst_plugin_register_static := nil;
 
   { MiniObject / Object }
   _gst_mini_object_ref := nil;
@@ -273,6 +354,10 @@ begin
   _gst_bin_new := nil;
   _gst_element_factory_make := nil;
   _gst_element_factory_find := nil;
+  _gst_element_get_type := nil;
+  _gst_element_register := nil;
+  _gst_element_class_set_static_metadata := nil;
+  _gst_element_class_add_static_pad_template := nil;
 
   _gst_bin_add := nil;
   _gst_bin_remove := nil;
@@ -291,6 +376,14 @@ begin
 
   { Pad }
   _gst_ghost_pad_new := nil;
+  _gst_pad_new_from_static_template := nil;
+  _gst_pad_set_chain_function_full := nil;
+  _gst_pad_set_event_function_full := nil;
+  _gst_pad_set_query_function_full := nil;
+  _gst_pad_push := nil;
+  _gst_pad_push_event := nil;
+  _gst_pad_peer_query := nil;
+  _gst_pad_query_default := nil;
   _gst_pad_link := nil;
   _gst_pad_unlink := nil;
   _gst_pad_is_linked := nil;
@@ -343,10 +436,25 @@ begin
   _gst_caps_get_structure := nil;
   _gst_caps_unref := nil;
   _gst_caps_to_string       := nil;
+  _gst_buffer_get_size      := nil;
   _gst_pad_add_probe        := nil;
   _gst_pad_remove_probe     := nil;
   _gst_event_get_type       := nil;
   _gst_event_type_get_name  := nil;
+  _gst_event_parse_caps     := nil;
+  _gst_query_type_get_name  := nil;
+  _gst_query_parse_position := nil;
+  _gst_query_parse_duration := nil;
+  _gst_query_parse_latency := nil;
+  _gst_query_parse_allocation := nil;
+  _gst_query_get_n_allocation_pools := nil;
+  _gst_query_get_n_allocation_params := nil;
+  _gst_query_get_n_allocation_metas := nil;
+  _gst_query_parse_accept_caps := nil;
+  _gst_query_parse_accept_caps_result := nil;
+  _gst_query_parse_caps := nil;
+  _gst_query_parse_caps_result := nil;
+  _gst_format_get_name := nil;
 
   _gst_structure_get_name := nil;
   _gst_structure_foreach := nil;
@@ -388,6 +496,7 @@ begin
   @_gst_is_initialized := _LoadProcGst('gst_is_initialized');
   @_gst_version_string := _LoadProcGst('gst_version_string');
   @_gst_parse_launch := _LoadProcGst('gst_parse_launch');
+  @_gst_plugin_register_static := _LoadProcGst('gst_plugin_register_static');
 
   { MiniObject / Object }
   @_gst_mini_object_ref := _LoadProcGst('gst_mini_object_ref');
@@ -403,6 +512,10 @@ begin
   @_gst_bin_new := _LoadProcGst('gst_bin_new');
   @_gst_element_factory_make := _LoadProcGst('gst_element_factory_make');
   @_gst_element_factory_find := _LoadProcGst('gst_element_factory_find');
+  @_gst_element_get_type := _LoadProcGst('gst_element_get_type');
+  @_gst_element_register := _LoadProcGst('gst_element_register');
+  @_gst_element_class_set_static_metadata := _LoadProcGst('gst_element_class_set_static_metadata');
+  @_gst_element_class_add_static_pad_template := _LoadProcGst('gst_element_class_add_static_pad_template');
 
   @_gst_bin_add := _LoadProcGst('gst_bin_add');
   @_gst_bin_remove := _LoadProcGst('gst_bin_remove');
@@ -421,6 +534,14 @@ begin
 
   { Pad }
   @_gst_ghost_pad_new := _LoadProcGst('gst_ghost_pad_new');
+  @_gst_pad_new_from_static_template := _LoadProcGst('gst_pad_new_from_static_template');
+  @_gst_pad_set_chain_function_full := _LoadProcGst('gst_pad_set_chain_function_full');
+  @_gst_pad_set_event_function_full := _LoadProcGst('gst_pad_set_event_function_full');
+  @_gst_pad_set_query_function_full := _LoadProcGst('gst_pad_set_query_function_full');
+  @_gst_pad_push := _LoadProcGst('gst_pad_push');
+  @_gst_pad_push_event := _LoadProcGst('gst_pad_push_event');
+  @_gst_pad_peer_query := _LoadProcGst('gst_pad_peer_query');
+  @_gst_pad_query_default := _LoadProcGst('gst_pad_query_default');
   @_gst_pad_link := _LoadProcGst('gst_pad_link');
   @_gst_pad_unlink := _LoadProcGst('gst_pad_unlink');
   @_gst_pad_is_linked := _LoadProcGst('gst_pad_is_linked');
@@ -475,10 +596,25 @@ begin
   @_gst_caps_get_structure := _LoadProcGst('gst_caps_get_structure');
   @_gst_caps_unref := _LoadProcGst('gst_caps_unref');
   @_gst_caps_to_string       := _LoadProcGst('gst_caps_to_string');
+  @_gst_buffer_get_size      := _LoadProcGst('gst_buffer_get_size');
   @_gst_pad_add_probe        := _LoadProcGst('gst_pad_add_probe');
   @_gst_pad_remove_probe     := _LoadProcGst('gst_pad_remove_probe');
   @_gst_event_get_type       := _LoadProcGst('gst_event_get_type');
   @_gst_event_type_get_name  := _LoadProcGst('gst_event_type_get_name');
+  @_gst_event_parse_caps     := _LoadProcGst('gst_event_parse_caps');
+  @_gst_query_type_get_name  := _LoadProcGst('gst_query_type_get_name');
+  @_gst_query_parse_position := _LoadProcGst('gst_query_parse_position');
+  @_gst_query_parse_duration := _LoadProcGst('gst_query_parse_duration');
+  @_gst_query_parse_latency := _LoadProcGst('gst_query_parse_latency');
+  @_gst_query_parse_allocation := _LoadProcGst('gst_query_parse_allocation');
+  @_gst_query_get_n_allocation_pools := _LoadProcGst('gst_query_get_n_allocation_pools');
+  @_gst_query_get_n_allocation_params := _LoadProcGst('gst_query_get_n_allocation_params');
+  @_gst_query_get_n_allocation_metas := _LoadProcGst('gst_query_get_n_allocation_metas');
+  @_gst_query_parse_accept_caps := _LoadProcGst('gst_query_parse_accept_caps');
+  @_gst_query_parse_accept_caps_result := _LoadProcGst('gst_query_parse_accept_caps_result');
+  @_gst_query_parse_caps := _LoadProcGst('gst_query_parse_caps');
+  @_gst_query_parse_caps_result := _LoadProcGst('gst_query_parse_caps_result');
+  @_gst_format_get_name := _LoadProcGst('gst_format_get_name');
 
   { Tutorial 6 - Structure }
   @_gst_structure_get_name := _LoadProcGst('gst_structure_get_name');

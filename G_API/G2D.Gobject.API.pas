@@ -27,6 +27,12 @@ var
   _g_type_class_ref: function(D_type: GType): PGTypeClass; cdecl = nil;
   _g_type_class_peek: function(D_type: GType): PGTypeClass; cdecl = nil;
   _g_type_class_unref: procedure(g_class: PGTypeClass); cdecl = nil;
+  _g_type_register_static: function(
+    parent_type: GType;
+    type_name: Pgchar;
+    const info: PGTypeInfo;
+    flags: GTypeFlags
+  ): GType; cdecl = nil;
 
   { GValue }
   _g_value_init: function(value: PGValue; g_type: GType): PGValue; cdecl = nil;
@@ -120,6 +126,38 @@ var
     property_name: Pgchar
   ): PGParamSpec; cdecl = nil;
 
+  _g_object_class_install_property: procedure(
+    oclass: PGObjectClass;
+    property_id: guint;
+    pspec: PGParamSpec
+  ); cdecl = nil;
+
+  _g_param_spec_boolean: function(
+    name: Pgchar;
+    nick: Pgchar;
+    blurb: Pgchar;
+    default_value: gboolean;
+    flags: GParamFlags
+  ): PGParamSpec; cdecl = nil;
+
+  _g_param_spec_int: function(
+    name: Pgchar;
+    nick: Pgchar;
+    blurb: Pgchar;
+    minimum: gint;
+    maximum: gint;
+    default_value: gint;
+    flags: GParamFlags
+  ): PGParamSpec; cdecl = nil;
+
+  _g_param_spec_string: function(
+    name: Pgchar;
+    nick: Pgchar;
+    blurb: Pgchar;
+    default_value: Pgchar;
+    flags: GParamFlags
+  ): PGParamSpec; cdecl = nil;
+
   _g_object_notify: procedure(D_object: gpointer; property_name: Pgchar); cdecl = nil;
   _g_object_notify_by_pspec: procedure(D_object: gpointer; pspec: PGParamSpec); cdecl = nil;
 
@@ -199,6 +237,7 @@ begin
   _g_type_class_ref := nil;
   _g_type_class_peek := nil;
   _g_type_class_unref := nil;
+  _g_type_register_static := nil;
 
   { GValue }
   _g_value_init := nil;
@@ -245,6 +284,10 @@ begin
   _g_object_set_data := nil;
   _g_object_set_data_full := nil;
   _g_object_class_find_property := nil;
+  _g_object_class_install_property := nil;
+  _g_param_spec_boolean := nil;
+  _g_param_spec_int := nil;
+  _g_param_spec_string := nil;
   _g_object_notify := nil;
   _g_object_notify_by_pspec := nil;
   _g_object_weak_ref := nil;
@@ -273,6 +316,7 @@ begin
   @_g_type_class_ref := _LoadProc('g_type_class_ref');
   @_g_type_class_peek := _LoadProc('g_type_class_peek');
   @_g_type_class_unref := _LoadProc('g_type_class_unref');
+  @_g_type_register_static := _LoadProc('g_type_register_static');
 
   { GValue }
   @_g_value_init := _LoadProc('g_value_init');
@@ -319,6 +363,10 @@ begin
   @_g_object_set_data := _LoadProc('g_object_set_data');
   @_g_object_set_data_full := _LoadProc('g_object_set_data_full');
   @_g_object_class_find_property := _LoadProc('g_object_class_find_property');
+  @_g_object_class_install_property := _LoadProc('g_object_class_install_property');
+  @_g_param_spec_boolean := _LoadProc('g_param_spec_boolean');
+  @_g_param_spec_int := _LoadProc('g_param_spec_int');
+  @_g_param_spec_string := _LoadProc('g_param_spec_string');
   @_g_object_notify := _LoadProc('g_object_notify');
   @_g_object_notify_by_pspec := _LoadProc('g_object_notify_by_pspec');
   @_g_object_weak_ref := _LoadProc('g_object_weak_ref');
