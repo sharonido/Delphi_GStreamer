@@ -85,6 +85,14 @@ type
   PGstFormat = ^GstFormat;
   PPGstFormat = ^PGstFormat;
 
+  GstQueryType = guint;
+  PGstQueryType = ^GstQueryType;
+  PPGstQueryType = ^PGstQueryType;
+
+  GstEventType = guint;
+  PGstEventType = ^GstEventType;
+  PPGstEventType = ^PGstEventType;
+
   GstSeekFlags = guint;
   PGstSeekFlags = ^GstSeekFlags;
   PPGstSeekFlags = ^PGstSeekFlags;
@@ -268,6 +276,18 @@ const
   GST_FORMAT_BUFFERS   = GstFormat(4);
   GST_FORMAT_PERCENT   = GstFormat(5);
 
+  GST_QUERY_POSITION    = GstQueryType((10 shl 8) or 3);
+  GST_QUERY_DURATION    = GstQueryType((20 shl 8) or 3);
+  GST_QUERY_LATENCY     = GstQueryType((30 shl 8) or 3);
+  GST_QUERY_ALLOCATION  = GstQueryType((140 shl 8) or 6);
+  GST_QUERY_ACCEPT_CAPS = GstQueryType((160 shl 8) or 3);
+  GST_QUERY_CAPS        = GstQueryType((170 shl 8) or 3);
+
+  GST_EVENT_STREAM_START = GstEventType((40 shl 8) or 14);
+  GST_EVENT_CAPS         = GstEventType((50 shl 8) or 14);
+  GST_EVENT_SEGMENT      = GstEventType((70 shl 8) or 14);
+  GST_EVENT_EOS          = GstEventType((110 shl 8) or 14);
+
   GST_SEEK_FLAG_NONE           = GstSeekFlags(0);
   GST_SEEK_FLAG_FLUSH          = GstSeekFlags(1 shl 0);
   GST_SEEK_FLAG_ACCURATE       = GstSeekFlags(1 shl 1);
@@ -341,12 +361,12 @@ const
   GST_PAD_FLAG_NEED_RECONFIGURE = GstPadFlags(1 shl 5);
   GST_PAD_FLAG_PENDING_EVENTS   = GstPadFlags(1 shl 6);
   GST_PAD_FLAG_FIXED_CAPS       = GstPadFlags(1 shl 7);
-  GST_PAD_FLAG_PROXY_CAPS       = GstPadFlags(1 shl 8);
-  GST_PAD_FLAG_PROXY_ALLOCATION = GstPadFlags(1 shl 9);
-  GST_PAD_FLAG_PROXY_SCHEDULING = GstPadFlags(1 shl 10);
-  GST_PAD_FLAG_ACCEPT_INTERSECT = GstPadFlags(1 shl 11);
-  GST_PAD_FLAG_ACCEPT_TEMPLATE  = GstPadFlags(1 shl 12);
-  GST_PAD_FLAG_LAST             = GstPadFlags(1 shl 16);
+  GST_PAD_FLAG_PROXY_CAPS       = GstPadFlags(GST_OBJECT_FLAG_LAST shl 8);
+  GST_PAD_FLAG_PROXY_ALLOCATION = GstPadFlags(GST_OBJECT_FLAG_LAST shl 9);
+  GST_PAD_FLAG_PROXY_SCHEDULING = GstPadFlags(GST_OBJECT_FLAG_LAST shl 10);
+  GST_PAD_FLAG_ACCEPT_INTERSECT = GstPadFlags(GST_OBJECT_FLAG_LAST shl 11);
+  GST_PAD_FLAG_ACCEPT_TEMPLATE  = GstPadFlags(GST_OBJECT_FLAG_LAST shl 12);
+  GST_PAD_FLAG_LAST             = GstPadFlags(GST_OBJECT_FLAG_LAST shl 16);
 
   GST_AUDIO_FORMAT_UNKNOWN  = GstAudioFormat(0);
   GST_AUDIO_FORMAT_ENCODED  = GstAudioFormat(1);
@@ -638,6 +658,9 @@ type
 
   GstObjectDeepNotifyFunc = procedure(D_object, orig: PGstObject; pspec: PGParamSpec); cdecl;
 
+  GstPluginInitFunc = function(plugin: PGstPlugin): gboolean; cdecl;
+  PGstPluginInitFunc = ^GstPluginInitFunc;
+
   GstElementPadSignalProc = procedure(element: PGstElement; pad: PGstPad); cdecl;
   GstElementNoMorePadsProc = procedure(element: PGstElement); cdecl;
 
@@ -715,12 +738,24 @@ type
   GstPadActivateModeFunction = Pointer;
   GstPadLinkFunction = Pointer;
   GstPadUnlinkFunction = Pointer;
-  GstPadChainFunction = Pointer;
+  GstPadChainFunction = function(
+    pad: PGstPad;
+    parent: PGstObject;
+    buffer: PGstBuffer
+  ): GstFlowReturn; cdecl;
   GstPadChainListFunction = Pointer;
   GstPadGetRangeFunction = Pointer;
-  GstPadEventFunction = Pointer;
+  GstPadEventFunction = function(
+    pad: PGstPad;
+    parent: PGstObject;
+    event: PGstEvent
+  ): gboolean; cdecl;
   GstPadEventFullFunction = Pointer;
-  GstPadQueryFunction = Pointer;
+  GstPadQueryFunction = function(
+    pad: PGstPad;
+    parent: PGstObject;
+    query: PGstQuery
+  ): gboolean; cdecl;
   GstPadIterIntLinkFunction = Pointer;
 
   GstPadLinkedProc = procedure(pad, peer: PGstPad); cdecl;
@@ -824,7 +859,9 @@ type
   ): gboolean; cdecl;
 
   GstStaticCaps = record
+    caps: PGstCaps;
     string_: Pgchar;
+    _gst_reserved: array[0..GST_PADDING - 1] of gpointer;
   end;
 
   GstStaticPadTemplate = record
