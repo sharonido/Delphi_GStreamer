@@ -147,6 +147,14 @@ For a first video filter, the usual path is:
 4. Create a small plugin `.dpr` that registers the element type and metadata.
 5. Build the project as a Win64 DLL.
 
+For a first audio filter, the path is the same idea:
+
+1. Create a subclass of `TG2DAudioFilter`.
+2. Override `ProcessAudioFrame` for the actual audio operation.
+3. Add normal GObject properties for runtime parameters, for example `band0=10`.
+4. Keep the VCL/demo code small: build the pipeline and set element properties.
+5. Build the project as a Win64 DLL.
+
 For non-video filters, start from `TG2DBaseFilter`. It already provides the common element behavior:
 
 - sink/src pads
@@ -160,6 +168,9 @@ The current full-plugin examples are:
   Builds `g2dinvert`, a simple RGB video invert filter.
 - [VideoRotate](./Tutorials/Building%20new%20Elements/plugins/VideoRotate)
   Builds `g2drotate`, a BGRx video rotate filter using the OpenCV helper DLL.
+- [AudioEqualizer](./Tutorials/Building%20new%20Elements/plugins/AudioEqualizer)
+  Builds `g2dequalizer`, an 8-band F32LE audio equalizer plugin with `band0..band7`
+  integer dB properties and a VCL demo that starts with `Tutorials/MediaFiles/test.mp3`.
 
 Each folder contains:
 

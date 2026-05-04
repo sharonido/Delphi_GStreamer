@@ -15,6 +15,12 @@
         <Projects Include="VideoRotate\gstG2Dvideorotate.dproj">
             <Dependencies/>
         </Projects>
+        <Projects Include="AudioEqualizer\gstG2Daudioequalizer.dproj">
+            <Dependencies/>
+        </Projects>
+        <Projects Include="AudioEqualizer\PG2DAudioEqualizerDemo.dproj">
+            <Dependencies/>
+        </Projects>
     </ItemGroup>
     <ProjectExtensions>
         <Borland.Personality>Default.Personality.12</Borland.Personality>
@@ -59,14 +65,32 @@
     <Target Name="gstG2Dvideorotate:Make">
         <MSBuild Projects="VideoRotate\gstG2Dvideorotate.dproj" Targets="Make"/>
     </Target>
+    <Target Name="gstG2Daudioequalizer">
+        <MSBuild Projects="AudioEqualizer\gstG2Daudioequalizer.dproj"/>
+    </Target>
+    <Target Name="gstG2Daudioequalizer:Clean">
+        <MSBuild Projects="AudioEqualizer\gstG2Daudioequalizer.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="gstG2Daudioequalizer:Make">
+        <MSBuild Projects="AudioEqualizer\gstG2Daudioequalizer.dproj" Targets="Make"/>
+    </Target>
+    <Target Name="PG2DAudioEqualizerDemo">
+        <MSBuild Projects="AudioEqualizer\PG2DAudioEqualizerDemo.dproj"/>
+    </Target>
+    <Target Name="PG2DAudioEqualizerDemo:Clean">
+        <MSBuild Projects="AudioEqualizer\PG2DAudioEqualizerDemo.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="PG2DAudioEqualizerDemo:Make">
+        <MSBuild Projects="AudioEqualizer\PG2DAudioEqualizerDemo.dproj" Targets="Make"/>
+    </Target>
     <Target Name="Build">
-        <CallTarget Targets="PG2DVideoInvertDemo;gstG2Dvideoinvert;PG2DVideoRotateDemo;gstG2Dvideorotate"/>
+        <CallTarget Targets="PG2DVideoInvertDemo;gstG2Dvideoinvert;PG2DVideoRotateDemo;gstG2Dvideorotate;gstG2Daudioequalizer;PG2DAudioEqualizerDemo"/>
     </Target>
     <Target Name="Clean">
-        <CallTarget Targets="PG2DVideoInvertDemo:Clean;gstG2Dvideoinvert:Clean;PG2DVideoRotateDemo:Clean;gstG2Dvideorotate:Clean"/>
+        <CallTarget Targets="PG2DVideoInvertDemo:Clean;gstG2Dvideoinvert:Clean;PG2DVideoRotateDemo:Clean;gstG2Dvideorotate:Clean;gstG2Daudioequalizer:Clean;PG2DAudioEqualizerDemo:Clean"/>
     </Target>
     <Target Name="Make">
-        <CallTarget Targets="PG2DVideoInvertDemo:Make;gstG2Dvideoinvert:Make;PG2DVideoRotateDemo:Make;gstG2Dvideorotate:Make"/>
+        <CallTarget Targets="PG2DVideoInvertDemo:Make;gstG2Dvideoinvert:Make;PG2DVideoRotateDemo:Make;gstG2Dvideorotate:Make;gstG2Daudioequalizer:Make;PG2DAudioEqualizerDemo:Make"/>
     </Target>
     <Import Project="$(BDS)\Bin\CodeGear.Group.Targets" Condition="Exists('$(BDS)\Bin\CodeGear.Group.Targets')"/>
 </Project>
