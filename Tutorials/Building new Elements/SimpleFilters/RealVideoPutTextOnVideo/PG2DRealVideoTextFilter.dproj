@@ -1,4 +1,4 @@
-﻿<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
     <PropertyGroup>
         <ProjectGuid>{A527F0D6-4E34-4F58-9BA6-ECA0AAE30A10}</ProjectGuid>
         <ProjectVersion>20.3</ProjectVersion>
@@ -127,25 +127,25 @@
             <Form>Form1</Form>
             <FormType>dfm</FormType>
         </DCCReference>
-        <DCCReference Include="..\..\..\G_DUnits\G2D.GstFramework.pas"/>
-        <DCCReference Include="..\..\..\G_API\G2D.Glib.API.pas"/>
-        <DCCReference Include="..\..\..\G_API\G2D.Gobject.API.pas"/>
-        <DCCReference Include="..\..\..\G_API\G2D.Gst.API.pas"/>
-        <DCCReference Include="..\..\..\G_DBase\G2D.Gobject.DOO.pas"/>
-        <DCCReference Include="..\..\..\G_DBase\G2D.GstBin.DOO.pas"/>
-        <DCCReference Include="..\..\..\G_DBase\G2D.GstBus.DOO.pas"/>
-        <DCCReference Include="..\..\..\G_DBase\G2D.GstElement.DOO.pas"/>
-        <DCCReference Include="..\..\..\G_DBase\G2D.GstMessage.DOO.pas"/>
-        <DCCReference Include="..\..\..\G_DBase\G2D.GstObject.DOO.pas"/>
-        <DCCReference Include="..\..\..\G_DBase\G2D.GstPad.DOO.pas"/>
-        <DCCReference Include="..\..\..\G_DBase\G2D.GstPipeline.DOO.pas"/>
-        <DCCReference Include="..\..\..\G_Types\G2D.Glib.Types.pas"/>
-        <DCCReference Include="..\..\..\G_Types\G2D.Gobject.Types.pas"/>
-        <DCCReference Include="..\..\..\G_Types\G2D.Gst.Types.pas"/>
-        <DCCReference Include="..\..\..\Tutorials\WinConsoleFunction.pas"/>
-        <DCCReference Include="..\..\..\G_DBase\G2D.GstApp.DOO.pas"/>
-        <DCCReference Include="..\..\..\G_DUnits\G2D.CustomSimpleBaseElement.pas"/>
-        <DCCReference Include="..\..\..\G_DUnits\G2D.CustomSimpleVideoElement.pas"/>
+        <DCCReference Include="..\..\..\..\G_DUnits\G2D.GstFramework.pas"/>
+        <DCCReference Include="..\..\..\..\G_API\G2D.Glib.API.pas"/>
+        <DCCReference Include="..\..\..\..\G_API\G2D.Gobject.API.pas"/>
+        <DCCReference Include="..\..\..\..\G_API\G2D.Gst.API.pas"/>
+        <DCCReference Include="..\..\..\..\G_DBase\G2D.Gobject.DOO.pas"/>
+        <DCCReference Include="..\..\..\..\G_DBase\G2D.GstBin.DOO.pas"/>
+        <DCCReference Include="..\..\..\..\G_DBase\G2D.GstBus.DOO.pas"/>
+        <DCCReference Include="..\..\..\..\G_DBase\G2D.GstElement.DOO.pas"/>
+        <DCCReference Include="..\..\..\..\G_DBase\G2D.GstMessage.DOO.pas"/>
+        <DCCReference Include="..\..\..\..\G_DBase\G2D.GstObject.DOO.pas"/>
+        <DCCReference Include="..\..\..\..\G_DBase\G2D.GstPad.DOO.pas"/>
+        <DCCReference Include="..\..\..\..\G_DBase\G2D.GstPipeline.DOO.pas"/>
+        <DCCReference Include="..\..\..\..\G_Types\G2D.Glib.Types.pas"/>
+        <DCCReference Include="..\..\..\..\G_Types\G2D.Gobject.Types.pas"/>
+        <DCCReference Include="..\..\..\..\G_Types\G2D.Gst.Types.pas"/>
+        <DCCReference Include="..\..\..\WinConsoleFunction.pas"/>
+        <DCCReference Include="..\..\..\..\G_DBase\G2D.GstApp.DOO.pas"/>
+        <DCCReference Include="..\..\..\..\G_DUnits\G2D.CustomSimpleBaseElement.pas"/>
+        <DCCReference Include="..\..\..\..\G_DUnits\G2D.CustomSimpleVideoElement.pas"/>
         <BuildConfiguration Include="Base">
             <Key>Base</Key>
         </BuildConfiguration>

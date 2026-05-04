@@ -168,11 +168,6 @@ type
     Button1       : TButton;
     ToggleSwitch1 : TToggleSwitch;
     Button2       : TButton;
-    Chart1: TChart;
-    Series1: TFastLineSeries;
-    Chart2: TChart;
-    Splitter3: TSplitter;
-    Series2: TBarSeries;
     procedure FormCreate(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
     procedure Button1Click(Sender: TObject);
@@ -557,7 +552,7 @@ var
   LPath: string;
 begin
   LPath := ExpandFileName(ExtractFilePath(ParamStr(0)) +
-    '..\..\..\..\..\Tutorials\MediaFiles\test.mp3');
+    '..\..\..\..\..\MediaFiles\test.mp3');
   if not FileExists(LPath) then
     Exit;
 

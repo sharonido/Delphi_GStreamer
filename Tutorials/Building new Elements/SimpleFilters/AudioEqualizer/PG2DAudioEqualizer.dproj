@@ -1,15 +1,15 @@
-﻿<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
     <PropertyGroup>
-        <ProjectGuid>{BAEC267C-7464-453F-8428-76CBF29F6B3A}</ProjectGuid>
+        <ProjectGuid>{4F75CFB5-FCBA-4341-AED6-1C820D69C37C}</ProjectGuid>
         <ProjectVersion>20.3</ProjectVersion>
         <FrameworkType>VCL</FrameworkType>
         <Base>True</Base>
         <Config Condition="'$(Config)'==''">Debug</Config>
         <Platform Condition="'$(Platform)'==''">Win64</Platform>
-        <ProjectName Condition="'$(ProjectName)'==''">PG2DExTextFilter</ProjectName>
+        <ProjectName Condition="'$(ProjectName)'==''">PG2DAudioEqualizer</ProjectName>
         <TargetedPlatforms>2</TargetedPlatforms>
         <AppType>Application</AppType>
-        <MainSource>PG2DExTextFilter.dpr</MainSource>
+        <MainSource>PG2DAudioEqualizer.dpr</MainSource>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Config)'=='Base' or '$(Base)'!=''">
         <Base>true</Base>
@@ -70,7 +70,7 @@
         <Icon_MainIcon>$(BDS)\bin\delphi_PROJECTICON.ico</Icon_MainIcon>
         <UWP_DelphiLogo44>$(BDS)\bin\Artwork\Windows\UWP\delphi_UwpDefault_44.png</UWP_DelphiLogo44>
         <UWP_DelphiLogo150>$(BDS)\bin\Artwork\Windows\UWP\delphi_UwpDefault_150.png</UWP_DelphiLogo150>
-        <SanitizedProjectName>PG2DExTextFilter</SanitizedProjectName>
+        <SanitizedProjectName>PG2DAudioEqualizer</SanitizedProjectName>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Base_Win32)'!=''">
         <DCC_UsePackage>vclwinx;DataSnapServer;fmx;emshosting;vclie;DbxCommonDriver;bindengine;IndyIPCommon;VCLRESTComponents;DBXMSSQLDriver;FireDACCommonODBC;emsclient;FireDACCommonDriver;IndyProtocols;vclx;Skia.Package.RTL;IndyIPClient;dbxcds;vcledge;bindcompvclwinx;FmxTeeUI;emsedge;bindcompfmx;DBXFirebirdDriver;inetdb;ibmonitor;FireDACSqliteDriver;DbxClientDriver;FireDACASADriver;Tee;soapmidas;vclactnband;TeeUI;fmxFireDAC;dbexpress;FireDACInfxDriver;DBXMySQLDriver;VclSmp;inet;DataSnapCommon;fmxase;vcltouch;DBXOdbcDriver;dbrtl;FireDACDBXDriver;Skia.Package.FMX;FireDACOracleDriver;fmxdae;TeeDB;FireDACMSAccDriver;CustomIPTransport;FireDACMSSQLDriver;DataSnapIndy10ServerTransport;DataSnapConnectors;vcldsnap;DBXInterBaseDriver;FireDACMongoDBDriver;IndySystem;FireDACTDataDriver;Skia.Package.VCL;vcldb;ibxbindings;vclFireDAC;bindcomp;FireDACCommon;DataSnapServerMidas;FireDACODBCDriver;emsserverresource;inetstn;IndyCore;RESTBackendComponents;bindcompdbx;rtl;FireDACMySQLDriver;FireDACADSDriver;RESTComponents;DBXSqliteDriver;vcl;IndyIPServer;dsnapxml;dsnapcon;DataSnapClient;DataSnapProviderClient;adortl;DBXSybaseASEDriver;DBXDb2Driver;vclimg;DataSnapFireDAC;emsclientfiredac;FireDACPgDriver;FireDAC;FireDACDSDriver;inetdbxpress;xmlrtl;tethering;ibxpress;bindcompvcl;dsnap;CloudService;DBXSybaseASADriver;DBXOracleDriver;FireDACDb2Driver;DBXInformixDriver;vclib;fmxobj;bindcompvclsmp;FMXTee;DataSnapNativeClient;DatasnapConnectorsFreePascal;soaprtl;soapserver;FireDACIBDriver;$(DCC_UsePackage)</DCC_UsePackage>
@@ -127,30 +127,31 @@
         <DelphiCompile Include="$(MainSource)">
             <MainSource>MainSource</MainSource>
         </DelphiCompile>
-        <DCCReference Include="UexTxtF1.pas">
+        <DCCReference Include="UAEqualizer1.pas">
             <Form>Form1</Form>
             <FormType>dfm</FormType>
         </DCCReference>
-        <DCCReference Include="..\..\..\G_DUnits\G2D.GstFramework.pas"/>
-        <DCCReference Include="..\..\..\G_API\G2D.Glib.API.pas"/>
-        <DCCReference Include="..\..\..\G_API\G2D.Gobject.API.pas"/>
-        <DCCReference Include="..\..\..\G_API\G2D.Gst.API.pas"/>
-        <DCCReference Include="..\..\..\G_DBase\G2D.Gobject.DOO.pas"/>
-        <DCCReference Include="..\..\..\G_DBase\G2D.GstBin.DOO.pas"/>
-        <DCCReference Include="..\..\..\G_DBase\G2D.GstBus.DOO.pas"/>
-        <DCCReference Include="..\..\..\G_DBase\G2D.GstElement.DOO.pas"/>
-        <DCCReference Include="..\..\..\G_DBase\G2D.GstMessage.DOO.pas"/>
-        <DCCReference Include="..\..\..\G_DBase\G2D.GstObject.DOO.pas"/>
-        <DCCReference Include="..\..\..\G_DBase\G2D.GstPad.DOO.pas"/>
-        <DCCReference Include="..\..\..\G_DBase\G2D.GstPipeline.DOO.pas"/>
-        <DCCReference Include="..\..\..\G_Types\G2D.Glib.Types.pas"/>
-        <DCCReference Include="..\..\..\G_Types\G2D.Gobject.Types.pas"/>
-        <DCCReference Include="..\..\..\G_Types\G2D.Gst.Types.pas"/>
-        <DCCReference Include="..\..\..\Tutorials\WinConsoleFunction.pas"/>
-        <DCCReference Include="..\..\..\G_DBase\G2D.GstApp.DOO.pas"/>
-        <DCCReference Include="..\..\..\G_DUnits\G2D.CustomSimpleBaseElement.pas"/>
-        <DCCReference Include="..\..\..\G_DUnits\G2D.CustomSimpleVideoElement.pas"/>
-        <DCCReference Include="..\..\..\G_API\G2D.OpenCV.API.pas"/>
+        <DCCReference Include="..\..\..\..\G_DUnits\G2D.GstFramework.pas"/>
+        <DCCReference Include="..\..\..\..\G_API\G2D.Glib.API.pas"/>
+        <DCCReference Include="..\..\..\..\G_API\G2D.Gobject.API.pas"/>
+        <DCCReference Include="..\..\..\..\G_API\G2D.Gst.API.pas"/>
+        <DCCReference Include="..\..\..\..\G_DBase\G2D.Gobject.DOO.pas"/>
+        <DCCReference Include="..\..\..\..\G_DBase\G2D.GstBin.DOO.pas"/>
+        <DCCReference Include="..\..\..\..\G_DBase\G2D.GstBus.DOO.pas"/>
+        <DCCReference Include="..\..\..\..\G_DBase\G2D.GstElement.DOO.pas"/>
+        <DCCReference Include="..\..\..\..\G_DBase\G2D.GstMessage.DOO.pas"/>
+        <DCCReference Include="..\..\..\..\G_DBase\G2D.GstObject.DOO.pas"/>
+        <DCCReference Include="..\..\..\..\G_DBase\G2D.GstPad.DOO.pas"/>
+        <DCCReference Include="..\..\..\..\G_DBase\G2D.GstPipeline.DOO.pas"/>
+        <DCCReference Include="..\..\..\..\G_Types\G2D.Glib.Types.pas"/>
+        <DCCReference Include="..\..\..\..\G_Types\G2D.Gobject.Types.pas"/>
+        <DCCReference Include="..\..\..\..\G_Types\G2D.Gst.Types.pas"/>
+        <DCCReference Include="..\..\..\WinConsoleFunction.pas"/>
+        <DCCReference Include="..\..\..\..\G_DBase\G2D.GstApp.DOO.pas"/>
+        <DCCReference Include="..\..\..\..\G_DUnits\G2D.CustomSimpleBaseElement.pas"/>
+        <DCCReference Include="..\..\..\..\G_DUnits\G2D.CustomSimpleVideoElement.pas"/>
+        <DCCReference Include="..\..\..\..\G_API\G2D.OpenCV.API.pas"/>
+        <DCCReference Include="..\..\..\..\G_DUnits\G2D.CustomSimpleAudioElement.pas"/>
         <BuildConfiguration Include="Base">
             <Key>Base</Key>
         </BuildConfiguration>
@@ -169,7 +170,7 @@
         <BorlandProject>
             <Delphi.Personality>
                 <Source>
-                    <Source Name="MainSource">PG2DExTextFilter.dpr</Source>
+                    <Source Name="MainSource">PG2DAudioEqualizer.dpr</Source>
                 </Source>
                 <Excluded_Packages>
                     <Excluded_Packages Name="$(BDSBIN)\dcloffice2k370.bpl">Microsoft Office 2000 Sample Automation Server Wrapper Components</Excluded_Packages>
@@ -177,21 +178,21 @@
                 </Excluded_Packages>
             </Delphi.Personality>
             <Deployment Version="5">
-                <DeployFile LocalName="Win32\Debug\PG2DExTextFilter.exe" Configuration="Debug" Class="ProjectOutput">
+                <DeployFile LocalName="Win32\Debug\PG2DAudioEqualizer.exe" Configuration="Debug" Class="ProjectOutput">
                     <Platform Name="Win32">
-                        <RemoteName>PG2DExTextFilter.exe</RemoteName>
+                        <RemoteName>PG2DAudioEqualizer.exe</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
                 </DeployFile>
-                <DeployFile LocalName="Win64\Debug\PG2DExTextFilter.exe" Configuration="Debug" Class="ProjectOutput">
+                <DeployFile LocalName="Win64\Debug\PG2DAudioEqualizer.exe" Configuration="Debug" Class="ProjectOutput">
                     <Platform Name="Win64">
-                        <RemoteName>PG2DExTextFilter.exe</RemoteName>
+                        <RemoteName>PG2DAudioEqualizer.exe</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
                 </DeployFile>
-                <DeployFile LocalName="Win64\Debug\PG2DExTextFilter.rsm" Configuration="Debug" Class="DebugSymbols">
+                <DeployFile LocalName="Win64\Debug\PG2DAudioEqualizer.rsm" Configuration="Debug" Class="DebugSymbols">
                     <Platform Name="Win64">
-                        <RemoteName>PG2DExTextFilter.rsm</RemoteName>
+                        <RemoteName>PG2DAudioEqualizer.rsm</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
                 </DeployFile>

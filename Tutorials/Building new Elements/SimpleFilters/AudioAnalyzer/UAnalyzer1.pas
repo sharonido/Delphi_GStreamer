@@ -28,10 +28,10 @@ uses
   Winapi.Windows, System.SysUtils, System.Classes, System.Math,
   Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.ExtCtrls, Vcl.StdCtrls,
   Vcl.ComCtrls, Vcl.WinXCtrls, Vcl.Graphics,
-  VCLTee.Chart, VCLTee.Series, VCLTee.TeEngine, VCLTee.TeeProcs,
+  VCLTee.Chart, VCLTee.Series, VCLTee.TeEngine, VCLTee.TeeProcs, Vcl.Mask,
   G2D.GstFramework,
-  UAnalyzerFilters,
-  Vcl.Mask;
+  UAnalyzerFilters;
+
 
 type
 {------------------------------------------------------------------------------
@@ -386,7 +386,7 @@ var
   LPath: string;
 begin
   LPath := ExpandFileName(ExtractFilePath(ParamStr(0)) +
-    '..\..\..\..\..\Tutorials\MediaFiles\test.mp3');
+    '..\..\..\..\..\MediaFiles\test.mp3');
   if not FileExists(LPath) then
     Exit;
 

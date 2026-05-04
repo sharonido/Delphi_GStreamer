@@ -67,7 +67,7 @@ This project has been tested with the MSVC 64-bit Windows build of GStreamer.
 You can start with:
 
 - the tutorial projects under [Tutorials](./Tutorials)
-- the custom filter examples under [Building new Elements](./Building%20new%20Elements)
+- the custom filter examples under [Building new Elements](./Tutorials/Building%20new%20Elements)
 
 ### 4. Build for Win64
 
@@ -90,7 +90,7 @@ The current project setup is primarily intended for 64-bit Delphi builds.
 
 - [Tutorials](./Tutorials)
   Delphi versions of the official GStreamer tutorials
-- [Building new Elements](./Building%20new%20Elements)
+- [Building new Elements](./Tutorials/Building%20new%20Elements)
   Examples of custom filters/elements written in Delphi
 - [Uni-Tests](./Uni-Tests)
   Unit tests and validation work
@@ -118,7 +118,7 @@ If you are new to G2D, this is the best place to start.
 
 ## Custom Filters
 
-The [Building new Elements](./Building%20new%20Elements) folder shows how to build custom filters in Delphi.
+The [Building new Elements](./Tutorials/Building%20new%20Elements) folder shows how to build custom filters in Delphi.
 
 Recent work in this repository includes safer audio-filter building blocks, including a managed audio filter chain that wraps:
 

@@ -1,9 +1,9 @@
 object Form1: TForm1
   Left = 0
   Top = 0
-  Caption = 'Example of Audio Analyzer'
-  ClientHeight = 721
-  ClientWidth = 694
+  Caption = 'Example simple Audio Equalizer'
+  ClientHeight = 353
+  ClientWidth = 728
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -14,83 +14,26 @@ object Form1: TForm1
   OnDestroy = FormDestroy
   TextHeight = 15
   object Panel4: TPanel
-    Left = 241
+    Left = 277
     Top = 41
-    Width = 453
-    Height = 680
+    Width = 451
+    Height = 312
     Align = alRight
     Caption = 'Panel4'
     TabOrder = 1
-    object Splitter1: TSplitter
-      Left = 1
-      Top = 370
-      Width = 451
-      Height = 3
-      Cursor = crVSplit
-      Align = alBottom
-      ExplicitTop = 1
-      ExplicitWidth = 145
-    end
-    object Splitter3: TSplitter
-      Left = 1
-      Top = 173
-      Width = 451
-      Height = 3
-      Cursor = crVSplit
-      Align = alBottom
-      ExplicitTop = 1
-      ExplicitWidth = 154
-    end
-    object Panel5: TPanel
-      Left = 1
-      Top = 1
-      Width = 451
-      Height = 172
-      Align = alClient
-      Caption = 'Panel5'
-      ShowCaption = False
-      TabOrder = 0
-      object Chart1: TChart
-        Left = 1
-        Top = 1
-        Width = 449
-        Height = 170
-        Legend.Visible = False
-        Title.Margins.Left = 11
-        Title.Margins.Top = 2
-        Title.Margins.Bottom = 2
-        Title.Text.Strings = (
-          'Audio wavform scope')
-        BottomAxis.Title.Caption = 'mSec'
-        LeftAxis.Title.Caption = 'mVolts'
-        View3D = False
-        Align = alClient
-        Color = 12320699
-        TabOrder = 0
-        DefaultCanvas = 'TGDIPlusCanvas'
-        ColorPaletteIndex = 13
-        object Series1: TFastLineSeries
-          LinePen.Color = 10708548
-          XValues.Name = 'X'
-          XValues.Order = loAscending
-          YValues.Name = 'Y'
-          YValues.Order = loNone
-        end
-      end
-    end
     object Panel6: TPanel
       Left = 1
-      Top = 373
-      Width = 451
+      Top = 5
+      Width = 449
       Height = 306
       Align = alBottom
       Caption = 'Panel6'
       ShowCaption = False
-      TabOrder = 1
+      TabOrder = 0
       object Label3: TLabel
         Left = 1
         Top = 1
-        Width = 449
+        Width = 447
         Height = 15
         Align = alTop
         Alignment = taCenter
@@ -135,8 +78,7 @@ object Form1: TForm1
           Height = 249
           Margins.Left = 13
           Align = alClient
-          Max = 30
-          Min = -30
+          Min = -10
           Orientation = trVertical
           TabOrder = 0
           OnChange = TrackBarChange
@@ -180,8 +122,7 @@ object Form1: TForm1
           Height = 249
           Margins.Left = 13
           Align = alClient
-          Max = 30
-          Min = -30
+          Min = -10
           Orientation = trVertical
           TabOrder = 0
           OnChange = TrackBarChange
@@ -225,8 +166,7 @@ object Form1: TForm1
           Height = 249
           Margins.Left = 13
           Align = alClient
-          Max = 30
-          Min = -30
+          Min = -10
           Orientation = trVertical
           TabOrder = 0
           OnChange = TrackBarChange
@@ -270,8 +210,7 @@ object Form1: TForm1
           Height = 249
           Margins.Left = 13
           Align = alClient
-          Max = 30
-          Min = -30
+          Min = -10
           Orientation = trVertical
           TabOrder = 0
           OnChange = TrackBarChange
@@ -315,8 +254,7 @@ object Form1: TForm1
           Height = 249
           Margins.Left = 13
           Align = alClient
-          Max = 30
-          Min = -30
+          Min = -10
           Orientation = trVertical
           TabOrder = 0
           OnChange = TrackBarChange
@@ -360,8 +298,7 @@ object Form1: TForm1
           Height = 249
           Margins.Left = 13
           Align = alClient
-          Max = 30
-          Min = -30
+          Min = -10
           Orientation = trVertical
           TabOrder = 0
           OnChange = TrackBarChange
@@ -405,8 +342,7 @@ object Form1: TForm1
           Height = 249
           Margins.Left = 13
           Align = alClient
-          Max = 30
-          Min = -30
+          Min = -10
           Orientation = trVertical
           TabOrder = 0
           OnChange = TrackBarChange
@@ -450,69 +386,27 @@ object Form1: TForm1
           Height = 249
           Margins.Left = 13
           Align = alClient
-          Max = 30
-          Min = -30
+          Min = -10
           Orientation = trVertical
           TabOrder = 0
           OnChange = TrackBarChange
         end
       end
     end
-    object Chart2: TChart
-      Left = 1
-      Top = 176
-      Width = 451
-      Height = 194
-      LeftWall.Visible = False
-      Legend.Visible = False
-      Title.Margins.Left = 11
-      Title.Margins.Top = 2
-      Title.Margins.Bottom = 2
-      Title.Text.Strings = (
-        'Frequency (Spectrum) Analyzer')
-      BottomAxis.Title.Caption = 'KHz'
-      LeftAxis.Title.Caption = 'dB'
-      View3D = False
-      Align = alBottom
-      Color = 10785883
-      TabOrder = 2
-      DefaultCanvas = 'TGDIPlusCanvas'
-      ColorPaletteIndex = 13
-      object Series2: TBarSeries
-        BarBrush.Color = 8454016
-        DarkPen = 15
-        Depth = 0
-        Marks.Visible = False
-        Marks.AutoPosition = False
-        Marks.OnTop = True
-        SeriesColor = 65408
-        BarWidthPercent = 100
-        Dark3D = False
-        DepthPercent = 1
-        MultiBar = mbNone
-        Shadow.Visible = False
-        SideMargins = False
-        Sides = 23
-        XValues.Name = 'X'
-        XValues.Order = loAscending
-        YValues.Name = 'Bar'
-        YValues.Order = loNone
-      end
-    end
   end
   object Panel1: TPanel
     Left = 0
     Top = 41
-    Width = 241
-    Height = 680
+    Width = 244
+    Height = 312
     Align = alClient
     Caption = 'Panel1'
     ShowCaption = False
     TabOrder = 0
     object Splitter2: TSplitter
       Left = 1
-      Top = 137
-      Width = 239
+      Top = 89
+      Width = 242
       Height = 3
       Cursor = crVSplit
       Align = alTop
@@ -522,15 +416,15 @@ object Form1: TForm1
     object Panel2: TPanel
       Left = 1
       Top = 1
-      Width = 239
-      Height = 136
+      Width = 242
+      Height = 88
       Align = alTop
       Caption = 'Panel2'
       TabOrder = 0
       object Label1: TLabel
         Left = 1
         Top = 1
-        Width = 237
+        Width = 240
         Height = 15
         Align = alTop
         Caption = 'What we have here'
@@ -539,8 +433,8 @@ object Form1: TForm1
       object RichEdit1: TRichEdit
         Left = 1
         Top = 16
-        Width = 237
-        Height = 119
+        Width = 240
+        Height = 71
         Align = alClient
         Font.Charset = ANSI_CHARSET
         Font.Color = clWindowText
@@ -549,10 +443,7 @@ object Form1: TForm1
         Font.Style = []
         Lines.Strings = (
           'This is part of G2D GStreamer to Delphi (Pascal) project'
-          'Shows 3 Audio simple filters in a line:'
-          '1st is an Equalizer'
-          '2nd is a tap showing the waveform'
-          '3rd is a tap showing the power spectrum. It uses FFT')
+          'This is a simple Audio element that is used as an Equalizer')
         ParentFont = False
         ReadOnly = True
         ScrollBars = ssBoth
@@ -562,20 +453,18 @@ object Form1: TForm1
     end
     object Panel3: TPanel
       Left = 1
-      Top = 140
-      Width = 239
-      Height = 539
+      Top = 92
+      Width = 242
+      Height = 219
       Align = alClient
       Caption = 'Panel3'
       ShowCaption = False
       TabOrder = 1
-      ExplicitTop = 100
-      ExplicitHeight = 579
       object logger: TRichEdit
         Left = 1
         Top = 1
-        Width = 237
-        Height = 537
+        Width = 240
+        Height = 217
         Align = alClient
         Font.Charset = ANSI_CHARSET
         Font.Color = clWindowText
@@ -587,31 +476,38 @@ object Form1: TForm1
         ScrollBars = ssBoth
         TabOrder = 0
         WordWrap = False
-        ExplicitTop = 16
-        ExplicitHeight = 562
       end
     end
+  end
+  object Panel7: TPanel
+    Left = 244
+    Top = 41
+    Width = 33
+    Height = 312
+    Align = alRight
+    Caption = 'Panel7'
+    ShowCaption = False
+    TabOrder = 2
   end
   object Panel15: TPanel
     Left = 0
     Top = 0
-    Width = 694
+    Width = 728
     Height = 41
     Align = alTop
     Caption = 'Panel15'
     ShowCaption = False
-    TabOrder = 2
+    TabOrder = 3
     DesignSize = (
-      694
+      728
       41)
     object Label2: TLabel
-      Left = 550
+      Left = 584
       Top = 12
       Width = 50
       Height = 15
       Anchors = [akTop, akRight]
       Caption = 'Equalizer:'
-      ExplicitLeft = 584
     end
     object LabeledEdit1: TLabeledEdit
       Left = 48
@@ -635,7 +531,7 @@ object Form1: TForm1
       OnClick = Button1Click
     end
     object ToggleSwitch1: TToggleSwitch
-      Left = 606
+      Left = 640
       Top = 10
       Width = 73
       Height = 20
