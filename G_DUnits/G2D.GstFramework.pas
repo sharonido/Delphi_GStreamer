@@ -87,6 +87,8 @@ type
     Function Build(const APipelineDescription: string): Boolean;
     function BuildAndPlay(const APipelineDescription: string): Boolean;
     function SetVisualWindow(const AElementName: string; AWnd: HWnd): Boolean;
+    function SetVisualRectangle(const AElementName: string;
+      AX, AY, AWidth, AHeight: Integer): Boolean;
 
     function RunFor(ATimeout: GstClockTime): Boolean;
     function FindElement(const AName: string): TGstElementRef;
@@ -754,6 +756,24 @@ begin
 
     Elem.SetWindowHandle(AWnd);
     Result := True;
+  finally
+    Elem.Free;
+  end;
+end;
+
+function TGstFramework.SetVisualRectangle(const AElementName: string;
+  AX, AY, AWidth, AHeight: Integer): Boolean;
+var
+  Elem: TGstElementRef;
+begin
+  Result := False;
+
+  Elem := FindElement(AElementName);
+  try
+    if Elem = nil then
+      Exit;
+
+    Result := Elem.SetRenderRectangle(AX, AY, AWidth, AHeight);
   finally
     Elem.Free;
   end;

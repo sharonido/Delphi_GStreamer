@@ -1,0 +1,63 @@
+object Form1: TForm1
+  Left = 0
+  Top = 0
+  Caption = 'My Example 2 FMX - full form video overlay'
+  ClientHeight = 524
+  ClientWidth = 893
+  FormFactor.Width = 320
+  FormFactor.Height = 480
+  FormFactor.Devices = [Desktop]
+  OnCreate = FormCreate
+  OnDestroy = FormDestroy
+  OnKeyDown = FormKeyDown
+  OnResize = FormResize
+  DesignerMasterStyle = 0
+  object VideoPanel: TPanel
+    Align = Client
+    Size.Width = 893.000000000000000000
+    Size.Height = 480.000000000000000000
+    Size.PlatformDefault = False
+    TabOrder = 1
+  end
+  object GroupBox1: TGroupBox
+    Align = Bottom
+    Position.Y = 480.000000000000000000
+    Size.Width = 893.000000000000000000
+    Size.Height = 44.000000000000000000
+    Size.PlatformDefault = False
+    Text = 'Video Pattern'
+    TabOrder = 2
+    object NumberBox1: TNumberBox
+      Touch.InteractiveGestures = [LongTap, DoubleTap]
+      TabOrder = 38
+      Cursor = crIBeam
+      DecimalDigits = 1
+      Max = 9.000000000000000000
+      Position.X = 59.000000000000000000
+      Position.Y = 16.000000000000000000
+      Size.Width = 33.000000000000000000
+      Size.Height = 22.000000000000000000
+      Size.PlatformDefault = False
+      OnChange = NumberBox1Change
+    end
+    object Label1: TLabel
+      Position.X = 8.000000000000000000
+      Position.Y = 19.000000000000000000
+      Size.Width = 56.000000000000000000
+      Size.Height = 17.000000000000000000
+      Size.PlatformDefault = False
+      Text = 'Pattern #'
+      TabOrder = 39
+    end
+    object Label2: TLabel
+      AutoSize = True
+      Position.X = 100.000000000000000000
+      Position.Y = 19.000000000000000000
+      Size.Width = 205.000000000000000000
+      Size.Height = 16.000000000000000000
+      Size.PlatformDefault = False
+      Text = 'Enter 0-9 for different video patterns'
+      TabOrder = 40
+    end
+  end
+end

@@ -73,6 +73,7 @@ type
     function GetFactoryName: string;
 
     procedure SetWindowHandle(AHandle: NativeUInt);
+    function SetRenderRectangle(AX, AY, AWidth, AHeight: Integer): Boolean;
 
     property FactoryName: string read GetFactoryName;
   end;
@@ -288,6 +289,24 @@ begin
     Exit;
   _gst_video_overlay_set_window_handle(
     gpointer(ElementHandle), guintptr(AHandle));
+end;
+
+function TGstElementRef.SetRenderRectangle(
+  AX, AY, AWidth, AHeight: Integer
+): Boolean;
+begin
+  Result := False;
+  if ElementHandle = nil then
+    Exit;
+  if not Assigned(_gst_video_overlay_set_render_rectangle) then
+    Exit;
+
+  Result := _gst_video_overlay_set_render_rectangle(
+    gpointer(ElementHandle),
+    AX,
+    AY,
+    AWidth,
+    AHeight) <> 0;
 end;
 
 function TGstElementRef.GetState: GstState;

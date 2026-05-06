@@ -168,6 +168,13 @@ var
   { Video }
   _gst_video_overlay_set_window_handle: procedure(overlay: gpointer;
      handle: guintptr); cdecl = nil;
+  _gst_video_overlay_set_render_rectangle: function(
+    overlay: gpointer;
+    x: gint;
+    y: gint;
+    width: gint;
+    height: gint
+  ): gboolean; cdecl = nil;
   _gst_video_overlay_expose: procedure(overlay: gpointer); cdecl = nil;
 
   { Video Info / Frame }
@@ -406,6 +413,7 @@ begin
 
   { Video }
   _gst_video_overlay_set_window_handle := nil;
+  _gst_video_overlay_set_render_rectangle := nil;
   _gst_video_overlay_expose := nil;
 
   { Video Info / Frame }
@@ -564,6 +572,7 @@ begin
 
   { Video }
   @_gst_video_overlay_set_window_handle := _LoadProcGstVideo('gst_video_overlay_set_window_handle');
+  @_gst_video_overlay_set_render_rectangle := _LoadProcGstVideo('gst_video_overlay_set_render_rectangle');
   @_gst_video_overlay_expose := _LoadProcGstVideo('gst_video_overlay_expose');
 
   { Video Info / Frame }
