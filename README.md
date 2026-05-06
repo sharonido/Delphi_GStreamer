@@ -12,28 +12,33 @@ Its goal is to let Delphi developers build multimedia applications and custom me
 The project currently focuses on practical Windows desktop development with 64-bit Delphi.
 
 ## Current Status
+This project is still evolving but the main branch is stable.
 
-This project is still evolving and should be treated as work in progress.
+What is stable:
+- Basics:
+  - using GStreamer from Delphi code
+  - building pipelines from Delphi
+  - following the GStreamer tutorials in Delphi form
+  - experimenting with custom audio and video filters
 
-What works well today:
-
-- using GStreamer from Delphi code
-- building pipelines from Delphi
-- following the GStreamer tutorials in Delphi form
-- experimenting with custom audio and video filters
+- Building your own elements:
+  - building and running your filters (audio & video) by subclassing video or audio filters Delphi provided classes
+  - building and running your filters (audio & video) by using OnProcess procedures in the classic Delphi way
+  - building and running your Plugins (*.dll files) by subclassing (audio & video) provided plugins
 
 Current limitations:
 
-- mainly tested on Windows 10/11
-- mainly tested with 64-bit builds
-- not all of GStreamer is wrapped yet
-- some parts are still low-level and improving over time
+- mainly tested on Windows 10/11 & Delphi 10 or above
+- mainly tested with 64-bit builds on Delphi VCL
+- There is a Delphi FMX example under Tutorials\FMX but it is very limited
+- I will also provide a small android example
 
 ## Who This Is For
 
 This repository is useful if you want to:
 
-- inspect, and route audio/video streams from Delphi
+- Build, and route audio/video streams in Delphi
+- Building your own elements, inline filters & plugins in Delphi
 - learn GStreamer through Delphi examples
 - build your own GStreamer-backed tools or applications
 - create custom filters in Delphi
