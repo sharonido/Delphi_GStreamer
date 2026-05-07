@@ -1,12 +1,14 @@
 # Delphi / RAD Studio
 __history/
 *.dcu
+*.o
 *.dcp
 *.identcache
 *.local
 *.stat
 *.res
 *.dsk
+*.dsv
 *.map
 *.rsm
 
@@ -16,6 +18,10 @@ Win64/
 Debug/
 Release/
 tmp/
+gst-android-build/
+Tools/AndroidGStreamer/out/
+Tools/AndroidGStreamer/gst-android-build/
+Tools/AndroidGStreamer/src/
 
 # Executables / binaries
 *.exe

@@ -3,10 +3,14 @@ unit G2D.Glib.API;
 interface
 
 uses
-  Winapi.Windows,
   System.SysUtils,
+  G2D.API.Loader,
+  {$IF Defined(MSWINDOWS)}
+  Winapi.Windows,
+  {$ENDIF}
   G2D.Glib.Types;
 
+{$IF Defined(MSWINDOWS)}
 { AddDllDirectory / RemoveDllDirectory / LoadLibraryEx flags not declared
   in all Delphi versions - import and define manually. }
 const
@@ -20,13 +24,14 @@ function AddDllDirectory(NewDirectory: PWideChar): TDllDirectory;
   stdcall; external 'kernel32.dll' name 'AddDllDirectory';
 function RemoveDllDirectory(Cookie: TDllDirectory): BOOL;
   stdcall; external 'kernel32.dll' name 'RemoveDllDirectory';
+{$ENDIF}
 
 type
   EG2DAPILoaderError = class(Exception);
   EG2DGlibError = class(Exception);
 
 var
-  G2D_GlibHandle: HMODULE = 0;
+  G2D_GlibHandle: TG2DLibraryHandle = 0;
   G2D_GlibLoaded: Boolean = False;
 
   _g_malloc: function(n_bytes: gsize): gpointer; cdecl = nil;
@@ -53,7 +58,7 @@ var
   _g_quark_to_string: function(quark: GQuark): Pgchar; cdecl = nil;
 
   NormalGstSearch:boolean=true;
-function G2D_LoadDLLModule(const ADllPath: string; GstModule:boolean=true): HMODULE;
+function G2D_LoadDLLModule(const ADllPath: string; GstModule:boolean=true): TG2DLibraryHandle;
 function G2D_LoadGlib: Boolean;
 procedure G2D_UnloadGlib;
 function G2D_GlibLoadedOK: Boolean;
@@ -63,9 +68,14 @@ function DGQuarkToString(AQuark: GQuark): string;
 
 implementation
 
+{$IF Defined(ANDROID)}
+uses
+  G2D.Gst.Android.Bootstrap;
+{$ENDIF}
+
 function _LoadProc(const AName: AnsiString): Pointer;
 begin
-  Result := GetProcAddress(G2D_GlibHandle, PAnsiChar(AName));
+  Result := G2DLoadProc(G2D_GlibHandle, AName);
   if Result = nil then
     raise EG2DGlibError.CreateFmt(
       'GLib: required function not found: %s',
@@ -127,6 +137,7 @@ end;
 
 
 function G2D_LastErrorText: string;
+{$IF Defined(MSWINDOWS)}
 var
   LBuf: array[0..1023] of Char;
 begin
@@ -134,9 +145,15 @@ begin
                 nil, GetLastError, 0, LBuf, Length(LBuf), nil);
   Result := Trim(LBuf);
 end;
+{$ELSE}
+begin
+  Result := G2DLastLoadError;
+end;
+{$ENDIF}
 
+{$IF Defined(MSWINDOWS)}
 { Try to load a DLL by full path, returning 0 on failure without raising. }
-function G2D_TryLoadLibrary(const AFullPath: string): HMODULE;
+function G2D_TryLoadLibrary(const AFullPath: string): TG2DLibraryHandle;
 var
   LDir    : string;
   LCookie : TDllDirectory;
@@ -157,7 +174,9 @@ begin
       RemoveDllDirectory(LCookie);
   end;
 end;
+{$ENDIF}
 
+{$IF Defined(MSWINDOWS)}
 { Walk up from the exe directory looking for a sibling 'DLLs' folder.
   Returns the full path to the DLL if found, otherwise ''. }
 function G2D_FindInDLLsFolder(const ADllName: string): string;
@@ -183,10 +202,12 @@ begin
     if LDir.EndsWith(':') then LDir := '';
   end;
 end;
+{$ENDIF}
 
-function G2D_LoadDLLModule(const ADllPath: string; GstModule:boolean=true): HMODULE;
+function G2D_LoadDLLModule(const ADllPath: string; GstModule:boolean=true): TG2DLibraryHandle;
+{$IF Defined(MSWINDOWS)}
 var
-  LHandle  : HMODULE;
+  LHandle  : TG2DLibraryHandle;
   LFound   : string;
   LDllName : string;
   DllsDir  :string;
@@ -238,6 +259,17 @@ begin
       'Failed to load DLL: %s (%s)', [LDllName, G2D_LastErrorText]);
   end;
 end;
+{$ELSE}
+begin
+  if ADllPath = '' then
+    raise EG2DAPILoaderError.Create('Library name/path is empty');
+
+  Result := G2DLoadLibrary(ADllPath);
+  if Result = 0 then
+    raise EG2DAPILoaderError.CreateFmt(
+      'Failed to load library: %s (%s)', [ADllPath, G2DLastLoadError]);
+end;
+{$ENDIF}
 
 
 function G2D_LoadGlib: Boolean;
@@ -248,16 +280,34 @@ begin
 
   _ResetGlibPointers;
 
-  G2D_GlibHandle := G2D_LoadDLLModule(PChar('glib-2.0-0.dll'));
+{$IF Defined(ANDROID)}
+  if not G2DAndroidGStreamerInitialized then
+    if not G2DInitializeAndroidGStreamer then
+      raise EG2DGlibError.Create(
+        'Failed to initialize Android GStreamer bootstrap: ' +
+        G2DAndroidGStreamerLastError);
+
+  G2D_GlibHandle := G2DAndroidGStreamerHandle;
+{$ELSE}
+  G2D_GlibHandle := G2D_LoadDLLModule(
+{$IF Defined(MSWINDOWS)}
+    'glib-2.0-0.dll'
+{$ELSE}
+    G2DPlatformLibraryPrefix + 'glib-2.0' + G2DPlatformLibraryExtension
+{$ENDIF}
+  );
+{$ENDIF}
   if G2D_GlibHandle = 0 then
-    raise EG2DGlibError.Create('Failed to load GLib DLL: glib-2.0-0.dll');
+    raise EG2DGlibError.Create('Failed to load GLib library');
 
   try
     _BindGlibFunctions;
     G2D_GlibLoaded := True;
     Result := True;
   except
-    FreeLibrary(G2D_GlibHandle);
+{$IF not Defined(ANDROID)}
+    G2DUnloadLibrary(G2D_GlibHandle);
+{$ENDIF}
     G2D_GlibHandle := 0;
     _ResetGlibPointers;
     G2D_GlibLoaded := False;
@@ -267,11 +317,15 @@ end;
 
 procedure G2D_UnloadGlib;
 begin
+{$IF not Defined(ANDROID)}
   if G2D_GlibHandle <> 0 then
   begin
-    FreeLibrary(G2D_GlibHandle);
+    G2DUnloadLibrary(G2D_GlibHandle);
     G2D_GlibHandle := 0;
   end;
+{$ELSE}
+  G2D_GlibHandle := 0;
+{$ENDIF}
 
   _ResetGlibPointers;
   G2D_GlibLoaded := False;

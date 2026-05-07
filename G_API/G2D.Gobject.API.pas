@@ -3,8 +3,8 @@ unit G2D.Gobject.API;
 interface
 
 uses
-  Winapi.Windows,
   System.SysUtils,
+  G2D.API.Loader,
   G2D.Glib.Types,
   G2D.Gobject.Types,
   G2D.Glib.API;
@@ -13,7 +13,7 @@ type
   EG2DGobjectError = class(Exception);
 
 var
-  G2D_GobjectHandle: HMODULE = 0;
+  G2D_GobjectHandle: TG2DLibraryHandle = 0;
   G2D_GobjectLoaded: Boolean = False;
 
   { GType }
@@ -214,9 +214,14 @@ function G2D_GobjectLoadedOK: Boolean;
 
 implementation
 
+{$IF Defined(ANDROID)}
+uses
+  G2D.Gst.Android.Bootstrap;
+{$ENDIF}
+
 function _LoadProc(const AName: AnsiString): Pointer;
 begin
-  Result := GetProcAddress(G2D_GobjectHandle, PAnsiChar(AName));
+  Result := G2DLoadProc(G2D_GobjectHandle, AName);
   if Result = nil then
     raise EG2DGobjectError.CreateFmt(
       'GObject: required function not found: %s',
@@ -392,16 +397,34 @@ begin
 
   _ResetGobjectPointers;
 
-  G2D_GobjectHandle := G2D_LoadDLLModule(PChar('gobject-2.0-0.dll'));
+{$IF Defined(ANDROID)}
+  if not G2DAndroidGStreamerInitialized then
+    if not G2DInitializeAndroidGStreamer then
+      raise EG2DGobjectError.Create(
+        'Failed to initialize Android GStreamer bootstrap: ' +
+        G2DAndroidGStreamerLastError);
+
+  G2D_GobjectHandle := G2DAndroidGStreamerHandle;
+{$ELSE}
+  G2D_GobjectHandle := G2D_LoadDLLModule(
+{$IF Defined(MSWINDOWS)}
+    'gobject-2.0-0.dll'
+{$ELSE}
+    G2DPlatformLibraryPrefix + 'gobject-2.0' + G2DPlatformLibraryExtension
+{$ENDIF}
+  );
+{$ENDIF}
   if G2D_GobjectHandle = 0 then
-    raise EG2DGobjectError.Create('Failed to load GObject DLL: gobject-2.0-0.dll');
+    raise EG2DGobjectError.Create('Failed to load GObject library');
 
   try
     _BindGobjectFunctions;
     G2D_GobjectLoaded := True;
     Result := True;
   except
-    FreeLibrary(G2D_GobjectHandle);
+{$IF not Defined(ANDROID)}
+    G2DUnloadLibrary(G2D_GobjectHandle);
+{$ENDIF}
     G2D_GobjectHandle := 0;
     _ResetGobjectPointers;
     G2D_GobjectLoaded := False;
@@ -411,11 +434,15 @@ end;
 
 procedure G2D_UnloadGobject;
 begin
+{$IF not Defined(ANDROID)}
   if G2D_GobjectHandle <> 0 then
   begin
-    FreeLibrary(G2D_GobjectHandle);
+    G2DUnloadLibrary(G2D_GobjectHandle);
     G2D_GobjectHandle := 0;
   end;
+{$ELSE}
+  G2D_GobjectHandle := 0;
+{$ENDIF}
 
   _ResetGobjectPointers;
   G2D_GobjectLoaded := False;

@@ -3,8 +3,8 @@ unit G2D.Gst.API;
 interface
 
 uses
-  Winapi.Windows,
   System.SysUtils,
+  G2D.API.Loader,
   G2D.Glib.Types,
   G2D.Gobject.Types,
   G2D.Gst.Types,
@@ -15,10 +15,10 @@ type
   EG2DGstError = class(Exception);
 
 var
-  G2D_GstHandle       : HMODULE = 0;
-  G2D_GstVideoHandle  : HMODULE = 0;
-  G2D_GstAudioHandle  : HMODULE = 0;
-  G2D_GstAppHandle    : HMODULE = 0;
+  G2D_GstHandle       : TG2DLibraryHandle = 0;
+  G2D_GstVideoHandle  : TG2DLibraryHandle = 0;
+  G2D_GstAudioHandle  : TG2DLibraryHandle = 0;
+  G2D_GstAppHandle    : TG2DLibraryHandle = 0;
   G2D_GstLoaded: Boolean = False;
 
   { Core }
@@ -295,6 +295,21 @@ procedure DGstObjectUnref(AObject: gpointer);
 
 implementation
 
+{$IF Defined(ANDROID)}
+uses
+  G2D.Gst.Android.Bootstrap;
+{$ENDIF}
+
+function _GstLibraryName(const AWindowsName, AUnixBaseName: string): string;
+begin
+{$IF Defined(MSWINDOWS)}
+  Result := AWindowsName;
+{$ELSE}
+  Result := G2DPlatformLibraryPrefix + AUnixBaseName +
+    G2DPlatformLibraryExtension;
+{$ENDIF}
+end;
+
 
 procedure GstInit;
 begin
@@ -307,7 +322,7 @@ end;
 
 function _LoadProcGst(const AName: AnsiString): Pointer;
 begin
-  Result := GetProcAddress(G2D_GstHandle, PAnsiChar(AName));
+  Result := G2DLoadProc(G2D_GstHandle, AName);
   if Result = nil then
     raise EG2DGstError.CreateFmt(
       'GStreamer: required function not found: %s', [string(AName)]);
@@ -315,7 +330,7 @@ end;
 
 function _LoadProcGstVideo(const AName: AnsiString): Pointer;
 begin
-  Result := GetProcAddress(G2D_GstVideoHandle, PAnsiChar(AName));
+  Result := G2DLoadProc(G2D_GstVideoHandle, AName);
   if Result = nil then
     raise EG2DGstError.CreateFmt(
       'GStreamer: required Video function not found: %s',[string(AName)]);
@@ -323,7 +338,7 @@ end;
 
 function _LoadProcGstAudio(const AName: AnsiString): Pointer;
 begin
-  Result := GetProcAddress(G2D_GstAudioHandle, PAnsiChar(AName));
+  Result := G2DLoadProc(G2D_GstAudioHandle, AName);
   if Result = nil then
     raise EG2DGstError.CreateFmt(
       'GStreamer: required Audio function not found: %s',[string(AName)]);
@@ -331,7 +346,7 @@ end;
 
 function _LoadProcGstApp(const AName: AnsiString): Pointer;
 begin
-  Result := GetProcAddress(G2D_GstAppHandle, PAnsiChar(AName));
+  Result := G2DLoadProc(G2D_GstAppHandle, AName);
   if Result = nil then
     raise EG2DGstError.CreateFmt(
       'GStreamer: required App function not found: %s', [string(AName)]);
@@ -662,6 +677,13 @@ begin
 end;
 
 function G2D_LoadGst: Boolean;
+{$IF not Defined(ANDROID)}
+var
+  LGstLibraryName: string;
+  LGstVideoLibraryName: string;
+  LGstAudioLibraryName: string;
+  LGstAppLibraryName: string;
+{$ENDIF}
 begin
   if G2D_GstLoaded then
     Exit(True);
@@ -674,35 +696,64 @@ begin
 
   _ResetGstPointers;
 
-  G2D_GstHandle := G2D_LoadDLLModule(PChar('gstreamer-1.0-0.dll'));
+{$IF Defined(ANDROID)}
+  if not G2DAndroidGStreamerInitialized then
+    if not G2DInitializeAndroidGStreamer then
+      raise EG2DGstError.Create(
+        'Failed to initialize Android GStreamer bootstrap: ' +
+        G2DAndroidGStreamerLastError);
+
+  G2D_GstHandle := G2DAndroidGStreamerHandle;
+  G2D_GstVideoHandle := G2D_GstHandle;
+  G2D_GstAudioHandle := G2D_GstHandle;
+  G2D_GstAppHandle := G2D_GstHandle;
+{$ELSE}
+  LGstLibraryName := _GstLibraryName('gstreamer-1.0-0.dll', 'gstreamer-1.0');
+  LGstVideoLibraryName := _GstLibraryName('gstvideo-1.0-0.dll', 'gstvideo-1.0');
+  LGstAudioLibraryName := _GstLibraryName('gstaudio-1.0-0.dll', 'gstaudio-1.0');
+  LGstAppLibraryName := _GstLibraryName('gstapp-1.0-0.dll', 'gstapp-1.0');
+
+  G2D_GstHandle := G2DLoadLibrary(LGstLibraryName);
   if G2D_GstHandle = 0 then
-    raise EG2DGstError.Create('Failed to load GStreamer DLL: gstreamer-1.0-0.dll');
+    raise EG2DGstError.CreateFmt('Failed to load GStreamer library: %s (%s)',
+      [LGstLibraryName, G2DLastLoadError]);
 
-  G2D_GstVideoHandle := G2D_LoadDLLModule(PChar('gstvideo-1.0-0.dll'));
+  G2D_GstVideoHandle := G2DLoadLibrary(LGstVideoLibraryName);
   if G2D_GstVideoHandle = 0 then
-    raise EG2DGstError.Create('Failed to load GStreamer DLL: gstvideo-1.0-0.dll');
+    raise EG2DGstError.CreateFmt('Failed to load GStreamer library: %s (%s)',
+      [LGstVideoLibraryName, G2DLastLoadError]);
 
-  G2D_GstAudioHandle := G2D_LoadDLLModule(PChar('gstaudio-1.0-0.dll'));
+  G2D_GstAudioHandle := G2DLoadLibrary(LGstAudioLibraryName);
   if G2D_GstAudioHandle = 0 then
-    raise EG2DGstError.Create('Failed to load GStreamer DLL: gstaudio-1.0-0.dll');
+    raise EG2DGstError.CreateFmt('Failed to load GStreamer library: %s (%s)',
+      [LGstAudioLibraryName, G2DLastLoadError]);
 
-  G2D_GstAppHandle := G2D_LoadDLLModule(PChar('gstapp-1.0-0.dll'));
+  G2D_GstAppHandle := G2DLoadLibrary(LGstAppLibraryName);
   if G2D_GstAppHandle = 0 then
-    raise EG2DGstError.Create('Failed to load GStreamer DLL: gstapp-1.0-0.dll');
+    raise EG2DGstError.CreateFmt('Failed to load GStreamer library: %s (%s)',
+      [LGstAppLibraryName, G2DLastLoadError]);
+{$ENDIF}
 
   try
     _BindGstFunctions;
     G2D_GstLoaded := True;
     Result := True;
   except
-    FreeLibrary(G2D_GstHandle);
+{$IF not Defined(ANDROID)}
+    G2DUnloadLibrary(G2D_GstHandle);
     G2D_GstHandle := 0;
-    FreeLibrary(G2D_GstVideoHandle);
+    G2DUnloadLibrary(G2D_GstVideoHandle);
     G2D_GstVideoHandle := 0;
-    FreeLibrary(G2D_GstAudioHandle);
+    G2DUnloadLibrary(G2D_GstAudioHandle);
     G2D_GstAudioHandle := 0;
-    FreeLibrary(G2D_GstAppHandle);
+    G2DUnloadLibrary(G2D_GstAppHandle);
     G2D_GstAppHandle := 0;
+{$ELSE}
+    G2D_GstHandle := 0;
+    G2D_GstVideoHandle := 0;
+    G2D_GstAudioHandle := 0;
+    G2D_GstAppHandle := 0;
+{$ENDIF}
     _ResetGstPointers;
     G2D_GstLoaded := False;
     raise;
@@ -711,26 +762,33 @@ end;
 
 procedure G2D_UnloadGst;
 begin
+{$IF not Defined(ANDROID)}
   if G2D_GstHandle <> 0 then
   begin
-    FreeLibrary(G2D_GstHandle);
+    G2DUnloadLibrary(G2D_GstHandle);
     G2D_GstHandle := 0;        { fixed: was wrongly zeroing G2D_GstVideoHandle }
   end;
   if G2D_GstVideoHandle <> 0 then
   begin
-    FreeLibrary(G2D_GstVideoHandle);
+    G2DUnloadLibrary(G2D_GstVideoHandle);
     G2D_GstVideoHandle := 0;
   end;
   if G2D_GstAudioHandle <> 0 then
   begin
-    FreeLibrary(G2D_GstAudioHandle);
+    G2DUnloadLibrary(G2D_GstAudioHandle);
     G2D_GstAudioHandle := 0;
   end;
   if G2D_GstAppHandle <> 0 then
   begin
-    FreeLibrary(G2D_GstAppHandle);
+    G2DUnloadLibrary(G2D_GstAppHandle);
     G2D_GstAppHandle := 0;
   end;
+{$ELSE}
+  G2D_GstHandle := 0;
+  G2D_GstVideoHandle := 0;
+  G2D_GstAudioHandle := 0;
+  G2D_GstAppHandle := 0;
+{$ENDIF}
 
   _ResetGstPointers;
   G2D_GstLoaded := False;

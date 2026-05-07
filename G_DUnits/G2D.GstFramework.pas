@@ -3,8 +3,13 @@ unit G2D.GstFramework;
 interface
 
 uses
-  System.SysUtils, Winapi.Windows, System.Classes, System.Generics.Collections,
-  Vcl.Forms, Vcl.AppEvnts, Vcl.ExtCtrls, Vcl.ComCtrls, Vcl.StdCtrls,
+  System.SysUtils, System.Classes, System.Generics.Collections,
+  {$IF Defined(MSWINDOWS)}
+  Winapi.Windows, Vcl.Forms, Vcl.AppEvnts, Vcl.ExtCtrls, Vcl.ComCtrls,
+  Vcl.StdCtrls,
+  {$ELSE}
+  FMX.Types,
+  {$ENDIF}
 
   G2D.Glib.API,
   G2D.Gobject.API,
@@ -30,6 +35,12 @@ type
 
   EG2DGstFrameworkError = class(Exception);
 
+  {$IF Defined(MSWINDOWS)}
+  TG2DWindowHandle = HWnd;
+  {$ELSE}
+  TG2DWindowHandle = NativeUInt;
+  {$ENDIF}
+
   PG2DDynamicPadLinkData = ^TG2DDynamicPadLinkData;
   TG2DDynamicPadLinkData = record
     Framework: Pointer;
@@ -47,7 +58,9 @@ type
     FWriteStateChange: Boolean;
     FPipeline: TGstPipelineRef;
     FBus: TGstBusRef;
+    {$IF Defined(MSWINDOWS)}
     FAppEvents: TApplicationEvents;       // replaces Application.OnIdle hook
+    {$ENDIF}
 
     FLastMessageType: GstMessageType;
     FLastErrorText: string;
@@ -71,9 +84,12 @@ type
     procedure ClearPipeline;
     function GetState: GstState;
 
+    {$IF Defined(MSWINDOWS)}
     procedure AppIdle(Sender: TObject; var Done: Boolean);
+    {$ENDIF}
     procedure FTimer100mSecOnPlay(Sender:TObject);
     function GetVersionString: string;
+    procedure InitializeGStreamer;
 
   public
     constructor Create(WriteStateChange: Boolean = False);
@@ -86,7 +102,8 @@ type
       ARunMode: TGstRunMode): Boolean;
     Function Build(const APipelineDescription: string): Boolean;
     function BuildAndPlay(const APipelineDescription: string): Boolean;
-    function SetVisualWindow(const AElementName: string; AWnd: HWnd): Boolean;
+    function SetVisualWindow(const AElementName: string;
+      AWnd: TG2DWindowHandle): Boolean;
     function SetVisualRectangle(const AElementName: string;
       AX, AY, AWidth, AHeight: Integer): Boolean;
 
@@ -157,6 +174,11 @@ var
 //=============================================================================
 implementation
 
+{$IF Defined(ANDROID)}
+uses
+  G2D.Gst.Android.Bootstrap;
+{$ENDIF}
+
 var
   GManagedFactories: TDictionary<string, TG2DManagedFactoryCreate>;
 
@@ -213,6 +235,7 @@ begin
   Result := Format('%d:%.2d:%.2d.%.3d', [Hours, Minutes, Seconds, Milisec]);
 end;
 
+{$IF Defined(MSWINDOWS)}
 {help for finding GST_PLUGIN_PATH}
 procedure ConfigureGStreamerPluginSearchPath;
 var
@@ -232,33 +255,17 @@ begin
     Dir := ParentDir;
   until False;
 end;
+{$ENDIF}
 { TGstFramework }
 
-constructor TGstFramework.Create(WriteStateChange: Boolean = False);
+procedure TGstFramework.InitializeGStreamer;
 begin
-  inherited Create;
-  { GStreamer invokes Delphi callbacks from native worker threads.
-    The Delphi RTL does not know about those threads.
-    so IsMultiThread forces Delphi RTL/memory manager into thread-safe mode,
-    before gst_init. }
-  System.IsMultiThread := True;
-  if GetConsoleWindow = 0 then LogWrite := nil;
-  FWriteStateChange := WriteStateChange;
-  FStarted := False;
-  FTimer := TTimer.Create(nil);
-  FTimer.Interval := 100;
-  FTimer.OnTimer := FTimer100mSecOnPlay;
-  FTimer.Enabled := True;
-  FDuration := -1;
-  FState := GST_STATE_NULL;
-  FPipeline := nil;
-  FBus := nil;
-  FAppEvents := nil;
-  FLastMessageType := 0;
-  FLastErrorText := '';
-  FLastDebugText := '';
-  FReachedEOS := False;
-  FManagedObjects := TObjectDictionary<string, TObject>.Create([doOwnsValues]);
+  {$IF Defined(ANDROID)}
+  if not G2DInitializeAndroidGStreamer then
+    raise EG2DGstFrameworkError.Create(
+      'Android GStreamer bootstrap failed: ' +
+      G2DAndroidGStreamerLastError);
+  {$ENDIF}
 
   if not G2D_LoadGlib then
     raise EG2DGstFrameworkError.Create('GLib load failed');
@@ -269,20 +276,56 @@ begin
   if not G2D_LoadGst then
     raise EG2DGstFrameworkError.Create('GStreamer load failed');
 
-  If not NormalGstSearch then
+  {$IF Defined(MSWINDOWS)}
+  if not NormalGstSearch then
     ConfigureGStreamerPluginSearchPath;
   {debug
   SetEnvironmentVariable('GST_DEBUG', 'GST_PLUGIN_LOADING:5');
   SetEnvironmentVariable('GST_DEBUG_FILE', 'C:\Temp\gst_debug.log');
   {}
+  {$ENDIF}
 
   _gst_init(nil, nil);
 
   if _gst_is_initialized() = 0 then
     raise EG2DGstFrameworkError.Create('GStreamer initialization failed');
+end;
+
+constructor TGstFramework.Create(WriteStateChange: Boolean = False);
+begin
+  inherited Create;
+  { GStreamer invokes Delphi callbacks from native worker threads.
+    The Delphi RTL does not know about those threads.
+    so IsMultiThread forces Delphi RTL/memory manager into thread-safe mode,
+    before gst_init. }
+  System.IsMultiThread := True;
+  {$IF Defined(MSWINDOWS)}
+  if GetConsoleWindow = 0 then LogWrite := nil;
+  {$ENDIF}
+  FWriteStateChange := WriteStateChange;
+  FStarted := False;
+  FTimer := TTimer.Create(nil);
+  FTimer.Interval := 100;
+  FTimer.OnTimer := FTimer100mSecOnPlay;
+  FTimer.Enabled := True;
+  FDuration := -1;
+  FState := GST_STATE_NULL;
+  FPipeline := nil;
+  FBus := nil;
+  {$IF Defined(MSWINDOWS)}
+  FAppEvents := nil;
+  {$ENDIF}
+  FLastMessageType := 0;
+  FLastErrorText := '';
+  FLastDebugText := '';
+  FReachedEOS := False;
+  FManagedObjects := TObjectDictionary<string, TObject>.Create([doOwnsValues]);
+
+  InitializeGStreamer;
 
   SetLength(FDynamicPadLinks, 0);
 
+  {$IF Defined(MSWINDOWS)}
   // Hook into the VCL idle loop safely - TApplicationEvents chains with
   // any other OnIdle handlers already registered in the application.
   if Assigned(Application) then
@@ -290,13 +333,16 @@ begin
     FAppEvents := TApplicationEvents.Create(nil);
     FAppEvents.OnIdle := AppIdle;
   end;
+  {$ENDIF}
 
   FStarted := True;
 end;
 
 destructor TGstFramework.Destroy;
 begin
+  {$IF Defined(MSWINDOWS)}
   FreeAndNil(FAppEvents);
+  {$ENDIF}
   FreeAndNil(FTimer);
   try
     Close;
@@ -334,6 +380,7 @@ end;
 
 class procedure TGstFrameWork.SetStringsLogger(m: TStrings);
 begin
+  {$IF Defined(MSWINDOWS)}
   if Assigned(m) and Assigned(Application) then
   begin
     fStringsLogger := m;
@@ -342,15 +389,18 @@ begin
   else if Assigned(Application) then
     LogWrite := DoNullWrite
   else
+  {$ENDIF}
     LogWrite := stdWrite;
 end;
 
 var DCnt:integer=0;    { TODO : remove }
+{$IF Defined(MSWINDOWS)}
 procedure TGstFramework.AppIdle(Sender: TObject; var Done: Boolean);
 begin
 Inc(DCnt);
   RunFor(0);
 end;
+{$ENDIF}
 
 function TGstFramework.NewPipeline(const AName: string): Boolean;
 begin
@@ -743,7 +793,7 @@ begin
 end;
 
 function TGstFramework.SetVisualWindow(const AElementName: string;
-  AWnd: HWnd): Boolean;
+  AWnd: TG2DWindowHandle): Boolean;
 var
   Elem: TGstElementRef;
 begin
