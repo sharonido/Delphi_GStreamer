@@ -99,9 +99,6 @@ The current project setup is primarily intended for 64-bit Delphi builds.
   Delphi versions of the official GStreamer tutorials
 - [Building new Elements](./Tutorials/Building%20new%20Elements)
   Examples of custom filters/elements written in Delphi
-- [Uni-Tests](./Uni-Tests)
-  Unit tests and validation work
-
 ### Other folders
 
 - [DLLs](./DLLs)
