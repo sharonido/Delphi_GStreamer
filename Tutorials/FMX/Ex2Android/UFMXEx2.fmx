@@ -1,0 +1,99 @@
+object Form1: TForm1
+  Left = 0
+  Top = 0
+  Caption = 'Form1'
+  ClientHeight = 480
+  ClientWidth = 299
+  FormFactor.Width = 320
+  FormFactor.Height = 480
+  FormFactor.Devices = [Desktop]
+  OnCreate = FormCreate
+  OnDestroy = FormDestroy
+  DesignerMasterStyle = 0
+  object Memo1: TMemo
+    Touch.InteractiveGestures = [Pan, LongTap, DoubleTap]
+    DataDetectorTypes = []
+    ReadOnly = True
+    Align = MostBottom
+    Position.Y = 272.000000000000000000
+    Size.Width = 299.000000000000000000
+    Size.Height = 208.000000000000000000
+    Size.PlatformDefault = False
+    TabOrder = 3
+    Viewport.Width = 295.000000000000000000
+    Viewport.Height = 204.000000000000000000
+  end
+  object SurfaceHost: TLayout
+    Align = Client
+    HitTest = True
+    Size.Width = 299.000000000000000000
+    Size.Height = 194.000000000000000000
+    Size.PlatformDefault = False
+    TabOrder = 4
+    OnClick = SurfaceHostClick
+    object Rectangle1: TRectangle
+      Position.X = 88.000000000000000000
+      Position.Y = 88.000000000000000000
+      Size.Width = 50.000000000000000000
+      Size.Height = 50.000000000000000000
+      Size.PlatformDefault = False
+      OnClick = SurfaceHostClick
+    end
+  end
+  object GroupBox1: TGroupBox
+    Align = MostTop
+    StyledSettings = [Family, Style, FontColor, Other]
+    Size.Width = 299.000000000000000000
+    Size.Height = 54.000000000000000000
+    Size.PlatformDefault = False
+    Text = 'Video pattern'
+    TextSettings.Font.Size = 11.000000000000000000
+    TabOrder = 2
+    OnClick = GroupBox1Click
+    object NumberBox1: TNumberBox
+      Touch.InteractiveGestures = [LongTap, DoubleTap]
+      TabOrder = 38
+      Cursor = crIBeam
+      DecimalDigits = 1
+      Max = 9.000000000000000000
+      Position.X = 89.000000000000000000
+      Position.Y = 8.000000000000000000
+      Size.Width = 20.000000000000000000
+      Size.Height = 22.000000000000000000
+      Size.PlatformDefault = False
+    end
+    object Label1: TLabel
+      AutoSize = True
+      StyledSettings = [Family, Style, FontColor]
+      Position.X = 8.000000000000000000
+      Position.Y = 15.000000000000000000
+      Size.Width = 73.000000000000000000
+      Size.Height = 16.000000000000000000
+      Size.PlatformDefault = False
+      TextSettings.HorzAlign = Trailing
+      Text = 'Pattern #'
+      TabOrder = 39
+    end
+    object Label2: TLabel
+      Align = MostBottom
+      AutoSize = True
+      StyledSettings = [Family, Style, FontColor]
+      Position.Y = 38.000000000000000000
+      Size.Width = 299.000000000000000000
+      Size.Height = 16.000000000000000000
+      Size.PlatformDefault = False
+      TextSettings.HorzAlign = Center
+      Text = 'Enter 0-9 for different video patterns'
+      TabOrder = 40
+    end
+  end
+  object Splitter1: TSplitter
+    Align = Bottom
+    Cursor = crVSplit
+    MinSize = 20.000000000000000000
+    Position.Y = 248.000000000000000000
+    Size.Width = 299.000000000000000000
+    Size.Height = 24.000000000000000000
+    Size.PlatformDefault = False
+  end
+end

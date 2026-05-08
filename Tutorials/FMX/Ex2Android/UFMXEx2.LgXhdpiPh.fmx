@@ -1,0 +1,25 @@
+inherited Form1_LgXhdpiPh: TForm1_LgXhdpiPh
+  ClientHeight = 695
+  ClientWidth = 450
+  DesignerMasterStyle = 0
+  inherited Memo1: TMemo
+    Position.Y = 487.000000000000000000
+    Size.Width = 450.000000000000000000
+    Viewport.Width = 450.000000000000000000
+    Viewport.Height = 208.000000000000000000
+  end
+  inherited SurfaceHost: TLayout
+    Size.Width = 450.000000000000000000
+    Size.Height = 409.000000000000000000
+  end
+  inherited GroupBox1: TGroupBox
+    Size.Width = 450.000000000000000000
+    inherited Label2: TLabel
+      Size.Width = 450.000000000000000000
+    end
+  end
+  inherited Splitter1: TSplitter
+    Position.Y = 463.000000000000000000
+    Size.Width = 450.000000000000000000
+  end
+end
