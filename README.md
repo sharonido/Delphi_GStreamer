@@ -9,7 +9,12 @@ Its goal is to let Delphi developers build multimedia applications and custom me
 - tutorial ports and examples
 - examples of building custom audio and video filters in Delphi
 
-The project currently focuses on practical Windows desktop development with 64-bit Delphi.
+The project is currently tested mostly with practical Delphi VCL Windows desktop
+development using 64-bit builds. It can also compile and run with Delphi FMX, and
+the repository includes an Android FMX video example that installs and runs on an
+Android device. Explaining Delphi FMX deployment for Android, iOS, and other
+mobile targets is beyond the scope of this project and is assumed to be handled
+by experienced Delphi developers.
 
 ## Current Status
 This project is still evolving but the main branch is stable.
@@ -30,8 +35,9 @@ Current limitations:
 
 - mainly tested on Windows 10/11 & Delphi 10 or above
 - mainly tested with 64-bit builds on Delphi VCL
-- There is a Delphi FMX example under Tutorials\FMX but it is very limited
-- I will also provide a small android example
+- FMX examples are available under Tutorials\FMX:
+  - a Win64 FMX video overlay example
+  - an Android FMX example that initializes GStreamer and renders `videotestsrc`
 
 ## Who This Is For
 
@@ -97,6 +103,8 @@ The current project setup is primarily intended for 64-bit Delphi builds.
 
 - [Tutorials](./Tutorials)
   Delphi versions of the official GStreamer tutorials
+- [FMX Tutorials](./Tutorials/FMX)
+  FireMonkey examples for Win64 and Android
 - [Building new Elements](./Tutorials/Building%20new%20Elements)
   Examples of custom filters/elements written in Delphi
 ### Other folders
@@ -117,6 +125,14 @@ In general:
 - `example1`, `example2`, ... map to the corresponding tutorial topics
 - console and VCL examples are both included
 - files with `W` in the name are typically VCL / windowed examples
+
+FMX examples live under [Tutorials/FMX](./Tutorials/FMX):
+
+- [Ex2Win](./Tutorials/FMX/Ex2Win)
+  Win64 FireMonkey version of tutorial 2.
+- [Ex2Android](./Tutorials/FMX/Ex2Android)
+  Android FireMonkey version of tutorial 2. It uses the Android GStreamer bootstrap,
+  renders `videotestsrc` into an Android surface, and allows switching the video pattern.
 
 If you are new to G2D, this is the best place to start.
 
