@@ -25,7 +25,8 @@ uses
   G2D.OpenCV.API in '..\..\..\..\G_API\G2D.OpenCV.API.pas',
   G2D.CustomSimpleAudioElement in '..\..\..\..\G_DUnits\G2D.CustomSimpleAudioElement.pas',
   G2D.GstFFT.API in '..\..\..\..\G_API\G2D.GstFFT.API.pas',
-  UAnalyzerFilters in 'UAnalyzerFilters.pas';
+  UAnalyzerFilters in 'UAnalyzerFilters.pas',
+  G2D.API.Loader in '..\..\..\..\G_API\G2D.API.Loader.pas';
 
 //{$R *.res}
 

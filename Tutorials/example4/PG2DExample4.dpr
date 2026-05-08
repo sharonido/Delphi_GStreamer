@@ -20,7 +20,8 @@ uses
   G2D.GstFramework in '..\..\G_DUnits\G2D.GstFramework.pas',
   G2D.Glib.Types in '..\..\G_Types\G2D.Glib.Types.pas',
   G2D.Gobject.Types in '..\..\G_Types\G2D.Gobject.Types.pas',
-  G2D.Gst.Types in '..\..\G_Types\G2D.Gst.Types.pas';
+  G2D.Gst.Types in '..\..\G_Types\G2D.Gst.Types.pas',
+  G2D.API.Loader in '..\..\G_API\G2D.API.Loader.pas';
 
 var
   GStreamer: TGstFramework;

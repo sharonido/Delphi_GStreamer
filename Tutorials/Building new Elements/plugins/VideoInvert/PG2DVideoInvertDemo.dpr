@@ -18,7 +18,8 @@ uses
   G2D.GstPipeline.DOO in '..\..\..\..\G_DBase\G2D.GstPipeline.DOO.pas',
   G2D.Glib.Types in '..\..\..\..\G_Types\G2D.Glib.Types.pas',
   G2D.Gobject.Types in '..\..\..\..\G_Types\G2D.Gobject.Types.pas',
-  G2D.Gst.Types in '..\..\..\..\G_Types\G2D.Gst.Types.pas';
+  G2D.Gst.Types in '..\..\..\..\G_Types\G2D.Gst.Types.pas',
+  G2D.API.Loader in '..\..\..\..\G_API\G2D.API.Loader.pas';
 
 begin
   Application.Initialize;

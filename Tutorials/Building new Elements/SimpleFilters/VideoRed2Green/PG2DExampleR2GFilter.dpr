@@ -21,7 +21,8 @@ uses
   WinConsoleFunction in '..\..\..\WinConsoleFunction.pas',
   G2D.GstApp.DOO in '..\..\..\..\G_DBase\G2D.GstApp.DOO.pas',
   G2D.CustomSimpleBaseElement in '..\..\..\..\G_DUnits\G2D.CustomSimpleBaseElement.pas',
-  G2D.CustomSimpleVideoElement in '..\..\..\..\G_DUnits\G2D.CustomSimpleVideoElement.pas';
+  G2D.CustomSimpleVideoElement in '..\..\..\..\G_DUnits\G2D.CustomSimpleVideoElement.pas',
+  G2D.API.Loader in '..\..\..\..\G_API\G2D.API.Loader.pas';
 
 //{$R *.res}
 

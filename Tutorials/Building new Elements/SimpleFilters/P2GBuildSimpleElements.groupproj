@@ -12,6 +12,9 @@
         <Projects Include="VideoPutTextOnVideo\PG2DExTextFilter.dproj">
             <Dependencies/>
         </Projects>
+        <Projects Include="RealVideoPutTextOnVideo\PG2DRealVideoTextFilter.dproj">
+            <Dependencies/>
+        </Projects>
         <Projects Include="VideoRotateWithOpenCv\PG2RotateWOpenCV.dproj">
             <Dependencies/>
         </Projects>
@@ -56,6 +59,15 @@
     <Target Name="PG2DExTextFilter:Make">
         <MSBuild Projects="VideoPutTextOnVideo\PG2DExTextFilter.dproj" Targets="Make"/>
     </Target>
+    <Target Name="PG2DRealVideoTextFilter">
+        <MSBuild Projects="RealVideoPutTextOnVideo\PG2DRealVideoTextFilter.dproj"/>
+    </Target>
+    <Target Name="PG2DRealVideoTextFilter:Clean">
+        <MSBuild Projects="RealVideoPutTextOnVideo\PG2DRealVideoTextFilter.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="PG2DRealVideoTextFilter:Make">
+        <MSBuild Projects="RealVideoPutTextOnVideo\PG2DRealVideoTextFilter.dproj" Targets="Make"/>
+    </Target>
     <Target Name="PG2RotateWOpenCV">
         <MSBuild Projects="VideoRotateWithOpenCv\PG2RotateWOpenCV.dproj"/>
     </Target>
@@ -84,13 +96,13 @@
         <MSBuild Projects="AudioAnalyzer\PG2DAudioAnalyzer.dproj" Targets="Make"/>
     </Target>
     <Target Name="Build">
-        <CallTarget Targets="PG2DExampleDoNothingFilter;PG2DExampleR2GFilter;PG2DExTextFilter;PG2RotateWOpenCV;PG2DAudioEqualizer;PG2DAudioAnalyzer"/>
+        <CallTarget Targets="PG2DExampleDoNothingFilter;PG2DExampleR2GFilter;PG2DExTextFilter;PG2DRealVideoTextFilter;PG2RotateWOpenCV;PG2DAudioEqualizer;PG2DAudioAnalyzer"/>
     </Target>
     <Target Name="Clean">
-        <CallTarget Targets="PG2DExampleDoNothingFilter:Clean;PG2DExampleR2GFilter:Clean;PG2DExTextFilter:Clean;PG2RotateWOpenCV:Clean;PG2DAudioEqualizer:Clean;PG2DAudioAnalyzer:Clean"/>
+        <CallTarget Targets="PG2DExampleDoNothingFilter:Clean;PG2DExampleR2GFilter:Clean;PG2DExTextFilter:Clean;PG2DRealVideoTextFilter:Clean;PG2RotateWOpenCV:Clean;PG2DAudioEqualizer:Clean;PG2DAudioAnalyzer:Clean"/>
     </Target>
     <Target Name="Make">
-        <CallTarget Targets="PG2DExampleDoNothingFilter:Make;PG2DExampleR2GFilter:Make;PG2DExTextFilter:Make;PG2RotateWOpenCV:Make;PG2DAudioEqualizer:Make;PG2DAudioAnalyzer:Make"/>
+        <CallTarget Targets="PG2DExampleDoNothingFilter:Make;PG2DExampleR2GFilter:Make;PG2DExTextFilter:Make;PG2DRealVideoTextFilter:Make;PG2RotateWOpenCV:Make;PG2DAudioEqualizer:Make;PG2DAudioAnalyzer:Make"/>
     </Target>
     <Import Project="$(BDS)\Bin\CodeGear.Group.Targets" Condition="Exists('$(BDS)\Bin\CodeGear.Group.Targets')"/>
 </Project>

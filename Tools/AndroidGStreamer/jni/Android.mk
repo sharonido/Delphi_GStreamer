@@ -29,9 +29,9 @@ GSTREAMER_NDK_BUILD_PATH := $(GSTREAMER_ROOT)/share/gst-android/ndk-build
 
 include $(GSTREAMER_NDK_BUILD_PATH)/plugins.mk
 
-# Step 3 only needs gst_init/gst_version_string. Keep this small for now.
-GSTREAMER_PLUGINS := coreelements
-GSTREAMER_EXTRA_DEPS := gstreamer-app-1.0 gstreamer-audio-1.0 gstreamer-video-1.0
+# Step 5 needs synthetic video, conversion, and an Android-capable GL sink.
+GSTREAMER_PLUGINS := $(GSTREAMER_PLUGINS_CORE) $(GSTREAMER_PLUGINS_SYS)
+GSTREAMER_EXTRA_DEPS := gstreamer-app-1.0 gstreamer-audio-1.0 gstreamer-video-1.0 gstreamer-gl-1.0
 GSTREAMER_INCLUDE_FONTS := no
 
 include $(GSTREAMER_NDK_BUILD_PATH)/gstreamer-1.0.mk

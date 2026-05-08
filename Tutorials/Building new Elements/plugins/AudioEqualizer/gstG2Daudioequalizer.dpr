@@ -31,7 +31,8 @@ uses
   G2D.Plugin.Element in '..\..\..\..\G_DPlugin\G2D.Plugin.Element.pas',
   G2D.Plugin.BaseFilter in '..\..\..\..\G_DPlugin\G2D.Plugin.BaseFilter.pas',
   G2D.Plugin.AudioFilter in '..\..\..\..\G_DPlugin\G2D.Plugin.AudioFilter.pas',
-  G2D.Plugin.AudioEqualizer in 'G2D.Plugin.AudioEqualizer.pas';
+  G2D.Plugin.AudioEqualizer in 'G2D.Plugin.AudioEqualizer.pas',
+  G2D.API.Loader in '..\..\..\..\G_API\G2D.API.Loader.pas';
 
 const
   G2D_PLUGIN_NAME             = 'g2daudioequalizer';

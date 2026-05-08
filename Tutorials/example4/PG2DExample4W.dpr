@@ -17,7 +17,8 @@ uses
   G2D.Glib.Types in '..\..\G_Types\G2D.Glib.Types.pas',
   G2D.Gobject.Types in '..\..\G_Types\G2D.Gobject.Types.pas',
   G2D.Gst.Types in '..\..\G_Types\G2D.Gst.Types.pas',
-  WinConsoleFunction in '..\WinConsoleFunction.pas';
+  WinConsoleFunction in '..\WinConsoleFunction.pas',
+  G2D.API.Loader in '..\..\G_API\G2D.API.Loader.pas';
 
 {$R *.res}
 

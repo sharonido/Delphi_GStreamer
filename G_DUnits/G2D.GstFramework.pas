@@ -380,13 +380,15 @@ end;
 
 class procedure TGstFrameWork.SetStringsLogger(m: TStrings);
 begin
-  {$IF Defined(MSWINDOWS)}
-  if Assigned(m) and Assigned(Application) then
+  fStringsLogger := m;
+  if Assigned(m) then
   begin
-    fStringsLogger := m;
-    LogWrite := GstWriteLog; // re-route activity log to the memo instead of console
-  end
-  else if Assigned(Application) then
+    LogWrite := GstWriteLog;
+    Exit;
+  end;
+
+  {$IF Defined(MSWINDOWS)}
+  if Assigned(Application) then
     LogWrite := DoNullWrite
   else
   {$ENDIF}
